@@ -404,7 +404,15 @@
 
   // Initialize Firestore
   const db = getFirestore(app);
+
 window.db = db;
+window.addDoc = addDoc;
+window.getDocs = getDocs;
+window.collection = collection;
+window.doc = doc;
+window.getDoc = getDoc;
+window.updateDoc = updateDoc;
+window.deleteDoc = deleteDoc;
 
 
 // TEST FUNCTIONS
