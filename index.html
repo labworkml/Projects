@@ -255,106 +255,24 @@
             document.getElementById('designExercise').focus();
         }
 
-        async function finalizeDesignSession() {
-            const date = document.getElementById('designDate').value;
-            if (!date) { alert('Please select a date for the session'); return; }
-            if (designItems.length === 0) { alert('Please add at least one type/exercise'); return; }
-            
-            try {
-                const sessionData = {
-                    date,
-                    items: designItems.slice(),
-                    created: Date.now()
-                };
-                
-                if (editingSessionIndex !== null) {
-                    // Update existing document
-                    await updateDoc(doc(db, 'sessions', editingSessionIndex), sessionData);
-                } else {
-                    // Create new document
-                    await addDoc(collection(db, 'sessions'), sessionData);
-                }
-                
-                designItems = [];
-                renderDesignItems();
-                document.getElementById('designForm').reset();
-                document.getElementById('morePrompt').style.display = 'none';
-                await renderSessionsList();
-                const btn = Array.from(document.querySelectorAll('.tab-button')).find(b => b.dataset.tab === 'sessions');
-                editingSessionIndex = null;
-                switchTab('sessions', btn || null);
-            } catch (error) {
-                alert('Error saving session: ' + error.message);
-                console.error(error);
-            }
+        function finalizeDesignSession() {
+            // This will be defined in the module script
+            window.firebaseFinalizeDesignSession();
         }
 
-        async function renderSessionsList() {
-            const listEl = document.getElementById('sessionsList');
-            if (!listEl) return;
-
-            const snapshot = await getDocs(collection(db, "sessions"));
-
-            if (snapshot.empty) {
-                listEl.innerHTML = '<li>No sessions planned yet.</li>';
-                return;
-            }
-
-            let html = "";
-
-            snapshot.forEach(docSnap => {
-                const s = docSnap.data();
-                const id = docSnap.id;
-
-                const items = s.items
-                    .map(it => `<div>${it.type}: ${it.exercise} — ${it.minutes} min</div>`)
-                    .join('');
-
-                html += `
-            <li>
-              <div style="display:flex;justify-content:space-between;align-items:center">
-                <strong>${s.date}</strong>
-                <div>
-                  <button onclick="editSession('${id}')" class="submit-btn">Edit</button>
-                  <button onclick="deleteSession('${id}')" style="background:#ef4444;border:none;padding:.55rem .8rem;border-radius:8px;color:#fff;cursor:pointer">Delete</button>
-                </div>
-              </div>
-              <div style="margin-top:0.5rem;">${items}</div>
-            </li>
-        `;
-            });
-
-            listEl.innerHTML = html;
+        function renderSessionsList() {
+            // This will be defined in the module script
+            window.firebaseRenderSessionsList();
         }
 
-        async function editSession(docId) {
-            try {
-                const docRef = doc(db, 'sessions', docId);
-                const docSnap = await getDoc(docRef);
-                if (!docSnap.exists()) return alert('Session not found');
-                
-                const s = docSnap.data();
-                document.getElementById('designDate').value = s.date;
-                designItems = s.items.slice();
-                editingSessionIndex = docId;
-                renderDesignItems();
-                const btn = Array.from(document.querySelectorAll('.tab-button')).find(b => b.dataset.tab === 'design');
-                switchTab('design', btn || null);
-            } catch (error) {
-                alert('Error loading session: ' + error.message);
-                console.error(error);
-            }
+        function editSession(docId) {
+            // This will be defined in the module script
+            window.firebaseEditSession(docId);
         }
 
-        async function deleteSession(docId) {
-            if (!confirm('Delete this planned session?')) return;
-            try {
-                await deleteDoc(doc(db, 'sessions', docId));
-                await renderSessionsList();
-            } catch (error) {
-                alert('Error deleting session: ' + error.message);
-                console.error(error);
-            }
+        function deleteSession(docId) {
+            // This will be defined in the module script
+            window.firebaseDeleteSession(docId);
         }
 
         function planSession() {
@@ -413,6 +331,109 @@ window.doc = doc;
 window.getDoc = getDoc;
 window.updateDoc = updateDoc;
 window.deleteDoc = deleteDoc;
+
+// Firebase-dependent functions
+window.firebaseFinalizeDesignSession = async function() {
+    const date = document.getElementById('designDate').value;
+    if (!date) { alert('Please select a date for the session'); return; }
+    if (designItems.length === 0) { alert('Please add at least one type/exercise'); return; }
+    
+    try {
+        const sessionData = {
+            date,
+            items: designItems.slice(),
+            created: Date.now()
+        };
+        
+        if (editingSessionIndex !== null) {
+            // Update existing document
+            await updateDoc(doc(db, 'sessions', editingSessionIndex), sessionData);
+        } else {
+            // Create new document
+            await addDoc(collection(db, 'sessions'), sessionData);
+        }
+        
+        designItems = [];
+        renderDesignItems();
+        document.getElementById('designForm').reset();
+        document.getElementById('morePrompt').style.display = 'none';
+        await window.firebaseRenderSessionsList();
+        const btn = Array.from(document.querySelectorAll('.tab-button')).find(b => b.dataset.tab === 'sessions');
+        editingSessionIndex = null;
+        switchTab('sessions', btn || null);
+    } catch (error) {
+        alert('Error saving session: ' + error.message);
+        console.error(error);
+    }
+};
+
+window.firebaseRenderSessionsList = async function() {
+    const listEl = document.getElementById('sessionsList');
+    if (!listEl) return;
+
+    const snapshot = await getDocs(collection(db, "sessions"));
+
+    if (snapshot.empty) {
+        listEl.innerHTML = '<li>No sessions planned yet.</li>';
+        return;
+    }
+
+    let html = "";
+
+    snapshot.forEach(docSnap => {
+        const s = docSnap.data();
+        const id = docSnap.id;
+
+        const items = s.items
+            .map(it => `<div>${it.type}: ${it.exercise} — ${it.minutes} min</div>`)
+            .join('');
+
+        html += `
+    <li>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong>${s.date}</strong>
+        <div>
+          <button onclick="editSession('${id}')" class="submit-btn">Edit</button>
+          <button onclick="deleteSession('${id}')" style="background:#ef4444;border:none;padding:.55rem .8rem;border-radius:8px;color:#fff;cursor:pointer">Delete</button>
+        </div>
+      </div>
+      <div style="margin-top:0.5rem;">${items}</div>
+    </li>
+`;
+    });
+
+    listEl.innerHTML = html;
+};
+
+window.firebaseEditSession = async function(docId) {
+    try {
+        const docRef = doc(db, 'sessions', docId);
+        const docSnap = await getDoc(docRef);
+        if (!docSnap.exists()) return alert('Session not found');
+        
+        const s = docSnap.data();
+        document.getElementById('designDate').value = s.date;
+        designItems = s.items.slice();
+        editingSessionIndex = docId;
+        renderDesignItems();
+        const btn = Array.from(document.querySelectorAll('.tab-button')).find(b => b.dataset.tab === 'design');
+        switchTab('design', btn || null);
+    } catch (error) {
+        alert('Error loading session: ' + error.message);
+        console.error(error);
+    }
+};
+
+window.firebaseDeleteSession = async function(docId) {
+    if (!confirm('Delete this planned session?')) return;
+    try {
+        await deleteDoc(doc(db, 'sessions', docId));
+        await window.firebaseRenderSessionsList();
+    } catch (error) {
+        alert('Error deleting session: ' + error.message);
+        console.error(error);
+    }
+};
 
 
 // TEST FUNCTIONS
