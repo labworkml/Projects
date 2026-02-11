@@ -358,6 +358,24 @@
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const analytics = getAnalytics(app);
+  // Firestore imports
+import { getFirestore, addDoc, collection, getDocs }
+from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+// Initialize Firestore
+const db = getFirestore(app);
+
+// TEST FUNCTIONS
+window.saveSession = async function(session){
+    await addDoc(collection(db,"sessions"), session);
+    console.log("Saved:", session);
+}
+
+window.loadSessions = async function(){
+    const snapshot = await getDocs(collection(db,"sessions"));
+    snapshot.forEach(doc => console.log(doc.data()));
+}
+
 </script>
 </body>
 </html>
