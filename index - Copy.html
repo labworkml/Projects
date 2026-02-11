@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Tennis Training</title>
+    <style>
+        :root{
+            --bg:#f4f6f9;
+            --card:#ffffff;
+            --muted:#67748a;
+            --accent:#1abc9c;
+            --accent-600:#16a085;
+            --nav-bg:#243746;
+            --radius:12px;
+            --gap:1rem;
+            --max-width:1100px;
+            --shadow-sm: 0 4px 12px rgba(15,23,42,0.06);
+            --shadow-lg: 0 12px 30px rgba(15,23,42,0.09);
+            --glass: rgba(255,255,255,0.6);
+        }
+
+        *{box-sizing:border-box;margin:0;padding:0}
+        html,body{height:100%}
+        body{
+            font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+            background: linear-gradient(180deg,#f7fbfd 0%, var(--bg) 100%);
+            color:#12223a;
+            -webkit-font-smoothing:antialiased;
+            -moz-osx-font-smoothing:grayscale;
+            line-height:1.45;
+        }
+
+        .navbar{
+            background:var(--nav-bg);
+            padding:0.75rem 1rem;
+            position:sticky;top:0;z-index:40;
+            box-shadow:var(--shadow-sm);
+        }
+
+        .nav-tabs{
+            display:flex;gap:0.6rem;align-items:center;max-width:var(--max-width);margin:0 auto;padding:0 1rem;overflow:auto;
+        }
+
+        .tab-button{
+            white-space:nowrap;padding:0.6rem 1rem;border-radius:10px;border:none;background:transparent;color:#dbe7ef;font-weight:600;cursor:pointer;transition:all .18s ease;font-size:0.95rem;
+        }
+
+        .tab-button.active{background:linear-gradient(180deg,var(--accent),var(--accent-600));color:white;box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+
+        .container{max-width:var(--max-width);margin:2rem auto;padding:0 1rem}
+
+        .tab-content{display:none;background:var(--card);padding:1.5rem;border-radius:var(--radius);box-shadow:var(--shadow-sm)}
+        .tab-content.active{display:block}
+
+        h1{font-size:1.6rem;margin-bottom:0.75rem;color:#0f2540}
+        p{color:var(--muted);margin-bottom:1rem}
+
+        .form-group{margin-bottom:1rem}
+        label{display:block;margin-bottom:.4rem;color:#233348;font-weight:600;font-size:.95rem}
+
+        input,textarea,select{width:100%;padding:.75rem 1rem;border-radius:10px;border:1px solid #e6edf3;background:linear-gradient(180deg,#fff,#fcfeff);font-size:0.95rem;color:#0f2540}
+        textarea{min-height:110px;resize:vertical}
+
+        .submit-btn{background:var(--accent);color:white;padding:.7rem 1.15rem;border-radius:10px;border:none;font-weight:700;cursor:pointer;box-shadow:0 8px 20px rgba(26,188,156,0.12);transition:transform .12s ease,box-shadow .12s ease}
+        .submit-btn:hover{transform:translateY(-2px);background:var(--accent-600)}
+
+        /* Cards & lists */
+        .session-list{list-style:none;padding:0;margin:0}
+        .session-list li{display:block;padding:1rem;border-radius:12px;background:linear-gradient(180deg,#fff,#fbfdff);border:1px solid #eef4f8;margin-bottom:0.9rem;box-shadow:0 6px 18px rgba(15,23,42,0.04)}
+        .session-list li strong{display:block;margin-bottom:.5rem}
+
+        /* Design items list */
+        #designItemsList li{display:flex;align-items:center;justify-content:space-between;padding:.6rem .75rem;border-radius:8px;background:linear-gradient(180deg,#fbfdff,#ffffff);border:1px solid #eef4f8;margin-bottom:.5rem}
+        #designItemsList li button{background:transparent;border:1px solid #e6eef2;padding:.35rem .55rem;border-radius:8px;color:#234;color:#2b4b61;cursor:pointer}
+
+        /* Inline design button on home */
+        #designInlineBtn{padding:.75rem 1.1rem;border-radius:10px}
+
+        /* Small helpers */
+        .muted{color:var(--muted);font-size:.95rem}
+
+        /* Responsive adjustments */
+        @media (max-width:800px){
+            .nav-tabs{gap:.5rem;padding:0 .6rem}
+            h1{font-size:1.35rem}
+            .tab-content{padding:1rem}
+        }
+
+        @media (max-width:520px){
+            .nav-tabs{padding:0 .5rem;gap:.5rem}
+            .tab-button{padding:.6rem .85rem;font-size:.92rem}
+            .container{margin:1rem auto;padding:0 .75rem}
+            #designItemsList li{flex-direction:column;align-items:flex-start}
+            .session-list li{padding:.85rem}
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-tabs">
+            <button class="tab-button active" data-tab="home" onclick="switchTab('home', this)">Home</button>
+            <button class="tab-button" data-tab="sessions" onclick="switchTab('sessions', this)">Sessions</button>
+            <button class="tab-button" data-tab="match" onclick="switchTab('match', this)">Match</button>
+            <button class="tab-button" data-tab="history" onclick="switchTab('history', this)">History</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Home Tab -->
+        <div id="home" class="tab-content active">
+            <h1>Welcome to My Tennis Training</h1>
+            <p style="margin-bottom:1rem;color:#555">Use the button below to design a new session.</p>
+            <div style="margin-top:1rem;">
+                <button class="submit-btn" id="designInlineBtn" onclick="switchTab('design', this)">Design Your Session</button>
+            </div>
+        </div>
+
+        <!-- Design Tab -->
+        <div id="design" class="tab-content">
+            <h1>Design Your Session</h1>
+            <form id="designForm" onsubmit="return false;">
+                <div class="form-group">
+                    <label for="designDate">Date:</label>
+                    <input type="date" id="designDate">
+                </div>
+                <div class="form-group">
+                    <label for="designType">Type:</label>
+                    <select id="designType" onchange="onDesignTypeChange()">
+                        <option value="">Select type...</option>
+                        <option value="Conditioning">Conditioning</option>
+                        <option value="Tennis Drills">Tennis Drills</option>
+                        <option value="Rallies">Rallies</option>
+                        <option value="Match Points">Match Points</option>
+                    </select>
+                </div>
+                <div class="form-group" id="exerciseGroup" style="display:none;">
+                    <label id="exerciseLabel" for="designExercise">Exercise:</label>
+                    <input type="text" id="designExercise" placeholder="Enter exercise name">
+                </div>
+                <div class="form-group" id="durationGroup" style="display:none;">
+                    <label for="designDuration">Time to allocate (minutes):</label>
+                    <input type="number" id="designDuration" min="1" placeholder="e.g., 15">
+                </div>
+                <div class="form-group">
+                    <button type="button" class="submit-btn" onclick="addDesignItem()">Add Type to Session</button>
+                </div>
+            </form>
+
+            <h3>Current Items</h3>
+            <ul id="designItemsList" style="list-style:none;padding-left:0;"></ul>
+
+            <div id="morePrompt" style="display:none;margin-top:1rem;">
+                <p>Would you like to add any more type?</p>
+                <button class="submit-btn" style="margin-right:1rem;" onclick="addAnother()">Yes, add another</button>
+                <button class="submit-btn" onclick="finalizeDesignSession()">No, finalize session</button>
+            </div>
+        </div>
+
+        <!-- Sessions Tab -->
+        <div id="sessions" class="tab-content">
+            <h1>Upcoming Sessions</h1>
+            <ul class="session-list" id="sessionsList"></ul>
+        </div>
+
+        <!-- Match Tab -->
+        <div id="match" class="tab-content">
+            <h1>Match Records</h1>
+            <p>Track your match performance here.</p>
+        </div>
+
+        <!-- History Tab -->
+        <div id="history" class="tab-content">
+            <h1>Training History</h1>
+            <p>View your past training sessions.</p>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabName, el) {
+            const contents = document.querySelectorAll('.tab-content');
+            const buttons = document.querySelectorAll('.tab-button');
+
+            contents.forEach(content => content.classList.remove('active'));
+            buttons.forEach(button => button.classList.remove('active'));
+
+            const target = document.getElementById(tabName);
+            if (target) target.classList.add('active');
+
+            // If an element was provided (nav button or inline button), mark it active
+            if (el) {
+                el.classList.add('active');
+                // If the element is a nav button with data-tab, nothing else to do
+                return;
+            }
+
+            // Otherwise try to find a nav button that matches the tabName and mark it active
+            const navBtn = Array.from(document.querySelectorAll('.tab-button')).find(b => b.dataset.tab === tabName);
+            if (navBtn) navBtn.classList.add('active');
+        }
+
+        let designItems = [];
+        let editingSessionIndex = null;
+
+        function onDesignTypeChange() {
+            const type = document.getElementById('designType').value;
+            const exerciseGroup = document.getElementById('exerciseGroup');
+            const durationGroup = document.getElementById('durationGroup');
+            const exerciseLabel = document.getElementById('exerciseLabel');
+            if (!type) {
+                exerciseGroup.style.display = 'none';
+                durationGroup.style.display = 'none';
+                return;
+            }
+            exerciseGroup.style.display = 'block';
+            durationGroup.style.display = 'block';
+            if (type === 'Conditioning') exerciseLabel.textContent = 'Conditioning Exercise:';
+            else if (type === 'Tennis Drills') exerciseLabel.textContent = 'Drill:';
+            else if (type === 'Rallies') exerciseLabel.textContent = 'Rally Type:';
+            else if (type === 'Match Points') exerciseLabel.textContent = 'Point Drill:';
+        }
+
+        function addDesignItem() {
+            const type = document.getElementById('designType').value;
+            const exercise = document.getElementById('designExercise').value.trim();
+            const minutes = parseInt(document.getElementById('designDuration').value, 10);
+            if (!type) { alert('Please select a type'); return; }
+            if (!exercise) { alert('Please enter the exercise/drill name'); return; }
+            if (!minutes || minutes <= 0) { alert('Please enter a valid time in minutes'); return; }
+            designItems.push({type, exercise, minutes});
+            renderDesignItems();
+            document.getElementById('morePrompt').style.display = 'block';
+        }
+
+        function renderDesignItems() {
+            const list = document.getElementById('designItemsList');
+            if (!list) return;
+            if (designItems.length === 0) {
+                list.innerHTML = '<li style="color:#666">No items yet</li>';
+                return;
+            }
+            list.innerHTML = designItems.map((it,i) => `\n                <li style="margin-bottom:0.5rem;">\n                  <strong>${it.type}</strong> — ${it.exercise} — ${it.minutes} min\n                  <button style="margin-left:0.75rem;" onclick="removeDesignItem(${i})">Remove</button>\n                </li>`).join('');
+        }
+
+        function removeDesignItem(index) {
+            designItems.splice(index,1);
+            renderDesignItems();
+            if (designItems.length === 0) document.getElementById('morePrompt').style.display = 'none';
+        }
+
+        function addAnother() {
+            document.getElementById('designExercise').value = '';
+            document.getElementById('designDuration').value = '';
+            document.getElementById('morePrompt').style.display = 'none';
+            document.getElementById('designExercise').focus();
+        }
+
+        function finalizeDesignSession() {
+            const date = document.getElementById('designDate').value;
+            if (!date) { alert('Please select a date for the session'); return; }
+            if (designItems.length === 0) { alert('Please add at least one type/exercise'); return; }
+            const sessions = JSON.parse(localStorage.getItem('planned_sessions') || '[]');
+            if (editingSessionIndex !== null && sessions[editingSessionIndex]) {
+                // replace existing session
+                sessions[editingSessionIndex] = Object.assign({}, sessions[editingSessionIndex], { date, items: designItems.slice() });
+            } else {
+                sessions.push({date, items: designItems.slice(), created: Date.now()});
+            }
+            localStorage.setItem('planned_sessions', JSON.stringify(sessions));
+            designItems = [];
+            renderDesignItems();
+            document.getElementById('designForm').reset();
+            document.getElementById('morePrompt').style.display = 'none';
+            renderSessionsList();
+            const btn = Array.from(document.querySelectorAll('.tab-button')).find(b => b.dataset.tab === 'sessions');
+            // clear editing state
+            editingSessionIndex = null;
+            switchTab('sessions', btn || null);
+        }
+
+        function renderSessionsList() {
+            const listEl = document.getElementById('sessionsList');
+            if (!listEl) return;
+            const sessions = JSON.parse(localStorage.getItem('planned_sessions') || '[]');
+            if (sessions.length === 0) {
+                listEl.innerHTML = '<li>No sessions planned yet. <a href="#" onclick="switchTab(\'design\', document.querySelector(\'.tab-button[data-tab=\\\"design\\\"]\'))">Design one now</a></li>';
+                return;
+            }
+            listEl.innerHTML = sessions.map((s, idx) => {
+                const items = s.items.map(it => `<div>${it.type}: ${it.exercise} — ${it.minutes} min</div>`).join('');
+                return `\n                    <li>\n                      <div style="display:flex;justify-content:space-between;align-items:center">\n                        <strong>${s.date}</strong>\n                        <div>\n                          <button onclick="editSession(${idx})" style="margin-right:.5rem" class="submit-btn">Edit</button>\n                          <button onclick="deleteSession(${idx})" style="background:#ef4444;border:none;padding:.55rem .8rem;border-radius:8px;color:#fff;cursor:pointer">Delete</button>\n                        </div>\n                      </div>\n                      <div style="margin-top:0.5rem;">${items}</div>\n                    </li>`;
+            }).join('');
+        }
+
+        function editSession(index) {
+            const sessions = JSON.parse(localStorage.getItem('planned_sessions') || '[]');
+            const s = sessions[index];
+            if (!s) return alert('Session not found');
+            // load session into design form
+            document.getElementById('designDate').value = s.date;
+            designItems = s.items.slice();
+            editingSessionIndex = index;
+            renderDesignItems();
+            // switch to design tab
+            // attempt to find the nav Sessions button to deactivate
+            const btn = Array.from(document.querySelectorAll('.tab-button')).find(b => b.dataset.tab === 'design');
+            switchTab('design', btn || null);
+        }
+
+        function deleteSession(index) {
+            if (!confirm('Delete this planned session?')) return;
+            const sessions = JSON.parse(localStorage.getItem('planned_sessions') || '[]');
+            if (!sessions[index]) return;
+            sessions.splice(index,1);
+            localStorage.setItem('planned_sessions', JSON.stringify(sessions));
+            renderSessionsList();
+        }
+
+        function planSession() {
+            const name = document.getElementById('sessionName').value;
+            const date = document.getElementById('sessionDate').value;
+            const duration = document.getElementById('sessionDuration').value;
+            const type = document.getElementById('sessionType').value;
+            
+            if (!name || !date || !duration) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            alert(`Session "${name}" planned for ${date}!`);
+            document.querySelector('form').reset();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderSessionsList();
+            renderDesignItems();
+        });
+    </script>
+</body>
+</html>
