@@ -593,11 +593,11 @@
         }
         .learn-modal{
             width:700px;
-            max-width:90%;
+            max-width:760px;
             background:#ffffff;
             border-radius:16px;
-            padding:28px;
-            box-shadow:0 24px 60px rgba(15,23,42,0.25);
+            padding:32px;
+            box-shadow:0 20px 50px rgba(0,0,0,0.15);
             position:relative;
         }
         .learn-modal-close{
@@ -614,24 +614,53 @@
             cursor:pointer;
         }
         .learn-modal-header{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
             font-weight:600;
             color:#0f2540;
-            margin-bottom:14px;
+            margin-bottom:18px;
         }
-        .learn-modal label{display:block;margin:12px 0 6px;font-weight:600;color:#374151}
+        .learn-modal-body{display:flex;flex-direction:column;gap:18px;transition:opacity 0.25s ease;}
+        .learn-modal label{display:block;margin:0 0 6px;font-weight:600;color:#374151}
+        .learn-modal .question-box,
+        .learn-modal .answer-box{
+            background:#f8fafc;
+            border:1px solid #e2e8f0;
+            border-radius:14px;
+            padding:18px 20px;
+            font-family:"Inter", system-ui, sans-serif;
+            white-space:pre-wrap;
+        }
+        .learn-modal .question-box{font-size:20px;line-height:1.6;font-weight:500}
+        .learn-modal .answer-box{font-size:19px;line-height:1.7;color:#334155}
         .learn-modal textarea{
             width:100%;
-            min-height:90px;
+            min-height:110px;
             border:1px solid #d1d5db;
-            border-radius:10px;
-            padding:10px 12px;
-            font-size:15px;
+            border-radius:12px;
+            padding:14px 16px;
+            font-size:17px;
             line-height:1.6;
             resize:vertical;
+            font-family:"Inter", system-ui, sans-serif;
         }
-        .learn-modal .answer-section{display:none;margin-top:8px}
-        .learn-modal-footer{display:flex;gap:0.6rem;justify-content:space-between;align-items:center;margin-top:16px;flex-wrap:wrap}
-        .learn-modal-actions{display:flex;gap:0.6rem;flex-wrap:wrap}
+        .learn-modal .answer-section{display:none;margin-top:20px}
+        .learn-modal-footer{display:flex;gap:0.6rem;justify-content:center;align-items:center;margin-top:20px;flex-wrap:wrap}
+        .learn-modal-actions{display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center}
+        .learn-modal .submit-btn{
+            padding:12px 20px;
+            border-radius:12px;
+            font-size:15px;
+            font-weight:600;
+        }
+        .learn-card-delete{
+            background:#ef4444;
+            color:#ffffff;
+            border-radius:10px;
+            padding:10px 18px;
+            font-weight:600;
+        }
         
         .actuary-editor-footer{
             display:flex;
@@ -3253,12 +3282,13 @@ let currentCardIndex = 0;
 
 function setCardControlsDisabled(disabled) {
     const editBtn = document.getElementById('editCardBtn');
+    const deleteBtn = document.getElementById('deleteCardBtn');
     const saveBtn = document.getElementById('saveCardBtn');
     const toggleBtn = document.getElementById('toggleAnswerBtn');
     const prevBtn = document.querySelector('#learnModal .learn-modal-footer button[onclick="prevCard()"]');
     const nextBtn = document.querySelector('#learnModal .learn-modal-footer button[onclick="nextCard()"]');
 
-    [editBtn, saveBtn, toggleBtn, prevBtn, nextBtn].forEach(btn => {
+    [editBtn, deleteBtn, saveBtn, toggleBtn, prevBtn, nextBtn].forEach(btn => {
         if (btn) btn.disabled = !!disabled;
     });
 }
@@ -3321,40 +3351,55 @@ window.loadCardsForNote = async function() {
 
 window.renderCard = function() {
     const counterEl = document.getElementById('cardCounter');
-    const questionEl = document.getElementById('cardQuestion');
-    const answerEl = document.getElementById('cardAnswer');
+    const questionDisplay = document.getElementById('cardQuestionDisplay');
+    const questionEdit = document.getElementById('cardQuestionEdit');
+    const answerDisplay = document.getElementById('cardAnswerDisplay');
+    const answerEdit = document.getElementById('cardAnswerEdit');
     const answerSection = document.getElementById('answerSection');
     const toggleBtn = document.getElementById('toggleAnswerBtn');
     const editBtn = document.getElementById('editCardBtn');
     const saveBtn = document.getElementById('saveCardBtn');
+    const deleteBtn = document.getElementById('deleteCardBtn');
+    const bodyEl = document.getElementById('learnCardBody');
 
-    if (!counterEl || !questionEl || !answerEl || !answerSection) return;
+    if (!counterEl || !questionDisplay || !questionEdit || !answerDisplay || !answerEdit || !answerSection) return;
 
     if (!cardsArray.length) {
         counterEl.textContent = 'Card 0 of 0';
-        questionEl.value = 'No cards yet for this note.';
-        answerEl.value = '';
+        questionDisplay.textContent = 'No cards yet for this note.';
+        questionEdit.value = '';
+        answerDisplay.textContent = '';
+        answerEdit.value = '';
         answerSection.style.display = 'none';
         if (toggleBtn) toggleBtn.textContent = 'Show Answer';
         if (editBtn) editBtn.style.display = 'inline-block';
+        if (deleteBtn) deleteBtn.style.display = 'inline-block';
         if (saveBtn) saveBtn.style.display = 'none';
-        questionEl.readOnly = true;
-        answerEl.readOnly = true;
+        setCardEditMode(false);
         setCardControlsDisabled(true);
         return;
     }
 
     const card = cardsArray[currentCardIndex];
     counterEl.textContent = `Card ${currentCardIndex + 1} of ${cardsArray.length}`;
-    questionEl.value = card.question || '';
-    answerEl.value = card.answer || '';
-    questionEl.readOnly = true;
-    answerEl.readOnly = true;
+    questionDisplay.textContent = card.question || '';
+    questionEdit.value = card.question || '';
+    answerDisplay.innerHTML = card.answer || '';
+    answerEdit.value = card.answer || '';
     answerSection.style.display = 'none';
     if (toggleBtn) toggleBtn.textContent = 'Show Answer';
     if (editBtn) editBtn.style.display = 'inline-block';
+    if (deleteBtn) deleteBtn.style.display = 'inline-block';
     if (saveBtn) saveBtn.style.display = 'none';
+    setCardEditMode(false);
     setCardControlsDisabled(false);
+
+    if (bodyEl) {
+        bodyEl.style.opacity = '0';
+        requestAnimationFrame(() => {
+            bodyEl.style.opacity = '1';
+        });
+    }
 };
 
 window.toggleAnswer = function() {
@@ -3381,14 +3426,13 @@ window.prevCard = function() {
 };
 
 window.enableCardEdit = function() {
-    const questionEl = document.getElementById('cardQuestion');
-    const answerEl = document.getElementById('cardAnswer');
+    const questionEdit = document.getElementById('cardQuestionEdit');
+    const answerEdit = document.getElementById('cardAnswerEdit');
     const saveBtn = document.getElementById('saveCardBtn');
     const editBtn = document.getElementById('editCardBtn');
-    if (!questionEl || !answerEl) return;
+    if (!questionEdit || !answerEdit) return;
 
-    questionEl.readOnly = false;
-    answerEl.readOnly = false;
+    setCardEditMode(true);
     if (saveBtn) saveBtn.style.display = 'inline-block';
     if (editBtn) editBtn.style.display = 'none';
 };
@@ -3397,24 +3441,23 @@ window.saveCardEdit = async function() {
     const card = cardsArray[currentCardIndex];
     if (!card) return;
 
-    const questionEl = document.getElementById('cardQuestion');
-    const answerEl = document.getElementById('cardAnswer');
+    const questionEdit = document.getElementById('cardQuestionEdit');
+    const answerEdit = document.getElementById('cardAnswerEdit');
     const saveBtn = document.getElementById('saveCardBtn');
     const editBtn = document.getElementById('editCardBtn');
     const statusEl = document.getElementById('learnStatus');
 
     try {
         await updateDoc(doc(db, 'actuary_questions', card.id), {
-            question: questionEl.value.trim(),
-            answer: answerEl.value.trim()
+            question: questionEdit.value.trim(),
+            answer: answerEdit.value.trim()
         });
         cardsArray[currentCardIndex] = {
             ...card,
-            question: questionEl.value.trim(),
-            answer: answerEl.value.trim()
+            question: questionEdit.value.trim(),
+            answer: answerEdit.value.trim()
         };
-        questionEl.readOnly = true;
-        answerEl.readOnly = true;
+        setCardEditMode(false);
         if (saveBtn) saveBtn.style.display = 'none';
         if (editBtn) editBtn.style.display = 'inline-block';
         if (statusEl) statusEl.textContent = 'Saved.';
@@ -3423,6 +3466,49 @@ window.saveCardEdit = async function() {
         if (statusEl) statusEl.textContent = 'Save failed.';
     }
 };
+
+function setCardEditMode(isEdit) {
+    const questionDisplay = document.getElementById('cardQuestionDisplay');
+    const questionEdit = document.getElementById('cardQuestionEdit');
+    const answerDisplay = document.getElementById('cardAnswerDisplay');
+    const answerEdit = document.getElementById('cardAnswerEdit');
+
+    if (!questionDisplay || !questionEdit || !answerDisplay || !answerEdit) return;
+
+    questionDisplay.style.display = isEdit ? 'none' : 'block';
+    questionEdit.style.display = isEdit ? 'block' : 'none';
+    answerDisplay.style.display = isEdit ? 'none' : 'block';
+    answerEdit.style.display = isEdit ? 'block' : 'none';
+}
+
+window.deleteCard = async function() {
+    const card = cardsArray[currentCardIndex];
+    const statusEl = document.getElementById('learnStatus');
+    if (!card) return;
+
+    if (!confirm('Delete this card permanently?')) return;
+
+    try {
+        await deleteDoc(doc(db, 'actuary_questions', card.id));
+        cardsArray.splice(currentCardIndex, 1);
+
+        if (!cardsArray.length) {
+            if (statusEl) statusEl.textContent = 'Card deleted.';
+            closeLearnModal();
+            alert('Card deleted');
+            return;
+        }
+
+        if (currentCardIndex >= cardsArray.length) {
+            currentCardIndex = cardsArray.length - 1;
+        }
+        renderCard();
+        if (statusEl) statusEl.textContent = 'Card deleted.';
+    } catch (error) {
+        console.error('Error deleting card:', error);
+        if (statusEl) statusEl.textContent = 'Delete failed.';
+    }
+}
 
 document.addEventListener('keydown', (e) => {
     if (!learnModalOpen) return;
@@ -3625,20 +3711,29 @@ window.loadSessions = async function(){
     <div id="learnModal" class="learn-modal-overlay">
         <div class="learn-modal">
             <button class="learn-modal-close" onclick="closeLearnModal()">✕</button>
-            <div class="learn-modal-header" id="cardCounter">Card 0 of 0</div>
-            <label for="cardQuestion">Question</label>
-            <textarea id="cardQuestion" readonly></textarea>
-            <div class="learn-modal-actions" style="margin-top:12px;">
-                <button class="submit-btn btn-sm" id="toggleAnswerBtn" onclick="toggleAnswer()">Show Answer</button>
+            <div class="learn-modal-header">
+                <div id="cardCounter">Card 0 of 0</div>
             </div>
-            <div id="answerSection" class="answer-section">
-                <label for="cardAnswer">Answer</label>
-                <textarea id="cardAnswer" readonly></textarea>
+            <div id="learnCardBody" class="learn-modal-body">
+                <div>
+                    <label>Question</label>
+                    <div id="cardQuestionDisplay" class="question-box"></div>
+                    <textarea id="cardQuestionEdit" style="display:none;"></textarea>
+                </div>
+                <div class="learn-modal-actions">
+                    <button class="submit-btn btn-sm" id="toggleAnswerBtn" onclick="toggleAnswer()">Show Answer</button>
+                </div>
+                <div id="answerSection" class="answer-section">
+                    <label>Answer</label>
+                    <div id="cardAnswerDisplay" class="answer-box"></div>
+                    <textarea id="cardAnswerEdit" style="display:none;"></textarea>
+                </div>
             </div>
             <div class="learn-modal-footer">
                 <div class="learn-modal-actions">
                     <button class="submit-btn btn-sm" onclick="prevCard()">Previous</button>
                     <button class="submit-btn btn-sm" id="editCardBtn" onclick="enableCardEdit()">Edit</button>
+                    <button class="submit-btn learn-card-delete" id="deleteCardBtn" onclick="deleteCard()">Delete</button>
                     <button class="submit-btn btn-sm" id="saveCardBtn" onclick="saveCardEdit()" style="display:none;">Save</button>
                     <button class="submit-btn btn-sm" onclick="nextCard()">Next</button>
                 </div>
