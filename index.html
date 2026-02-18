@@ -56,15 +56,15 @@
         .journal-card {
             display: block;
             padding: 1rem 1.1rem;
-            border-radius: 12px;
-            background: linear-gradient(180deg,#fff,#fbfdff);
+            border-radius: 14px;
+            background: linear-gradient(180deg,#ffffff,#fbfdff);
             border: 1px solid #eef4f8;
-            box-shadow: 0 8px 24px rgba(15,23,42,0.06);
+            box-shadow: 0 10px 26px rgba(15,23,42,0.07);
             cursor: pointer;
             transition: all 0.2s ease;
         }
         .journal-card:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px);
             box-shadow: 0 14px 30px rgba(15,23,42,0.1);
         }
         .journal-preview {
@@ -211,11 +211,19 @@
             --glass: rgba(255,255,255,0.6);
         }
 
-        *{box-sizing:border-box;margin:0;padding:0}
+        *{
+            box-sizing:border-box;
+            margin:0;
+            padding:0;
+            transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        }
         html,body{height:100%}
         body{
             font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-            background: linear-gradient(180deg,#f7fbfd 0%, var(--bg) 100%);
+            background:
+                radial-gradient(circle at 20% 10%, rgba(26,188,156,0.08), transparent 40%),
+                radial-gradient(circle at 80% 90%, rgba(59,130,246,0.08), transparent 40%),
+                linear-gradient(180deg,#f7fbfd 0%, var(--bg) 100%);
             color:#12223a;
             -webkit-font-smoothing:antialiased;
             -moz-osx-font-smoothing:grayscale;
@@ -223,8 +231,9 @@
         }
 
         .navbar{
-            background: rgba(26, 39, 50, 0.9);
-            backdrop-filter: blur(12px);
+            background: rgba(20, 28, 38, 0.75);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
             padding:0.8rem 1rem;
             position:sticky;top:0;z-index:40;
             box-shadow:var(--shadow-sm);
@@ -249,20 +258,41 @@
             transition:all 0.2s ease;
             font-size:0.95rem;
         }
-
+        .tab-button:hover{
+            background:rgba(255,255,255,0.08);
+            color:#fff;
+            transform:translateY(-2px);
+        }
         .tab-button.active{
             background: linear-gradient(180deg, var(--accent), var(--accent-600));
             color:white;
-            box-shadow: var(--shadow-sm);
+            box-shadow:
+                0 6px 20px rgba(26,188,156,0.25),
+                inset 0 1px 0 rgba(255,255,255,0.3);
             transform: translateY(-1px);
         }
 
-        .container{max-width:var(--max-width);margin:2rem auto;padding:0 1rem}
+        .container{
+            max-width:var(--max-width);
+            margin:2.5rem auto;
+            padding:0 1rem;
+            animation: fadeIn 0.35s ease;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-        .tab-content{display:none;background:var(--card);padding:1.6rem;border-radius:var(--radius);box-shadow:var(--shadow-sm)}
+        .tab-content{display:none;background:var(--card);padding:1.8rem;border-radius:var(--radius);box-shadow:var(--shadow-sm);animation:fadeIn 0.35s ease}
         .tab-content.active{display:block}
 
-        h1{font-size:1.7rem;margin-bottom:0.85rem;color:#0f2540;font-weight:700}
+        h1{font-size:1.7rem;margin-bottom:0.85rem;color:#0f2540;font-weight:700;letter-spacing:-0.02em}
         p{color:var(--muted);margin-bottom:1rem}
 
         .form-group{margin-bottom:1rem}
@@ -272,6 +302,8 @@
         textarea{min-height:110px;resize:vertical}
 
         .submit-btn{
+            position:relative;
+            overflow:hidden;
             background: linear-gradient(180deg, var(--accent), var(--accent-600));
             color:white;
             padding:.75rem 1.2rem;
@@ -282,7 +314,21 @@
             box-shadow: 0 10px 24px rgba(26,188,156,0.18);
             transition: all 0.2s ease;
         }
-        .submit-btn:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(26,188,156,0.22)}
+        .submit-btn::after{
+            content:'';
+            position:absolute;
+            inset:0;
+            background:linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent);
+            opacity:0;
+            transition:opacity 0.25s;
+        }
+        .submit-btn:hover{
+            transform:translateY(-2px);
+            box-shadow:0 14px 30px rgba(26,188,156,0.22);
+        }
+        .submit-btn:hover::after{
+            opacity:1;
+        }
         .submit-btn:active{transform:translateY(0);box-shadow:0 8px 18px rgba(26,188,156,0.18)}
         .submit-btn.btn-secondary{background:linear-gradient(180deg,#3b82f6,#2563eb);box-shadow:0 10px 24px rgba(37,99,235,0.2)}
         .submit-btn.btn-muted{background:linear-gradient(180deg,#94a3b8,#64748b);box-shadow:0 10px 24px rgba(100,116,139,0.2)}
@@ -291,8 +337,20 @@
 
         /* Cards & lists */
         .session-list{list-style:none;padding:0;margin:0}
-        .session-list li{display:block;padding:1rem;border-radius:12px;background:linear-gradient(180deg,#fff,#fbfdff);border:1px solid #eef4f8;margin-bottom:0.9rem;box-shadow:0 8px 24px rgba(15,23,42,0.06);transition:all 0.2s ease}
-        .session-list li:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(15,23,42,0.1)}
+        .session-list li{
+            display:block;
+            padding:1rem;
+            border-radius:14px;
+            background:linear-gradient(180deg,#ffffff,#fbfdff);
+            border:1px solid #eef4f8;
+            margin-bottom:0.9rem;
+            box-shadow:0 10px 26px rgba(15,23,42,0.07);
+            transition:all 0.2s ease;
+        }
+        .session-list li:hover{
+            transform:translateY(-3px);
+            box-shadow:0 14px 30px rgba(15,23,42,0.1);
+        }
         .session-list li strong{display:block;margin-bottom:.5rem}
         .card-actions{display:flex;gap:0.6rem;flex-wrap:wrap}
 
@@ -461,13 +519,167 @@
   cursor:pointer;
 }
 
+/* Dashboard Styles */
+#dashboard {
+    display: none;
+    min-height: 100vh;
+    background: linear-gradient(180deg, #f7fbfd 0%, var(--bg) 100%);
+    padding: 2rem 1rem;
+    padding-top: 6rem;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    position: relative;
+    animation: fadeIn 0.35s ease;
+}
+#dashboard.active {
+    display: flex;
+}
+.dashboard-container {
+    text-align: center;
+    max-width: 1200px;
+    width: 100%;
+}
+.dashboard-title {
+    color: #0f2540;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+    letter-spacing:-0.03em;
+}
+.dashboard-subtitle {
+    color: var(--muted);
+    font-size: 1.1rem;
+    margin-bottom: 3rem;
+}
+.modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+}
+.module-card {
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    padding: 2rem 1.2rem;
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    border: 1px solid rgba(255,255,255,0.6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 230px;
+}
+.module-card:hover {
+    transform: translateY(-10px) scale(1.03);
+    box-shadow: 0 22px 60px rgba(15, 23, 42, 0.18);
+    border-color: rgba(26,188,156,0.35);
+}
+.module-icon {
+    font-size: 2.8rem;
+    margin-bottom: 0.8rem;
+}
+.module-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #0f2540;
+    margin: 0;
+    letter-spacing:-0.01em;
+}
+@media (max-width: 768px) {
+    .modules-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    .dashboard-title {
+        font-size: 1.8rem;
+    }
+}
+
+/* Dashboard Header Styles */
+#dashboardHeader {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 1rem 2rem;
+    background: rgba(15,37,64,0.85);
+    backdrop-filter: blur(14px);
+    border-bottom:1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.15);
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+}
+#dashboardHeader.active {
+    display: flex;
+}
+.dashboard-header-left {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #fff;
+}
+.dashboard-header-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+.dashboard-header-user {
+    color: #e0e7ff;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.dashboard-header-logout {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.dashboard-header-logout:hover {
+    background: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+@media (max-width: 768px) {
+    #dashboardHeader {
+        padding: 0.8rem 1rem;
+    }
+    .dashboard-header-left {
+        font-size: 1.1rem;
+    }
+    .dashboard-header-right {
+        gap: 1rem;
+    }
+    .dashboard-header-user {
+        font-size: 0.85rem;
+    }
+    .dashboard-header-logout {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+    #dashboard {
+        padding-top: 5rem;
+    }
+}
+
 </style>
 </head>
 <body>
     <!-- Login Page -->
     <div id="loginPage" style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(180deg,#f7fbfd 0%,var(--bg) 100%);padding:1rem;">
-        <div style="background:var(--card);padding:2rem;border-radius:12px;box-shadow:0 12px 30px rgba(15,23,42,0.09);max-width:400px;width:100%;">
-            <h1 style="text-align:center;color:#0f2540;margin-bottom:2rem;">Tennis Training App</h1>
+        <div style="background:var(--card);padding:2rem;border-radius:12px;box-shadow:0 20px 60px rgba(15,23,42,0.12), 0 0 0 1px rgba(255,255,255,0.4);max-width:400px;width:100%;">
+            <h1 style="text-align:center;color:#0f2540;margin-bottom:2rem;">Personal System</h1>
             
             <!-- Sign In Form -->
             <div id="signInForm">
@@ -488,8 +700,51 @@
         </div>
     </div>
 
+    <!-- Dashboard Page -->
+    <div id="dashboard" style="display:none;">
+        <!-- Dashboard Header -->
+        <div id="dashboardHeader">
+            <div class="dashboard-header-left">Welcome</div>
+            <div class="dashboard-header-right">
+                <div class="dashboard-header-user">
+                    <span>👤</span>
+                    <span id="dashboardUserEmail">user@example.com</span>
+                </div>
+                <button class="dashboard-header-logout" onclick="window.firebaseLogout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="dashboard-container">
+            <h1 class="dashboard-title">Areas of Interest</h1>
+            <p class="dashboard-subtitle">Select a module to get started</p>
+            <div class="modules-grid">
+                <div class="module-card" onclick="selectModule('Tennis')">
+                    <div class="module-icon">🎾</div>
+                    <h3 class="module-name">Tennis</h3>
+                </div>
+                <div class="module-card" onclick="selectModule('AI_ML_DS')">
+                    <div class="module-icon">🤖</div>
+                    <h3 class="module-name">AI / ML / DS</h3>
+                </div>
+                <div class="module-card" onclick="selectModule('Actuaries')">
+                    <div class="module-icon">📊</div>
+                    <h3 class="module-name">Actuaries</h3>
+                </div>
+                <div class="module-card" onclick="selectModule('Insurance')">
+                    <div class="module-icon">🛡️</div>
+                    <h3 class="module-name">Insurance</h3>
+                </div>
+                <div class="module-card" onclick="selectModule('Workouts')">
+                    <div class="module-icon">💪</div>
+                    <h3 class="module-name">Workouts</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <nav class="navbar" id="navbar" style="display:none;">
         <div class="nav-tabs">
+            <button class="tab-button" data-tab="dashboard" onclick="showDashboard()" style="font-weight:600;color:#3b82f6;">← Dashboard</button>
             <button class="tab-button active" data-tab="home" onclick="switchTab('home', this)">Home</button>
             <button class="tab-button" data-tab="sessions" onclick="switchTab('sessions', this)">Sessions</button>
             <button class="tab-button" data-tab="match" onclick="switchTab('match', this)">Match</button>
@@ -504,10 +759,22 @@
     <div class="container" id="mainContainer" style="display:none;">
         <!-- Home Tab -->
         <div id="home" class="tab-content active">
-            <h1>Welcome to My Tennis Training</h1>
-            <p style="margin-bottom:1rem;color:#555">Use the button below to design a new session.</p>
-            <div style="margin-top:1rem;">
-                <button class="submit-btn" id="designInlineBtn" onclick="switchTab('design', this)">Design Your Session</button>
+            <!-- Tennis Home Section -->
+            <div id="tennisHomeSection" style="display:block;">
+                <h1>Welcome to My Tennis Training</h1>
+                <p style="margin-bottom:1rem;color:#555">Use the button below to design a new session.</p>
+                <div style="margin-top:1rem;">
+                    <button class="submit-btn" id="designInlineBtn" onclick="switchTab('design', this)">Design Your Session</button>
+                </div>
+            </div>
+
+            <!-- Generic Module Section -->
+            <div id="moduleHomeSection" style="display:none;">
+                <div style="text-align:center;padding:2rem 1rem;">
+                    <div style="font-size:2.5rem;margin-bottom:1rem;color:#666;">📋</div>
+                    <h1 id="moduleHomeName" style="color:#0f2540;margin:0 0 0.5rem 0;"></h1>
+                    <p style="color:#999;font-size:1rem;margin:0;">This module is under development</p>
+                </div>
             </div>
         </div>
 
@@ -983,6 +1250,7 @@
         // Authentication Functions
         let currentUserId = null;
         let currentUsername = null;
+        let currentModule = null;
         let currentMatchEditId = null;
         let currentHistoryEditId = null;
 
@@ -999,6 +1267,144 @@
         function handleLogout() {
             if (!confirm('Are you sure you want to logout?')) return;
             window.firebaseLogout();
+        }
+
+        function selectModule(moduleName) {
+            currentModule = moduleName;
+            showApp();
+            
+            // Update navbar and home tab for module
+            updateNavbarForModule(moduleName);
+            updateHomeForModule(moduleName);
+            
+            // Switch to home tab
+            const homeBtn = Array.from(document.querySelectorAll('.tab-button')).find(b => b.dataset.tab === 'home');
+            if (homeBtn) switchTab('home', homeBtn);
+            
+            if (currentModule === 'Tennis') {
+                // Load Tennis module data
+                hideModulePlaceholder();
+                enableTennisTabs();
+                setTimeout(async () => {
+                    await fetchJournalsForUser();
+                    renderSessionsList();
+                    window.firebaseRenderHistoryList();
+                    window.firebaseRenderMatchHistory();
+                    await window.firebaseRenderJournalList();
+                    initCalendar();
+                }, 100);
+            } else {
+                // Show placeholder for other modules
+                showModulePlaceholder(moduleName);
+                disableTennisTabs();
+            }
+        }
+
+        function updateNavbarForModule(moduleName) {
+            const tennisTabs = ['home', 'sessions', 'match', 'history', 'calendar', 'journal'];
+            const tabButtons = document.querySelectorAll('.tab-button');
+            
+            tabButtons.forEach(button => {
+                const tabName = button.dataset.tab;
+                
+                if (moduleName === 'Tennis') {
+                    // Show all tabs for Tennis module
+                    if (tennisTabs.includes(tabName) || tabName === 'dashboard') {
+                        button.style.display = 'inline-flex';
+                    }
+                } else {
+                    // For other modules: hide Tennis tabs, keep dashboard
+                    if (tennisTabs.includes(tabName)) {
+                        button.style.display = 'none';
+                    } else if (tabName === 'dashboard') {
+                        button.style.display = 'inline-flex';
+                    }
+                }
+            });
+        }
+
+        function updateHomeForModule(moduleName) {
+            const tennisSection = document.getElementById('tennisHomeSection');
+            const moduleSection = document.getElementById('moduleHomeSection');
+            const moduleNameEl = document.getElementById('moduleHomeName');
+            
+            if (moduleName === 'Tennis') {
+                // Show Tennis content, hide generic module content
+                if (tennisSection) tennisSection.style.display = 'block';
+                if (moduleSection) moduleSection.style.display = 'none';
+            } else {
+                // Hide Tennis content, show generic module content
+                if (tennisSection) tennisSection.style.display = 'none';
+                if (moduleSection) moduleSection.style.display = 'block';
+                // Update module name with proper formatting
+                if (moduleNameEl) {
+                    const displayName = moduleName.replace(/_/g, ' ');
+                    moduleNameEl.textContent = displayName;
+                }
+            }
+        }
+
+        function showModulePlaceholder(moduleName) {
+            const homeContent = document.getElementById('home');
+            if (!homeContent) return;
+            
+            const placeholderId = 'modulePlaceholder';
+            let placeholder = document.getElementById(placeholderId);
+            
+            if (!placeholder) {
+                placeholder = document.createElement('div');
+                placeholder.id = placeholderId;
+                placeholder.style.cssText = 'text-align: center; padding: 3rem 1rem; min-height: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center;';
+                homeContent.appendChild(placeholder);
+            }
+            
+            const displayName = moduleName.replace(/_/g, ' ');
+            placeholder.innerHTML = `
+                <div style="font-size: 3rem; margin-bottom: 1.5rem;">🔄</div>
+                <h2 style="color: #0f2540; font-size: 1.8rem; margin: 0 0 0.5rem 0;">${displayName}</h2>
+                <p style="color: #999; font-size: 1.1rem; margin: 0;">This module is under development</p>
+            `;
+            placeholder.style.display = 'block';
+        }
+
+        function hideModulePlaceholder() {
+            const placeholder = document.getElementById('modulePlaceholder');
+            if (placeholder) placeholder.style.display = 'none';
+        }
+
+        function enableTennisTabs() {
+            const tabs = document.querySelectorAll('[data-tab]');
+            tabs.forEach(tab => {
+                tab.style.opacity = '1';
+                tab.style.pointerEvents = 'auto';
+            });
+        }
+
+        function disableTennisTabs() {
+            const tabs = document.querySelectorAll('[data-tab]');
+            const disabledTabs = ['design', 'sessions', 'match', 'history', 'calendar', 'journal'];
+            tabs.forEach(tab => {
+                if (disabledTabs.includes(tab.dataset.tab)) {
+                    tab.style.opacity = '0.5';
+                    tab.style.pointerEvents = 'none';
+                }
+            });
+        }
+
+        function showDashboard() {
+            document.getElementById('dashboard').style.display = 'flex';
+            document.getElementById('dashboardHeader').style.display = 'flex';
+            document.getElementById('dashboardUserEmail').textContent = currentUsername || 'user@example.com';
+            document.getElementById('navbar').style.display = 'none';
+            document.getElementById('mainContainer').style.display = 'none';
+            currentModule = null;
+        }
+
+        function showApp() {
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('dashboardHeader').style.display = 'none';
+            document.getElementById('navbar').style.display = 'block';
+            document.getElementById('mainContainer').style.display = 'block';
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -1060,24 +1466,23 @@ window.checkAuthState = function() {
             currentUsername = user.email;
             document.getElementById('currentUserDisplay').textContent = `👤 ${currentUsername}`;
             
-            // Hide login, show app
+            // Hide login, show dashboard
             document.getElementById('loginPage').style.display = 'none';
-            document.getElementById('navbar').style.display = 'block';
-            document.getElementById('mainContainer').style.display = 'block';
+            document.getElementById('dashboard').style.display = 'flex';
+            document.getElementById('dashboardHeader').style.display = 'flex';
+            document.getElementById('dashboardUserEmail').textContent = currentUsername;
+            document.getElementById('navbar').style.display = 'none';
+            document.getElementById('mainContainer').style.display = 'none';
             
-            // Load user data
-            await fetchJournalsForUser();
-            renderSessionsList();
-            window.firebaseRenderHistoryList();
-            window.firebaseRenderMatchHistory();
-            await window.firebaseRenderJournalList();
-            initCalendar();
         } else {
-            // Show login, hide app
+            // Show login, hide everything else
             currentUserId = null;
             currentUsername = null;
+            currentModule = null;
             document.getElementById('currentUserDisplay').textContent = '';
             document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('dashboardHeader').style.display = 'none';
             document.getElementById('navbar').style.display = 'none';
             document.getElementById('mainContainer').style.display = 'none';
         }
@@ -1114,8 +1519,10 @@ window.firebaseLogout = async function() {
         currentUsername = null;
         document.getElementById('currentUserDisplay').textContent = '';
         
-        // Show login, hide app
+        // Show login, hide app and dashboard
         document.getElementById('loginPage').style.display = 'flex';
+        document.getElementById('dashboard').style.display = 'none';
+        document.getElementById('dashboardHeader').style.display = 'none';
         document.getElementById('navbar').style.display = 'none';
         document.getElementById('mainContainer').style.display = 'none';
     } catch (error) {
@@ -1137,7 +1544,8 @@ window.firebaseFinalizeDesignSession = async function() {
             date,
             items: (window.designItems || []).slice(),
             created: Date.now(),
-            userId: currentUserId
+            userId: currentUserId,
+            module: currentModule
         };
         
         if (window.editingSessionIndex !== null) {
@@ -1171,7 +1579,7 @@ window.firebaseRenderSessionsList = async function() {
     const listEl = document.getElementById('sessionsList');
     if (!listEl) return;
 
-    const q = query(collection(db, "sessions"), where("userId", "==", currentUserId));
+    const q = query(collection(db, "sessions"), where("userId", "==", currentUserId), where("module", "==", currentModule));
     const snapshot = await getDocs(q);
 
     if (snapshot.empty) {
@@ -1272,7 +1680,8 @@ window.firebaseSaveSessionToHistory = async function(sessionData, completedCount
             completedItemsCount: completedCount,
             totalItems: totalItems,
             finishedAtTimestamp: Date.now(),
-            userId: currentUserId
+            userId: currentUserId,
+            module: currentModule
         };
 
         await addDoc(collection(db, 'history'), historyData);
@@ -1305,7 +1714,7 @@ window.firebaseRenderHistoryList = async function() {
         return;
     }
 
-    const q = query(collection(db, 'history'), where("userId", "==", currentUserId));
+    const q = query(collection(db, 'history'), where("userId", "==", currentUserId), where("module", "==", currentModule));
     const snapshot = await getDocs(q);
 
     if (snapshot.empty) {
@@ -1358,7 +1767,8 @@ window.firebaseSaveMatchRecord = async function(matchData) {
             score: matchData.score,
             result: matchData.result,
             savedAtTimestamp: Date.now(),
-            userId: currentUserId
+            userId: currentUserId,
+            module: currentModule
         };
 
         await addDoc(collection(db, 'matches'), matchRecord);
@@ -1402,7 +1812,7 @@ window.firebaseRenderMatchHistory = async function() {
                 return;
         }
 
-    const q = query(collection(db, 'matches'), where("userId", "==", currentUserId));
+    const q = query(collection(db, 'matches'), where("userId", "==", currentUserId), where("module", "==", currentModule));
     const snapshot = await getDocs(q);
 
     if (snapshot.empty) {
@@ -1446,7 +1856,7 @@ window.firebaseRenderMatchHistory = async function() {
 };
 
 window.deleteJournalsForRecord = async function(recordId) {
-    const q = query(collection(db, 'journals'), where('userId', '==', currentUserId), where('recordId', '==', recordId));
+    const q = query(collection(db, 'journals'), where('userId', '==', currentUserId), where('module', '==', currentModule), where('recordId', '==', recordId));
     const snapshot = await getDocs(q);
     const deletePromises = [];
     snapshot.forEach(docSnap => {
@@ -1794,7 +2204,8 @@ async function saveJournalEntry() {
             recordId,
             date,
             text,
-            createdAt: Date.now()
+            createdAt: Date.now(),
+            module: currentModule
         };
         await addDoc(journalsRef, docData);
     }
@@ -1813,7 +2224,7 @@ async function refreshAllJournalUI() {
 // --- Fetch all journals for user and build map ---
 async function fetchJournalsForUser() {
     journalMapByRecordId = {};
-    const q = query(collection(db, 'journals'), where('userId', '==', currentUserId));
+    const q = query(collection(db, 'journals'), where('userId', '==', currentUserId), where('module', '==', currentModule));
     const snapshot = await getDocs(q);
     snapshot.forEach(docSnap => {
         const data = docSnap.data();
@@ -1827,7 +2238,7 @@ window.firebaseRenderJournalList = async function() {
     if (!listEl) return;
     
     try {
-        const q = query(collection(db, 'journals'), where('userId', '==', currentUserId));
+        const q = query(collection(db, 'journals'), where('userId', '==', currentUserId), where('module', '==', currentModule));
         const snapshot = await getDocs(q);
         
         if (snapshot.empty) {
@@ -1933,7 +2344,7 @@ async function loadCalendarData(){
             return;
         }
         
-        const hSnap=await getDocs(query(collection(db,"history"), where("userId","==",currentUserId)));
+        const hSnap=await getDocs(query(collection(db,"history"), where("userId","==",currentUserId), where("module","==",currentModule)));
         hSnap.forEach(d=> {
             const h = d.data();
             const dateStr = h.date;
@@ -1945,7 +2356,7 @@ async function loadCalendarData(){
             }
         });
         
-        const mSnap=await getDocs(query(collection(db,"matches"), where("userId","==",currentUserId)));
+        const mSnap=await getDocs(query(collection(db,"matches"), where("userId","==",currentUserId), where("module","==",currentModule)));
         mSnap.forEach(d=> {
             const m = d.data();
             const dateStr = m.date;
