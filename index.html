@@ -422,33 +422,163 @@
         }
         .actuary-editor-modal.active{display:flex}
         .actuary-editor-box{
-            background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);
+            background:#ffffff;
             width:100%;
-            max-width:1200px;
+            max-width:1400px;
             margin:1.2rem;
-            border-radius:18px;
-            box-shadow:0 24px 60px rgba(15,23,42,0.22);
+            border-radius:16px;
+            border:1px solid #e5e7eb;
+            box-shadow:0 20px 50px rgba(15,23,42,0.15), 0 4px 12px rgba(0,0,0,0.08);
             display:flex;
             flex-direction:column;
-            padding:1.6rem;
-            gap:1rem;
+            padding:0;
+            gap:0;
             overflow:hidden;
         }
-        .actuary-editor-top{display:flex;gap:0.8rem;align-items:center;justify-content:space-between;flex-wrap:wrap}
-        .actuary-editor-modes{display:flex;gap:0.6rem;flex-wrap:wrap}
-        .actuary-editor-row{display:flex;gap:1rem;flex-wrap:wrap;align-items:center}
-        .actuary-editor-row input{flex:1 1 320px}
-        .actuary-editor-body{
-            flex:1 1 auto;
-            border:1px solid #e6edf3;
-            border-radius:14px;
-            padding:1rem;
-            background:linear-gradient(180deg,#ffffff,#fcfeff);
-            overflow:auto;
-            min-height:320px;
+        .actuary-editor-top{
+            display:flex;
+            gap:0.8rem;
+            align-items:center;
+            justify-content:space-between;
+            flex-wrap:wrap;
+            padding:1.2rem 1.8rem;
+            border-bottom:1px solid #e5e7eb;
+            background:#fafbfc;
         }
-        .actuary-editor-body[contenteditable="true"]{outline:2px solid rgba(26,188,156,0.25)}
-        .actuary-editor-footer{display:flex;gap:0.8rem;justify-content:flex-end;align-items:center;flex-wrap:wrap}
+        .actuary-editor-modes{display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center}
+        .actuary-font-controls{display:flex;gap:0.4rem;align-items:center;margin-left:auto}
+        .actuary-font-controls button{
+            width:32px;
+            height:32px;
+            padding:0;
+            font-size:14px;
+            font-weight:600;
+            border:1px solid #d1d5db;
+            background:white;
+            color:#374151;
+            border-radius:6px;
+            cursor:pointer;
+            transition:all 0.15s;
+        }
+        .actuary-font-controls button:hover{background:#f3f4f6;border-color:#9ca3af}
+        .actuary-editor-row{
+            display:flex;
+            gap:1rem;
+            flex-wrap:wrap;
+            align-items:center;
+            padding:1.2rem 1.8rem;
+            border-bottom:1px solid #e5e7eb;
+        }
+        .actuary-editor-row label{font-weight:600;color:#111827;font-size:14px}
+        .actuary-editor-row input{
+            flex:1 1 320px;
+            border:1px solid #d1d5db;
+            border-radius:8px;
+            padding:0.6rem 0.9rem;
+            font-size:16px;
+            font-weight:500;
+            color:#111827;
+        }
+        .actuary-editor-row input:focus{outline:2px solid #1abc9c;border-color:transparent}
+        .note-container{
+            flex:1 1 auto;
+            max-width:1100px;
+            margin:0 auto;
+            width:100%;
+            padding:2rem 3rem;
+            min-height:70vh;
+            overflow:visible;
+        }
+        .note-content{
+            font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            font-size:17px;
+            line-height:1.7;
+            color:#1f2937;
+            min-height:70vh;
+            outline:none;
+        }
+        .note-content:focus{
+            outline:none;
+        }
+        .note-content h1{
+            font-size:32px;
+            font-weight:700;
+            margin:28px 0 14px;
+            color:#111827;
+            line-height:1.3;
+        }
+        .note-content h2{
+            font-size:26px;
+            font-weight:700;
+            margin:24px 0 12px;
+            color:#111827;
+            line-height:1.35;
+        }
+        .note-content h3{
+            font-size:21px;
+            font-weight:600;
+            margin:20px 0 10px;
+            color:#111827;
+            line-height:1.4;
+        }
+        .note-content p{
+            margin:14px 0;
+        }
+        .note-content ul,
+        .note-content ol{
+            margin:14px 0 14px 24px;
+            padding-left:8px;
+        }
+        .note-content li{
+            margin:8px 0;
+        }
+        .note-content strong{
+            font-weight:600;
+            color:#111827;
+        }
+        .note-content hr{
+            border:none;
+            border-top:1px solid #e5e7eb;
+            margin:24px 0;
+        }
+        .note-content blockquote{
+            border-left:3px solid #1abc9c;
+            padding-left:16px;
+            margin:16px 0;
+            color:#4b5563;
+            font-style:italic;
+        }
+        .note-content code{
+            background:#f3f4f6;
+            padding:2px 6px;
+            border-radius:4px;
+            font-family:'Consolas', 'Monaco', monospace;
+            font-size:0.9em;
+            color:#dc2626;
+        }
+        #noteEditor{
+            display:block;
+        }
+        #noteViewer{
+            display:none;
+        }
+        .actuary-editor-body-wrapper{
+            flex:1 1 auto;
+            background:#ffffff;
+            overflow-y:auto;
+            overflow-x:hidden;
+        }
+        
+        .actuary-editor-footer{
+            display:flex;
+            gap:0.8rem;
+            justify-content:flex-end;
+            align-items:center;
+            flex-wrap:wrap;
+            padding:1.2rem 1.8rem;
+            border-top:1px solid #e5e7eb;
+            background:#fafbfc;
+        }
         .actuary-split{display:flex;gap:1rem}
         .actuary-panel{
             background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);
@@ -2295,17 +2425,24 @@ window.addQuestionFromHighlight = function(text) {
 
 window.initializeActuariesUI = function() {
     if (actuaryUiInitialized) return;
-    const editor = document.getElementById('actuaryNoteEditor');
-    if (!editor) return;
+    const editor = document.getElementById('noteEditor');
+    const viewer = document.getElementById('noteViewer');
+    if (!editor || !viewer) return;
 
-    editor.addEventListener('mouseup', () => {
-        if (actuaryState.mode !== 'read') return;
-        const selection = window.getSelection();
-        if (!selection || selection.isCollapsed) return;
-        const text = selection.toString().trim();
-        if (!text) return;
-        window.addQuestionFromHighlight(text);
-    });
+    // Add mouseup listener to both editor and viewer for question highlighting
+    const addHighlightListener = (element) => {
+        element.addEventListener('mouseup', () => {
+            if (actuaryState.mode !== 'read') return;
+            const selection = window.getSelection();
+            if (!selection || selection.isCollapsed) return;
+            const text = selection.toString().trim();
+            if (!text) return;
+            window.addQuestionFromHighlight(text);
+        });
+    };
+    
+    addHighlightListener(editor);
+    addHighlightListener(viewer);
 
     actuaryUiInitialized = true;
 };
@@ -2429,9 +2566,10 @@ window.loadNotes = async function() {
 window.openNoteEditor = async function(noteId) {
     const modal = document.getElementById('actuaryNoteModal');
     const titleInput = document.getElementById('actuaryNoteTitle');
-    const editor = document.getElementById('actuaryNoteEditor');
+    const editor = document.getElementById('noteEditor');
+    const viewer = document.getElementById('noteViewer');
     const modeButtons = document.getElementById('actuaryModeButtons');
-    if (!modal || !titleInput || !editor) return;
+    if (!modal || !titleInput || !editor || !viewer) return;
     if (!currentUserId) return alert('Please sign in to view notes.');
 
     setActuaryNotesStatus('');
@@ -2456,6 +2594,7 @@ window.openNoteEditor = async function(noteId) {
             actuaryState.subject = data.subject;
             titleInput.value = data.title || '';
             editor.innerHTML = data.content || '';
+            viewer.innerHTML = data.content || '';
             if (modeButtons) modeButtons.style.display = 'flex';
             toggleMode('read');
         } catch (error) {
@@ -2472,6 +2611,7 @@ window.openNoteEditor = async function(noteId) {
         actuaryState.noteId = null;
         titleInput.value = '';
         editor.innerHTML = '';
+        viewer.innerHTML = '';
         if (modeButtons) modeButtons.style.display = 'none';
         toggleMode('edit');
     }
@@ -2479,9 +2619,11 @@ window.openNoteEditor = async function(noteId) {
 
 window.saveNote = async function() {
     const titleInput = document.getElementById('actuaryNoteTitle');
-    const editor = document.getElementById('actuaryNoteEditor');
-    if (!titleInput || !editor) {
-        console.error('Save failed: Title input or editor not found');
+    const editor = document.getElementById('noteEditor');
+    const viewer = document.getElementById('noteViewer');
+    
+    if (!titleInput || !editor || !viewer) {
+        console.error('Save failed: Required elements not found');
         return;
     }
     if (!currentUserId) {
@@ -2494,7 +2636,8 @@ window.saveNote = async function() {
     }
 
     const title = titleInput.value.trim() || 'Untitled Note';
-    const content = editor.innerHTML.trim();
+    // Get content from whichever is currently visible
+    const content = (actuaryState.mode === 'edit' ? editor : viewer).innerHTML.trim();
 
     console.log('Saving note:', {
         noteId: actuaryState.noteId,
@@ -2587,14 +2730,37 @@ window.updateOrderInFirestore = async function() {
     }
 };
 
+let currentFontSize = 17;
+
+window.adjustFontSize = function(delta) {
+    currentFontSize = Math.max(12, Math.min(24, currentFontSize + delta));
+    const editor = document.getElementById('noteEditor');
+    const viewer = document.getElementById('noteViewer');
+    if (editor) editor.style.fontSize = currentFontSize + 'px';
+    if (viewer) viewer.style.fontSize = currentFontSize + 'px';
+};
+
 window.toggleMode = function(mode) {
-    const editor = document.getElementById('actuaryNoteEditor');
+    const editor = document.getElementById('noteEditor');
+    const viewer = document.getElementById('noteViewer');
     const readBtn = document.getElementById('actuaryReadModeBtn');
     const editBtn = document.getElementById('actuaryEditModeBtn');
-    if (!editor) return;
+    if (!editor || !viewer) return;
+    
     actuaryState.mode = mode;
     const isRead = mode === 'read';
-    editor.setAttribute('contenteditable', String(!isRead));
+    
+    // Sync content between editor and viewer
+    if (isRead) {
+        viewer.innerHTML = editor.innerHTML;
+        editor.style.display = 'none';
+        viewer.style.display = 'block';
+    } else {
+        editor.innerHTML = viewer.innerHTML;
+        editor.style.display = 'block';
+        viewer.style.display = 'none';
+    }
+    
     if (readBtn) readBtn.classList.toggle('active', isRead);
     if (editBtn) editBtn.classList.toggle('active', !isRead);
 };
@@ -2715,15 +2881,24 @@ window.loadSessions = async function(){
         <div class="actuary-editor-top">
             <button class="submit-btn btn-muted btn-sm" onclick="closeActuaryNoteModal()">← Back</button>
             <div class="actuary-editor-modes" id="actuaryModeButtons" style="display:none;">
-                <button class="submit-btn btn-muted btn-sm" id="actuaryReadModeBtn" onclick="toggleMode('read')">Read Mode</button>
-                <button class="submit-btn btn-sm" id="actuaryEditModeBtn" onclick="toggleMode('edit')">Edit Mode</button>
+                <button class="submit-btn btn-muted btn-sm" id="actuaryReadModeBtn" onclick="toggleMode('read')">👁️ Read</button>
+                <button class="submit-btn btn-sm" id="actuaryEditModeBtn" onclick="toggleMode('edit')">✏️ Edit</button>
+                <div class="actuary-font-controls">
+                    <button onclick="adjustFontSize(-1)" title="Decrease font size">A-</button>
+                    <button onclick="adjustFontSize(1)" title="Increase font size">A+</button>
+                </div>
             </div>
         </div>
         <div class="actuary-editor-row">
-            <label for="actuaryNoteTitle" style="font-weight:600;color:#233348;">Title</label>
+            <label for="actuaryNoteTitle">Title</label>
             <input id="actuaryNoteTitle" type="text" placeholder="Note title">
         </div>
-        <div id="actuaryNoteEditor" class="actuary-editor-body" contenteditable="true"></div>
+        <div class="actuary-editor-body-wrapper">
+            <div class="note-container">
+                <div id="noteEditor" class="note-content" contenteditable="true"></div>
+                <div id="noteViewer" class="note-content"></div>
+            </div>
+        </div>
         <div class="actuary-editor-footer">
             <span class="muted" id="actuaryNotesStatus"></span>
             <button class="submit-btn" onclick="saveNote()">Save Notes</button>
