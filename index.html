@@ -575,10 +575,11 @@
             padding: 2px 4px;
             border-radius: 4px;
             cursor: pointer;
-            transition: background 0.15s;
+            transition: all 0.15s ease;
         }
         .note-highlight:hover {
             background: #ffe066;
+            box-shadow: 0 0 0 2px rgba(255, 224, 102, 0.35);
         }
         
         .actuary-editor-footer{
@@ -2904,7 +2905,11 @@ window.saveHighlightComment = async function() {
         span.className = 'note-highlight';
         span.setAttribute('data-question', question);
         
-        selectedRange.surroundContents(span);
+        // Use extractContents + insertNode for complex selections
+        // This works across multiple DOM nodes (lists, paragraphs, headings)
+        const extracted = selectedRange.extractContents();
+        span.appendChild(extracted);
+        selectedRange.insertNode(span);
         
         popup.style.display = 'none';
         document.getElementById('highlightQuestionInput').value = '';
@@ -2918,7 +2923,7 @@ window.saveHighlightComment = async function() {
         currentHighlightSelection = null;
     } catch (error) {
         console.error('Error adding highlight:', error);
-        alert('Could not add highlight. Try selecting a simpler text range.');
+        alert('Could not add highlight. Please try again or select a different text range.');
     }
 };
 
