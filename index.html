@@ -571,15 +571,13 @@
         
         /* Text Highlighting */
         .note-highlight {
-            background: #fff3a0;
-            padding: 2px 4px;
-            border-radius: 4px;
+            background-color: #fff59d;
+            padding: 0;
+            border-radius: 0;
             cursor: pointer;
-            transition: all 0.15s ease;
         }
         .note-highlight:hover {
-            background: #ffe066;
-            box-shadow: 0 0 0 2px rgba(255, 224, 102, 0.35);
+            background-color: #ffe066;
         }
 
         /* Learn Modal */
@@ -2939,30 +2937,32 @@ window.deleteQuestion = async function() {
 
 window.addHighlightToLearn = async function() {
     const question = document.getElementById('highlightQuestionText')?.textContent;
+
     if (!question || !currentHighlightElement) return;
-    
+
     if (!currentUserId || !actuaryState.noteId) {
         alert('Please sign in and open a note first.');
         return;
     }
-    
+
     try {
-        const answerText = currentHighlightElement.textContent || '';
+        const answerText = currentHighlightElement.innerText || '';
 
         await addDoc(collection(db, 'actuary_cards'), {
             userId: currentUserId,
             noteId: actuaryState.noteId,
-            subject: actuaryState.subject,
+            subject: actuaryState.subject || 'SP1',
             question: question,
             answer: answerText,
             createdAt: Date.now()
         });
-        
+
         alert('✅ Added to Learn cards!');
         window.closeHighlightModal();
+
     } catch (error) {
-        console.error('Error adding to learn tab:', error);
-        alert('Error adding to learn tab: ' + error.message);
+        console.error('Error adding to learn:', error);
+        alert('Error adding: ' + error.message);
     }
 };
 
@@ -3285,6 +3285,16 @@ window.loadCardsForNote = async function() {
     const statusEl = document.getElementById('learnStatus');
     if (statusEl) statusEl.textContent = 'Loading...';
 
+    cardsArray = [];
+    console.log('User:', currentUserId);
+    console.log('Note:', actuaryState.noteId);
+
+    if (!actuaryState.noteId) {
+        if (statusEl) statusEl.textContent = 'No note selected.';
+        renderCard();
+        return;
+    }
+
     try {
         const q = query(
             collection(db, 'actuary_cards'),
@@ -3292,13 +3302,16 @@ window.loadCardsForNote = async function() {
             where('noteId', '==', actuaryState.noteId)
         );
         const snapshot = await getDocs(q);
+        console.log('Cards found:', snapshot.size);
         cardsArray = snapshot.docs.map(docSnap => ({
             id: docSnap.id,
             ...docSnap.data()
         }));
         currentCardIndex = 0;
         renderCard();
-        if (statusEl) statusEl.textContent = '';
+        if (statusEl) {
+            statusEl.textContent = cardsArray.length ? '' : 'No cards yet for this note.';
+        }
     } catch (error) {
         console.error('Error loading cards:', error);
         if (statusEl) statusEl.textContent = 'Failed to load cards.';
