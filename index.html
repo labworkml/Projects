@@ -13,7 +13,8 @@
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(20, 28, 38, 0.55);
+            background: rgba(20, 28, 38, 0.45);
+            backdrop-filter: blur(8px);
             z-index: 100;
             align-items: center;
             justify-content: center;
@@ -111,7 +112,8 @@
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(20, 28, 38, 0.55);
+            background: rgba(20, 28, 38, 0.45);
+            backdrop-filter: blur(8px);
             z-index: 110;
             align-items: center;
             justify-content: center;
@@ -123,7 +125,8 @@
             display:none;
             position:fixed;
             top:0;left:0;width:100vw;height:100vh;
-            background: rgba(20, 28, 38, 0.55);
+            background: rgba(20, 28, 38, 0.45);
+            backdrop-filter: blur(8px);
             z-index: 115;
             align-items:center;
             justify-content:center;
@@ -150,7 +153,8 @@
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(20, 28, 38, 0.55);
+            background: rgba(20, 28, 38, 0.45);
+            backdrop-filter: blur(8px);
             z-index: 120;
             align-items: center;
             justify-content: center;
@@ -206,8 +210,9 @@
             --radius:12px;
             --gap:1rem;
             --max-width:1100px;
-            --shadow-sm: 0 8px 24px rgba(15,23,42,0.06);
-            --shadow-lg: 0 16px 40px rgba(15,23,42,0.12);
+            --shadow-sm: 0 6px 18px rgba(15,23,42,0.06);
+            --shadow-md: 0 12px 30px rgba(15,23,42,0.10);
+            --shadow-lg: 0 22px 60px rgba(15,23,42,0.18);
             --glass: rgba(255,255,255,0.6);
         }
 
@@ -215,7 +220,10 @@
             box-sizing:border-box;
             margin:0;
             padding:0;
-            transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+            transition:
+                background 0.25s cubic-bezier(.4,0,.2,1),
+                box-shadow 0.25s cubic-bezier(.4,0,.2,1),
+                transform 0.25s cubic-bezier(.4,0,.2,1);
         }
         html,body{height:100%}
         body{
@@ -227,7 +235,7 @@
             color:#12223a;
             -webkit-font-smoothing:antialiased;
             -moz-osx-font-smoothing:grayscale;
-            line-height:1.45;
+            line-height:1.55;
         }
 
         .navbar{
@@ -236,7 +244,9 @@
             border-bottom: 1px solid rgba(255,255,255,0.08);
             padding:0.8rem 1rem;
             position:sticky;top:0;z-index:40;
-            box-shadow:var(--shadow-sm);
+            box-shadow:
+                0 8px 30px rgba(0,0,0,0.25),
+                inset 0 1px 0 rgba(255,255,255,0.08);
         }
 
         .nav-tabs{
@@ -267,8 +277,8 @@
             background: linear-gradient(180deg, var(--accent), var(--accent-600));
             color:white;
             box-shadow:
-                0 6px 20px rgba(26,188,156,0.25),
-                inset 0 1px 0 rgba(255,255,255,0.3);
+                0 6px 20px rgba(26,188,156,0.35),
+                0 0 0 1px rgba(255,255,255,0.25) inset;
             transform: translateY(-1px);
         }
 
@@ -289,10 +299,10 @@
             }
         }
 
-        .tab-content{display:none;background:var(--card);padding:1.8rem;border-radius:var(--radius);box-shadow:var(--shadow-sm);animation:fadeIn 0.35s ease}
+        .tab-content{display:none;background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);border:1px solid #eef4f8;padding:1.8rem;border-radius:var(--radius);box-shadow:var(--shadow-sm);animation:fadeIn 0.35s ease}
         .tab-content.active{display:block}
 
-        h1{font-size:1.7rem;margin-bottom:0.85rem;color:#0f2540;font-weight:700;letter-spacing:-0.02em}
+        h1{font-size:1.7rem;margin-bottom:0.85rem;color:#0f2540;font-weight:700;letter-spacing:-0.03em}
         p{color:var(--muted);margin-bottom:1rem}
 
         .form-group{margin-bottom:1rem}
@@ -364,11 +374,110 @@
         /* Small helpers */
         .muted{color:var(--muted);font-size:.95rem}
 
+        /* Actuaries Module */
+        .actuary-module-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-top:1rem}
+        .actuary-module-card{
+            border:1px solid #e6edf3;
+            border-radius:16px;
+            padding:1.2rem;
+            background:linear-gradient(180deg,#ffffff,#fbfdff);
+            box-shadow:0 10px 26px rgba(15,23,42,0.07);
+            cursor:pointer;
+            text-align:left;
+            display:flex;
+            flex-direction:column;
+            gap:0.35rem;
+        }
+        .actuary-module-card span{font-size:1.6rem}
+        .actuary-module-card h3{margin:0;color:#0f2540;font-size:1.1rem}
+        .actuary-module-card p{margin:0;color:var(--muted);font-size:0.9rem}
+        .actuary-subject-header{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:1rem}
+        .actuary-notes-list{display:flex;flex-direction:column;gap:0.8rem}
+        .actuary-note-card{
+            border:1px solid #eef4f8;
+            border-radius:14px;
+            padding:1rem;
+            background:linear-gradient(180deg,#ffffff,#fbfdff);
+            box-shadow:0 8px 20px rgba(15,23,42,0.06);
+            display:flex;
+            gap:1rem;
+            align-items:center;
+            justify-content:space-between;
+            flex-wrap:wrap;
+        }
+        .actuary-note-meta{flex:1 1 260px;min-width:240px}
+        .actuary-note-meta h4{margin:0 0 0.35rem 0;color:#0f2540}
+        .actuary-progress{height:8px;background:#eef4f8;border-radius:999px;overflow:hidden}
+        .actuary-progress-bar{height:100%;background:linear-gradient(90deg,var(--accent),#34d399);width:35%}
+        .actuary-editor-header{display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;margin-bottom:1rem}
+        .actuary-editor-title{flex:1 1 260px;min-width:240px}
+        .actuary-editor-actions{display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center}
+        .actuary-editor-actions .muted{margin-left:0.25rem}
+        .actuary-split{display:flex;gap:1rem}
+        .actuary-panel{
+            background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);
+            border:1px solid #eef4f8;
+            border-radius:14px;
+            padding:1rem;
+            box-shadow:var(--shadow-sm);
+            position:relative;
+        }
+        .actuary-left{flex:0 0 60%}
+        .actuary-right{flex:0 0 40%}
+        .actuary-mode-toggle{display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:0.75rem}
+        .actuary-mode-toggle button{padding:0.45rem 0.8rem;font-size:0.9rem}
+        .actuary-mode-toggle button.active{background:linear-gradient(180deg,var(--accent),var(--accent-600));color:#fff}
+        #actuaryNotesEditor{min-height:260px}
+        .actuary-notes-display{
+            min-height:260px;
+            border:1px solid #e6edf3;
+            border-radius:12px;
+            padding:0.9rem 1rem;
+            background:linear-gradient(180deg,#fff,#fcfeff);
+            white-space:pre-wrap;
+            color:#0f2540;
+        }
+        #actuaryAddQuestionPopup{
+            position:absolute;
+            display:none;
+            z-index:20;
+        }
+        .actuary-question-input{
+            border:1px dashed #d6e0ea;
+            border-radius:12px;
+            padding:0.8rem;
+            background:#f8fbff;
+            margin-bottom:1rem;
+        }
+        .actuary-answer-preview{font-size:0.9rem;color:var(--muted);margin-top:0.35rem}
+        .actuary-questions-list{display:flex;flex-direction:column;gap:0.7rem}
+        details.actuary-question{
+            border:1px solid #e8eff5;
+            border-radius:12px;
+            padding:0.7rem 0.9rem;
+            background:linear-gradient(180deg,#ffffff,#fbfdff);
+            box-shadow:0 8px 18px rgba(15,23,42,0.05);
+        }
+        details.actuary-question summary{cursor:pointer;font-weight:600;color:#0f2540}
+        details.actuary-question .question-answer{margin-top:0.5rem;color:var(--muted)}
+        .actuary-learn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}
+        .actuary-learn-card{
+            border:1px solid #e8eff5;
+            border-radius:14px;
+            padding:1rem;
+            background:linear-gradient(180deg,#ffffff,#fbfdff);
+            box-shadow:0 10px 26px rgba(15,23,42,0.06);
+        }
+        .actuary-learn-card h4{margin-bottom:0.6rem;color:#0f2540}
+        .actuary-learn-answer{display:none;margin-top:0.5rem;color:var(--muted)}
+
         /* Responsive adjustments */
         @media (max-width:800px){
             .nav-tabs{gap:.5rem;padding:0 .6rem}
             h1{font-size:1.35rem}
             .tab-content{padding:1.05rem}
+            .actuary-split{flex-direction:column}
+            .actuary-left,.actuary-right{flex:1 1 auto}
         }
 
         @media (max-width:520px){
@@ -523,7 +632,10 @@
 #dashboard {
     display: none;
     min-height: 100vh;
-    background: linear-gradient(180deg, #f7fbfd 0%, var(--bg) 100%);
+    background:
+        radial-gradient(circle at 10% 10%, rgba(26,188,156,0.12), transparent 40%),
+        radial-gradient(circle at 90% 90%, rgba(59,130,246,0.10), transparent 40%),
+        linear-gradient(180deg,#f8fcff 0%, #eef3f8 100%);
     padding: 2rem 1rem;
     padding-top: 6rem;
     align-items: center;
@@ -572,15 +684,40 @@
     align-items: center;
     justify-content: center;
     min-height: 230px;
+    position: relative;
+    overflow: hidden;
+}
+.module-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        120deg,
+        transparent 30%,
+        rgba(255,255,255,0.35),
+        transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
 }
 .module-card:hover {
     transform: translateY(-10px) scale(1.03);
     box-shadow: 0 22px 60px rgba(15, 23, 42, 0.18);
     border-color: rgba(26,188,156,0.35);
 }
+.module-card:hover::before {
+    opacity: 1;
+}
 .module-icon {
     font-size: 2.8rem;
     margin-bottom: 0.8rem;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+.module-card:hover .module-icon {
+    transform: scale(1.15) rotate(3deg);
 }
 .module-name {
     font-size: 1.2rem;
@@ -588,6 +725,8 @@
     color: #0f2540;
     margin: 0;
     letter-spacing:-0.01em;
+    position: relative;
+    z-index: 1;
 }
 @media (max-width: 768px) {
     .modules-grid {
@@ -609,7 +748,9 @@
     background: rgba(15,37,64,0.85);
     backdrop-filter: blur(14px);
     border-bottom:1px solid rgba(255,255,255,0.08);
-    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.15);
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.25),
+        inset 0 -1px 0 rgba(255,255,255,0.08);
     position: absolute;
     top: 0;
     left: 0;
@@ -644,12 +785,12 @@
     font-weight: 600;
     font-size: 0.9rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.25s cubic-bezier(.4,0,.2,1);
 }
 .dashboard-header-logout:hover {
     background: #dc2626;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
 }
 @media (max-width: 768px) {
     #dashboardHeader {
@@ -751,6 +892,8 @@
             <button class="tab-button" data-tab="history" onclick="switchTab('history', this)">History</button>
             <button class="tab-button" data-tab="calendar" onclick="switchTab('calendar', this)">Calendar</button>
             <button class="tab-button" data-tab="journal" onclick="switchTab('journal', this)">Journal</button>
+            <button class="tab-button" data-tab="actuaryNotes" onclick="switchTab('actuaryNotes', this)" style="display:none;">Notes</button>
+            <button class="tab-button" data-tab="actuaryLearn" onclick="switchTab('actuaryLearn', this)" style="display:none;">Learn</button>
             <span id="currentUserDisplay" style="margin-left:auto;padding:0.5rem 1rem;color:var(--text);font-size:0.9rem;align-self:center;"></span>
             <button class="submit-btn btn-danger btn-sm" onclick="handleLogout()">Logout</button>
         </div>
@@ -776,6 +919,93 @@
                     <p style="color:#999;font-size:1rem;margin:0;">This module is under development</p>
                 </div>
             </div>
+        </div>
+
+        <!-- Actuaries Notes Tab -->
+        <div id="actuaryNotes" class="tab-content">
+            <h1>Actuaries Notes</h1>
+
+            <div id="actuaryHomeView">
+                <p class="muted">Choose a subject to manage your study notes.</p>
+                <div class="actuary-module-grid">
+                    <div class="actuary-module-card" role="button" tabindex="0" onclick="showSubjectNotes('SP1')">
+                        <span>📘</span>
+                        <h3>SP1</h3>
+                        <p>Core principles and practice</p>
+                    </div>
+                    <div class="actuary-module-card" role="button" tabindex="0" onclick="showSubjectNotes('SP2')">
+                        <span>📙</span>
+                        <h3>SP2</h3>
+                        <p>Advanced models and applications</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="actuarySubjectView" style="display:none;">
+                <div class="actuary-subject-header">
+                    <button class="submit-btn btn-muted btn-sm" onclick="showActuaryModules()">← Actuaries Home</button>
+                    <div>
+                        <h2 id="actuarySubjectTitle" style="margin:0;color:#0f2540;"></h2>
+                        <p class="muted" style="margin:0.2rem 0 0 0;">All notes for this subject</p>
+                    </div>
+                    <button class="submit-btn btn-sm" onclick="createNewNote(actuaryState.subject)">+ Add New Note</button>
+                </div>
+                <div id="actuaryNotesList" class="actuary-notes-list"></div>
+            </div>
+
+            <div id="actuaryEditorView" style="display:none;">
+                <div class="actuary-editor-header">
+                    <button class="submit-btn btn-muted btn-sm" onclick="showSubjectNotes(actuaryState.subject)">← Notes List</button>
+                    <div class="actuary-editor-title">
+                        <label for="actuaryNoteTitle">Title</label>
+                        <input id="actuaryNoteTitle" type="text" placeholder="Note title">
+                    </div>
+                    <div class="actuary-editor-actions">
+                        <button class="submit-btn btn-danger btn-sm" onclick="deleteNote(actuaryState.noteId)">Delete Note</button>
+                        <button class="submit-btn btn-sm" onclick="saveNotes()">Save Notes</button>
+                        <span class="muted" id="actuaryNotesStatus"></span>
+                    </div>
+                </div>
+
+                <div class="actuary-split">
+                    <div class="actuary-panel actuary-left" id="actuaryNotesPanel">
+                        <div class="actuary-mode-toggle">
+                            <button class="submit-btn btn-muted btn-sm active" id="actuaryReadModeBtn" onclick="setActuaryMode('read')">Read Mode</button>
+                            <button class="submit-btn btn-sm" id="actuaryEditModeBtn" onclick="setActuaryMode('edit')">Edit Mode</button>
+                        </div>
+                        <div id="actuaryNotesDisplay" class="actuary-notes-display"></div>
+                        <textarea id="actuaryNotesEditor" style="display:none;" placeholder="Write notes for this section..."></textarea>
+                        <div id="actuaryAddQuestionPopup">
+                            <button class="submit-btn btn-sm" onclick="openActuaryQuestionInput()">Add Question</button>
+                        </div>
+                    </div>
+                    <div class="actuary-panel actuary-right">
+                        <h3 style="margin-bottom:0.6rem;">Questions</h3>
+                        <div id="actuaryQuestionInput" class="actuary-question-input" style="display:none;">
+                            <label for="actuaryQuestionText">Question</label>
+                            <textarea id="actuaryQuestionText" placeholder="Type your question..."></textarea>
+                            <div class="actuary-answer-preview">Answer: <span id="actuarySelectedAnswer"></span></div>
+                            <div class="card-actions" style="margin-top:0.6rem;">
+                                <button class="submit-btn btn-sm" onclick="addQuestion()">Save Question</button>
+                                <button class="submit-btn btn-muted btn-sm" onclick="cancelActuaryQuestionInput()">Cancel</button>
+                            </div>
+                        </div>
+                        <div id="actuaryQuestionsList" class="actuary-questions-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actuaries Learn Tab -->
+        <div id="actuaryLearn" class="tab-content">
+            <h1>Actuaries Learn</h1>
+            <div class="actuary-toolbar">
+                <div>
+                    <label for="actuaryLearnSubject">Subject</label>
+                    <select id="actuaryLearnSubject" onchange="loadLearnQuestions(this.value)"></select>
+                </div>
+            </div>
+            <div id="actuaryLearnList" class="actuary-learn-grid"></div>
         </div>
 
         <!-- Design Tab -->
@@ -984,6 +1214,19 @@
             if (tabName === 'journal') {
                 setTimeout(async () => {
                     await window.firebaseRenderJournalList();
+                }, 50);
+            }
+
+            if (tabName === 'actuaryNotes') {
+                setTimeout(() => {
+                    if (window.initializeActuariesUI) window.initializeActuariesUI();
+                    if (window.showActuaryModules) window.showActuaryModules();
+                }, 50);
+            }
+
+            if (tabName === 'actuaryLearn') {
+                setTimeout(() => {
+                    if (window.loadLearnQuestions) window.loadLearnQuestions();
                 }, 50);
             }
 
@@ -1293,6 +1536,14 @@
                     await window.firebaseRenderJournalList();
                     initCalendar();
                 }, 100);
+            } else if (currentModule === 'Actuaries') {
+                hideModulePlaceholder();
+                setTimeout(() => {
+                    if (window.initializeActuariesUI) window.initializeActuariesUI();
+                    if (window.showActuaryModules) window.showActuaryModules();
+                    const btn = Array.from(document.querySelectorAll('.tab-button')).find(b => b.dataset.tab === 'actuaryNotes');
+                    switchTab('actuaryNotes', btn || null);
+                }, 100);
             } else {
                 // Show placeholder for other modules
                 showModulePlaceholder(moduleName);
@@ -1302,6 +1553,7 @@
 
         function updateNavbarForModule(moduleName) {
             const tennisTabs = ['home', 'sessions', 'match', 'history', 'calendar', 'journal'];
+            const actuaryTabs = ['actuaryNotes', 'actuaryLearn'];
             const tabButtons = document.querySelectorAll('.tab-button');
             
             tabButtons.forEach(button => {
@@ -1312,9 +1564,21 @@
                     if (tennisTabs.includes(tabName) || tabName === 'dashboard') {
                         button.style.display = 'inline-flex';
                     }
+                    if (actuaryTabs.includes(tabName)) {
+                        button.style.display = 'none';
+                    }
+                } else if (moduleName === 'Actuaries') {
+                    if (actuaryTabs.includes(tabName) || tabName === 'dashboard') {
+                        button.style.display = 'inline-flex';
+                    }
+                    if (tennisTabs.includes(tabName)) {
+                        button.style.display = 'none';
+                    }
                 } else {
                     // For other modules: hide Tennis tabs, keep dashboard
                     if (tennisTabs.includes(tabName)) {
+                        button.style.display = 'none';
+                    } else if (actuaryTabs.includes(tabName)) {
                         button.style.display = 'none';
                     } else if (tabName === 'dashboard') {
                         button.style.display = 'inline-flex';
@@ -1331,6 +1595,9 @@
             if (moduleName === 'Tennis') {
                 // Show Tennis content, hide generic module content
                 if (tennisSection) tennisSection.style.display = 'block';
+                if (moduleSection) moduleSection.style.display = 'none';
+            } else if (moduleName === 'Actuaries') {
+                if (tennisSection) tennisSection.style.display = 'none';
                 if (moduleSection) moduleSection.style.display = 'none';
             } else {
                 // Hide Tennis content, show generic module content
@@ -2003,6 +2270,470 @@ window.firebaseClearMatchHistory = async function() {
     } catch (error) {
         alert('Error clearing match history: ' + error.message);
         console.error(error);
+    }
+};
+
+// Actuaries Module
+const actuarySubjects = ['SP1', 'SP2'];
+const actuaryState = {
+    subject: null,
+    noteId: null,
+    mode: 'read',
+    selectedAnswer: ''
+};
+
+let actuaryUiInitialized = false;
+window.actuaryState = actuaryState;
+
+function hideActuaryPopup() {
+    const popup = document.getElementById('actuaryAddQuestionPopup');
+    if (popup) popup.style.display = 'none';
+}
+
+function setActuaryNotesStatus(message, isError) {
+    const statusEl = document.getElementById('actuaryNotesStatus');
+    if (!statusEl) return;
+    statusEl.textContent = message || '';
+    statusEl.style.color = isError ? '#ef4444' : 'var(--muted)';
+}
+
+function setActuaryView(viewId) {
+    const homeView = document.getElementById('actuaryHomeView');
+    const subjectView = document.getElementById('actuarySubjectView');
+    const editorView = document.getElementById('actuaryEditorView');
+    if (homeView) homeView.style.display = viewId === 'home' ? 'block' : 'none';
+    if (subjectView) subjectView.style.display = viewId === 'subject' ? 'block' : 'none';
+    if (editorView) editorView.style.display = viewId === 'editor' ? 'block' : 'none';
+}
+
+function ensureLearnSubjectOptions() {
+    const subjectSelect = document.getElementById('actuaryLearnSubject');
+    if (!subjectSelect) return;
+    if (subjectSelect.options.length > 0) return;
+    subjectSelect.innerHTML = actuarySubjects.map(subject => `<option value="${subject}">${subject}</option>`).join('');
+}
+
+window.initializeActuariesUI = function() {
+    if (actuaryUiInitialized) return;
+    const notesDisplay = document.getElementById('actuaryNotesDisplay');
+    const notesPanel = document.getElementById('actuaryNotesPanel');
+    const popup = document.getElementById('actuaryAddQuestionPopup');
+    if (!notesDisplay || !notesPanel || !popup) return;
+
+    const handleSelection = () => {
+        if (!actuaryState.noteId || actuaryState.mode !== 'read') {
+            hideActuaryPopup();
+            return;
+        }
+        const selection = window.getSelection();
+        if (!selection || selection.isCollapsed) {
+            hideActuaryPopup();
+            return;
+        }
+        const selectedText = selection.toString().trim();
+        if (!selectedText) {
+            hideActuaryPopup();
+            return;
+        }
+        if (!notesDisplay.contains(selection.anchorNode) || !notesDisplay.contains(selection.focusNode)) {
+            hideActuaryPopup();
+            return;
+        }
+        const range = selection.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        const panelRect = notesPanel.getBoundingClientRect();
+        const top = Math.max(8, rect.top - panelRect.top - 36);
+        const left = Math.max(8, Math.min(rect.left - panelRect.left, panelRect.width - 120));
+        popup.style.top = `${top}px`;
+        popup.style.left = `${left}px`;
+        popup.style.display = 'block';
+        actuaryState.selectedAnswer = selectedText;
+    };
+
+    notesDisplay.addEventListener('mouseup', handleSelection);
+    notesDisplay.addEventListener('keyup', handleSelection);
+    notesDisplay.addEventListener('touchend', handleSelection);
+
+    document.addEventListener('click', (event) => {
+        if (!notesPanel.contains(event.target)) {
+            hideActuaryPopup();
+        }
+    });
+
+    actuaryUiInitialized = true;
+};
+
+window.showActuaryModules = function() {
+    actuaryState.subject = null;
+    actuaryState.noteId = null;
+    actuaryState.selectedAnswer = '';
+    if (window.cancelActuaryQuestionInput) window.cancelActuaryQuestionInput();
+    setActuaryView('home');
+    hideActuaryPopup();
+};
+
+window.showSubjectNotes = async function(subject) {
+    if (!subject) return;
+    actuaryState.subject = subject;
+    actuaryState.noteId = null;
+    actuaryState.selectedAnswer = '';
+    if (window.cancelActuaryQuestionInput) window.cancelActuaryQuestionInput();
+    const titleEl = document.getElementById('actuarySubjectTitle');
+    if (titleEl) titleEl.textContent = `${subject} Notes`;
+    setActuaryView('subject');
+    hideActuaryPopup();
+    await window.loadNotesForSubject(subject);
+};
+
+window.loadNotesForSubject = async function(subject) {
+    const listEl = document.getElementById('actuaryNotesList');
+    if (!listEl) return;
+    if (!currentUserId || !subject) {
+        listEl.innerHTML = '<div class="muted">Sign in to view notes.</div>';
+        return;
+    }
+
+    listEl.innerHTML = '<div class="muted">Loading notes...</div>';
+
+    try {
+        const q = query(
+            collection(db, 'actuary_notes'),
+            where('userId', '==', currentUserId),
+            where('subject', '==', subject),
+            orderBy('updatedAt', 'desc')
+        );
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) {
+            listEl.innerHTML = '<div class="muted">No notes yet. Create your first note.</div>';
+            return;
+        }
+
+        listEl.innerHTML = '';
+        snapshot.forEach(docSnap => {
+            const data = docSnap.data();
+            const card = document.createElement('div');
+            card.className = 'actuary-note-card';
+
+            const meta = document.createElement('div');
+            meta.className = 'actuary-note-meta';
+            const title = document.createElement('h4');
+            title.textContent = data.title || 'Untitled Note';
+            const progress = document.createElement('div');
+            progress.className = 'actuary-progress';
+            const progressBar = document.createElement('div');
+            progressBar.className = 'actuary-progress-bar';
+            progress.appendChild(progressBar);
+            meta.appendChild(title);
+            meta.appendChild(progress);
+
+            const actions = document.createElement('div');
+            actions.className = 'card-actions';
+            const editBtn = document.createElement('button');
+            editBtn.className = 'submit-btn btn-sm';
+            editBtn.textContent = 'Edit';
+            editBtn.addEventListener('click', () => window.openNoteEditor(docSnap.id));
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'submit-btn btn-danger btn-sm';
+            deleteBtn.textContent = 'Delete';
+            deleteBtn.addEventListener('click', () => window.deleteNote(docSnap.id));
+            actions.appendChild(editBtn);
+            actions.appendChild(deleteBtn);
+
+            card.appendChild(meta);
+            card.appendChild(actions);
+            card.addEventListener('click', (event) => {
+                if (event.target === editBtn || event.target === deleteBtn) return;
+                window.openNoteEditor(docSnap.id);
+            });
+
+            listEl.appendChild(card);
+        });
+    } catch (error) {
+        console.error('Error loading notes', error);
+        listEl.innerHTML = '<div class="muted">Unable to load notes.</div>';
+    }
+};
+
+window.createNewNote = async function(subject) {
+    if (!currentUserId) return alert('Please sign in to create notes.');
+    if (!subject) return alert('Select a subject first.');
+    try {
+        const now = Date.now();
+        const docRef = await addDoc(collection(db, 'actuary_notes'), {
+            userId: currentUserId,
+            subject,
+            title: 'Untitled Note',
+            content: '',
+            createdAt: now,
+            updatedAt: now
+        });
+        await window.openNoteEditor(docRef.id);
+    } catch (error) {
+        console.error('Error creating note', error);
+        alert('Error creating note: ' + error.message);
+    }
+};
+
+window.openNoteEditor = async function(noteId) {
+    if (!noteId) return;
+    if (!currentUserId) return alert('Please sign in to view notes.');
+    const titleInput = document.getElementById('actuaryNoteTitle');
+    const notesDisplay = document.getElementById('actuaryNotesDisplay');
+    const notesEditor = document.getElementById('actuaryNotesEditor');
+
+    try {
+        const noteRef = doc(db, 'actuary_notes', noteId);
+        const snap = await getDoc(noteRef);
+        if (!snap.exists()) {
+            alert('Note not found');
+            return;
+        }
+        const data = snap.data();
+        if (data.userId !== currentUserId) {
+            alert('You do not have permission to view this note.');
+            return;
+        }
+        actuaryState.noteId = noteId;
+        actuaryState.subject = data.subject;
+        actuaryState.selectedAnswer = '';
+        if (window.cancelActuaryQuestionInput) window.cancelActuaryQuestionInput();
+        hideActuaryPopup();
+        if (titleInput) titleInput.value = data.title || '';
+        if (notesEditor) notesEditor.value = data.content || '';
+        if (notesDisplay) notesDisplay.textContent = data.content || 'No notes yet. Switch to Edit Mode to add.';
+        setActuaryNotesStatus('');
+        window.setActuaryMode('read');
+        setActuaryView('editor');
+        await window.loadQuestions(noteId);
+    } catch (error) {
+        console.error('Error loading note', error);
+        alert('Error loading note: ' + error.message);
+    }
+};
+
+window.setActuaryMode = function(mode) {
+    const notesDisplay = document.getElementById('actuaryNotesDisplay');
+    const notesEditor = document.getElementById('actuaryNotesEditor');
+    const readBtn = document.getElementById('actuaryReadModeBtn');
+    const editBtn = document.getElementById('actuaryEditModeBtn');
+    actuaryState.mode = mode;
+    if (notesDisplay && notesEditor) {
+        if (mode === 'edit') {
+            notesDisplay.style.display = 'none';
+            notesEditor.style.display = 'block';
+            hideActuaryPopup();
+        } else {
+            notesDisplay.style.display = 'block';
+            notesEditor.style.display = 'none';
+        }
+    }
+    if (readBtn) readBtn.classList.toggle('active', mode === 'read');
+    if (editBtn) editBtn.classList.toggle('active', mode === 'edit');
+};
+
+window.saveNotes = async function() {
+    const notesEditor = document.getElementById('actuaryNotesEditor');
+    const titleInput = document.getElementById('actuaryNoteTitle');
+    if (!notesEditor || !titleInput) return;
+    if (!currentUserId) return alert('Please sign in to save notes.');
+    if (!actuaryState.noteId) return alert('Open a note first.');
+    const content = notesEditor.value.trim();
+    const title = titleInput.value.trim() || 'Untitled Note';
+    try {
+        await updateDoc(doc(db, 'actuary_notes', actuaryState.noteId), {
+            title,
+            content,
+            updatedAt: Date.now()
+        });
+        const notesDisplay = document.getElementById('actuaryNotesDisplay');
+        if (notesDisplay) notesDisplay.textContent = content || 'No notes yet. Switch to Edit Mode to add.';
+        setActuaryNotesStatus('Saved.');
+        window.setActuaryMode('read');
+    } catch (error) {
+        console.error('Error saving notes', error);
+        setActuaryNotesStatus('Error saving notes.', true);
+    }
+};
+
+window.deleteNote = async function(noteId) {
+    if (!noteId) return;
+    if (!confirm('Delete this note and its questions?')) return;
+    try {
+        const noteRef = doc(db, 'actuary_notes', noteId);
+        const snap = await getDoc(noteRef);
+        if (!snap.exists()) return alert('Note not found');
+        const data = snap.data();
+        if (data.userId !== currentUserId) return alert('You do not have permission to delete this note.');
+
+        const q = query(collection(db, 'actuary_questions'), where('userId', '==', currentUserId), where('noteId', '==', noteId));
+        const questionsSnap = await getDocs(q);
+        const deletes = [];
+        questionsSnap.forEach(docSnap => deletes.push(deleteDoc(doc(db, 'actuary_questions', docSnap.id))));
+        await Promise.all(deletes);
+        await deleteDoc(noteRef);
+        actuaryState.noteId = null;
+        if (actuaryState.subject) {
+            await window.showSubjectNotes(actuaryState.subject);
+        } else {
+            window.showActuaryModules();
+        }
+    } catch (error) {
+        console.error('Error deleting note', error);
+        alert('Error deleting note: ' + error.message);
+    }
+};
+
+window.openActuaryQuestionInput = function() {
+    if (!actuaryState.selectedAnswer) return alert('Select text in the notes to attach as an answer.');
+    const inputBox = document.getElementById('actuaryQuestionInput');
+    const answerEl = document.getElementById('actuarySelectedAnswer');
+    const questionText = document.getElementById('actuaryQuestionText');
+    if (inputBox && answerEl && questionText) {
+        answerEl.textContent = actuaryState.selectedAnswer;
+        inputBox.style.display = 'block';
+        questionText.value = '';
+        questionText.focus();
+        hideActuaryPopup();
+    }
+};
+
+window.cancelActuaryQuestionInput = function() {
+    const inputBox = document.getElementById('actuaryQuestionInput');
+    const questionText = document.getElementById('actuaryQuestionText');
+    if (inputBox) inputBox.style.display = 'none';
+    if (questionText) questionText.value = '';
+};
+
+window.addQuestion = async function() {
+    if (!currentUserId) return alert('Please sign in to save questions.');
+    if (!actuaryState.noteId) return alert('Open a note first.');
+    const questionText = document.getElementById('actuaryQuestionText');
+    if (!questionText) return;
+    const question = questionText.value.trim();
+    if (!question) return alert('Please enter a question.');
+    if (!actuaryState.selectedAnswer) return alert('Select text in the notes to attach as an answer.');
+
+    try {
+        await addDoc(collection(db, 'actuary_questions'), {
+            userId: currentUserId,
+            noteId: actuaryState.noteId,
+            question,
+            answer: actuaryState.selectedAnswer,
+            createdAt: Date.now()
+        });
+        window.cancelActuaryQuestionInput();
+        await window.loadQuestions(actuaryState.noteId);
+    } catch (error) {
+        console.error('Error saving question', error);
+        alert('Error saving question: ' + error.message);
+    }
+};
+
+window.loadQuestions = async function(noteId) {
+    const listEl = document.getElementById('actuaryQuestionsList');
+    if (!listEl) return;
+    if (!currentUserId || !noteId) {
+        listEl.innerHTML = '<div class="muted">Open a note to view questions.</div>';
+        return;
+    }
+
+    try {
+        const q = query(
+            collection(db, 'actuary_questions'),
+            where('userId', '==', currentUserId),
+            where('noteId', '==', noteId),
+            orderBy('createdAt', 'desc')
+        );
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) {
+            listEl.innerHTML = '<div class="muted">No questions yet for this note.</div>';
+            return;
+        }
+
+        listEl.innerHTML = '';
+        snapshot.forEach(docSnap => {
+            const data = docSnap.data();
+            const details = document.createElement('details');
+            details.className = 'actuary-question';
+            const summary = document.createElement('summary');
+            summary.textContent = data.question || 'Question';
+            const answer = document.createElement('div');
+            answer.className = 'question-answer';
+            answer.textContent = data.answer || '';
+            details.appendChild(summary);
+            details.appendChild(answer);
+            listEl.appendChild(details);
+        });
+    } catch (error) {
+        console.error('Error loading questions', error);
+        listEl.innerHTML = '<div class="muted">Unable to load questions.</div>';
+    }
+};
+
+window.loadLearnQuestions = async function(subjectOverride) {
+    const listEl = document.getElementById('actuaryLearnList');
+    const subjectSelect = document.getElementById('actuaryLearnSubject');
+    if (!listEl || !subjectSelect) return;
+    if (!currentUserId) {
+        listEl.innerHTML = '<div class="muted">Sign in to view questions.</div>';
+        return;
+    }
+
+    ensureLearnSubjectOptions();
+    const subject = subjectOverride || subjectSelect.value || actuarySubjects[0];
+    subjectSelect.value = subject;
+
+    try {
+        const notesSnap = await getDocs(query(
+            collection(db, 'actuary_notes'),
+            where('userId', '==', currentUserId),
+            where('subject', '==', subject)
+        ));
+        const noteIds = notesSnap.docs.map(docSnap => docSnap.id);
+        if (noteIds.length === 0) {
+            listEl.innerHTML = '<div class="muted">No questions yet for this subject.</div>';
+            return;
+        }
+
+        const questionsSnap = await getDocs(query(
+            collection(db, 'actuary_questions'),
+            where('userId', '==', currentUserId),
+            orderBy('createdAt', 'desc')
+        ));
+        const questions = questionsSnap.docs
+            .map(docSnap => docSnap.data())
+            .filter(item => noteIds.includes(item.noteId));
+
+        if (questions.length === 0) {
+            listEl.innerHTML = '<div class="muted">No questions yet for this subject.</div>';
+            return;
+        }
+
+        listEl.innerHTML = '';
+        questions.forEach(data => {
+            const card = document.createElement('div');
+            card.className = 'actuary-learn-card';
+            const title = document.createElement('h4');
+            title.textContent = data.question || 'Question';
+            const answer = document.createElement('div');
+            answer.className = 'actuary-learn-answer';
+            answer.textContent = data.answer || '';
+            const btn = document.createElement('button');
+            btn.className = 'submit-btn btn-sm';
+            btn.textContent = 'Show Answer';
+            btn.addEventListener('click', () => {
+                const isVisible = answer.style.display === 'block';
+                answer.style.display = isVisible ? 'none' : 'block';
+                btn.textContent = isVisible ? 'Show Answer' : 'Hide Answer';
+            });
+            card.appendChild(title);
+            card.appendChild(btn);
+            card.appendChild(answer);
+            listEl.appendChild(card);
+        });
+    } catch (error) {
+        console.error('Error loading learn questions', error);
+        listEl.innerHTML = '<div class="muted">Unable to load questions.</div>';
     }
 };
 
