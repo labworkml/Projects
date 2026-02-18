@@ -2946,14 +2946,14 @@ window.addHighlightToLearn = async function() {
     }
 
     try {
-        const answerText = currentHighlightElement.innerText || '';
+        const questionText = question;
+        const answerHtml = currentHighlightElement.innerHTML || '';
 
-        await addDoc(collection(db, 'actuary_cards'), {
+        await addDoc(collection(db, 'actuary_questions'), {
             userId: currentUserId,
             noteId: actuaryState.noteId,
-            subject: actuaryState.subject || 'SP1',
-            question: question,
-            answer: answerText,
+            question: questionText,
+            answer: answerHtml,
             createdAt: Date.now()
         });
 
@@ -3286,6 +3286,7 @@ window.loadCardsForNote = async function() {
     if (statusEl) statusEl.textContent = 'Loading...';
 
     cardsArray = [];
+    console.log('Loading cards for:');
     console.log('User:', currentUserId);
     console.log('Note:', actuaryState.noteId);
 
@@ -3297,7 +3298,7 @@ window.loadCardsForNote = async function() {
 
     try {
         const q = query(
-            collection(db, 'actuary_cards'),
+            collection(db, 'actuary_questions'),
             where('userId', '==', currentUserId),
             where('noteId', '==', actuaryState.noteId)
         );
@@ -3403,7 +3404,7 @@ window.saveCardEdit = async function() {
     const statusEl = document.getElementById('learnStatus');
 
     try {
-        await updateDoc(doc(db, 'actuary_cards', card.id), {
+        await updateDoc(doc(db, 'actuary_questions', card.id), {
             question: questionEl.value.trim(),
             answer: answerEl.value.trim()
         });
