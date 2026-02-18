@@ -1177,20 +1177,6 @@ window.loadSessions = async function(){
             <button class="submit-btn" id="startDictationBtn" style="background:#3b82f6;" onclick="startDictation()">Start Dictation</button>
             <span id="dictationStatus" style="color:#3b82f6;font-weight:600;font-size:0.9rem;display:none;">Listening...</span>
         </div>
-        <div>
-            <label style="display:block;margin-bottom:0.5rem;color:#233348;font-weight:600;font-size:.95rem">Voice Note (optional)</label>
-            <div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;">
-                <button class="submit-btn" id="startRecordingVoiceBtn" style="background:#ef4444;" onclick="startVoiceRecording()">🎤 Start Recording</button>
-                <button class="submit-btn" id="stopRecordingVoiceBtn" style="background:#f59e0b;display:none;" onclick="stopVoiceRecording()">⏹ Stop</button>
-                <span id="recordingTimer" style="color:#ef4444;font-weight:600;font-size:0.9rem;display:none;">0:00</span>
-            </div>
-            <audio id="voicePreviewAudio" style="display:none;width:100%;margin-top:1rem;" controls></audio>
-            <div id="voicePreviewContainer" style="display:none;margin-top:1rem;padding:0.8rem;background:#f1f5f9;border-radius:10px;">
-                <p style="color:#233348;font-weight:600;font-size:0.9rem;margin:0 0 0.5rem 0;">Voice Note Preview:</p>
-                <audio id="voicePlayback" style="width:100%;" controls></audio>
-                <button class="submit-btn" style="background:#ef4444;margin-top:0.5rem;padding:0.5rem 0.8rem;font-size:0.85rem;" onclick="clearVoiceRecording()">Clear Voice Note</button>
-            </div>
-        </div>
         <div style="display:flex;gap:0.7rem;">
             <button class="submit-btn" id="saveJournalBtn" onclick="saveJournalEntry()">Save</button>
             <button class="submit-btn" style="background:#67748a;" onclick="closeJournalEntryModal()">Cancel</button>
@@ -1203,11 +1189,6 @@ window.loadSessions = async function(){
 let currentJournalContext = null; // { type, recordId, date }
 let currentJournalDocId = null;
 let journalMapByRecordId = {}; // { [recordId]: { docId, ...data } }
-let mediaRecorder = null;
-let recordingChunks = [];
-let recordingStartTime = null;
-let recordingTimerInterval = null;
-let currentVoiceBlob = null;
 let dictationRecognition = null;
 let isDictating = false;
 
@@ -1215,7 +1196,6 @@ let isDictating = false;
 function openJournalForRecord(type, recordId, date) {
     currentJournalContext = { type, recordId, date };
     currentJournalDocId = null;
-    clearVoiceRecording();
     const modal = document.getElementById('journalEntryModal');
     const textarea = document.getElementById('journalEntryTextarea');
     const title = document.getElementById('journalModalTitle');
@@ -1233,11 +1213,6 @@ function openJournalForRecord(type, recordId, date) {
     if (journal) {
         textarea.value = journal.text;
         currentJournalDocId = journal.docId;
-        if (journal.voiceUrl) {
-            document.getElementById('voicePlayback').src = journal.voiceUrl;
-            document.getElementById('voicePreviewContainer').style.display = 'block';
-            currentVoiceBlob = null; // Clear local blob for edit
-        }
     } else {
         textarea.value = '';
         currentJournalDocId = null;
@@ -1250,7 +1225,6 @@ function closeJournalEntryModal() {
     setTimeout(() => { modal.style.display = 'none'; }, 180);
     currentJournalContext = null;
     currentJournalDocId = null;
-    clearVoiceRecording();
     stopDictation();
 }
 
@@ -1315,92 +1289,17 @@ function stopDictation() {
     }
 }
 
-// --- Voice Recording Functions ---
-async function startVoiceRecording() {
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRecorder = new MediaRecorder(stream);
-        recordingChunks = [];
-        recordingStartTime = Date.now();
-        recordingTimerInterval = setInterval(updateRecordingTimer, 100);
-        
-        mediaRecorder.ondataavailable = (event) => {
-            recordingChunks.push(event.data);
-        };
-        
-        mediaRecorder.onstop = () => {
-            const blob = new Blob(recordingChunks, { type: 'audio/webm' });
-            currentVoiceBlob = blob;
-            const url = URL.createObjectURL(blob);
-            showVoicePlayback(url);
-            clearInterval(recordingTimerInterval);
-            document.getElementById('recordingTimer').style.display = 'none';
-        };
-        
-        mediaRecorder.start();
-        document.getElementById('startRecordingVoiceBtn').style.display = 'none';
-        document.getElementById('stopRecordingVoiceBtn').style.display = 'block';
-        document.getElementById('recordingTimer').style.display = 'inline';
-    } catch (error) {
-        alert('Microphone access denied: ' + error.message);
-    }
-}
-
-function stopVoiceRecording() {
-    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-        mediaRecorder.stop();
-        mediaRecorder.stream.getTracks().forEach(track => track.stop());
-        document.getElementById('stopRecordingVoiceBtn').style.display = 'none';
-        document.getElementById('startRecordingVoiceBtn').style.display = 'block';
-    }
-}
-
-function updateRecordingTimer() {
-    const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
-    const mins = Math.floor(elapsed / 60);
-    const secs = elapsed % 60;
-    document.getElementById('recordingTimer').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
-}
-
-function showVoicePlayback(url) {
-    document.getElementById('voicePlayback').src = url;
-    document.getElementById('voicePreviewContainer').style.display = 'block';
-}
-
-function clearVoiceRecording() {
-    currentVoiceBlob = null;
-    document.getElementById('voicePreviewContainer').style.display = 'none';
-    document.getElementById('voicePlayback').src = '';
-    document.getElementById('recordingTimer').textContent = '0:00';
-}
-
 async function saveJournalEntry() {
     const textarea = document.getElementById('journalEntryTextarea');
     let text = textarea.value.trim();
-    if (!text && !currentVoiceBlob) { textarea.focus(); alert('Please add text or record a voice note'); return; }
+    if (!text) { textarea.focus(); alert('Please add text'); return; }
     
     const { type, recordId, date } = currentJournalContext;
-    let voiceUrl = null;
-    
-    // Upload voice to Firebase Storage if exists
-    if (currentVoiceBlob) {
-        try {
-            const fileName = `journals/${currentUserId}/${recordId}_${Date.now()}.webm`;
-            const fileRef = window.ref(storage, fileName);
-            await window.uploadBytes(fileRef, currentVoiceBlob);
-            voiceUrl = await window.getDownloadURL(fileRef);
-        } catch (error) {
-            console.error('Voice upload failed', error);
-            alert('Error uploading voice: ' + error.message);
-            return;
-        }
-    }
     
     const journalsRef = collection(db, 'journals');
     if (currentJournalDocId) {
         // Update
         const updateData = { text };
-        if (voiceUrl) updateData.voiceUrl = voiceUrl;
         await updateDoc(doc(db, 'journals', currentJournalDocId), updateData);
     } else {
         // Add
@@ -1412,7 +1311,6 @@ async function saveJournalEntry() {
             text,
             createdAt: Date.now()
         };
-        if (voiceUrl) docData.voiceUrl = voiceUrl;
         await addDoc(journalsRef, docData);
     }
     closeJournalEntryModal();
@@ -1464,13 +1362,11 @@ window.firebaseRenderJournalList = async function() {
         let html = '';
         journalArray.forEach(j => {
             const typeColor = j.type === 'session' ? '#ef4444' : '#3b82f6';
-            const voiceBtn = j.voiceUrl ? `<audio style='width:100%;max-height:40px;margin-top:0.5rem;' controls><source src='${j.voiceUrl}' type='audio/webm'></audio>` : '';
             html += `<li>
               <div style='display:flex;justify-content:space-between;align-items:flex-start;gap:1.2rem;'>
                 <div style='flex:1;'>
                   <div style='font-size:1.08rem;font-weight:600;color:#0f2540;'>${j.date} <span style='background:${typeColor};color:white;padding:0.3rem 0.6rem;border-radius:6px;font-size:0.85rem;font-weight:500;'>${j.type}</span></div>
                   <div style='color:var(--muted);font-size:1.01rem;margin:0.5rem 0 0 0;white-space:pre-line;'>${j.text.length > 180 ? j.text.slice(0,180)+'...' : j.text}</div>
-                  ${voiceBtn}
                 </div>
                 <button class='submit-btn' style='background:#1abc9c;margin-left:1rem;flex-shrink:0;' onclick='openJournalForRecord("${j.type}", "${j.recordId}", "${j.date}")'>Edit</button>
               </div>
