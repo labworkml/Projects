@@ -581,29 +581,34 @@
         }
 
         /* Learn Modal */
-        .learn-modal-overlay{
-            position:fixed;
-            inset:0;
-            background:rgba(0,0,0,0.4);
-            backdrop-filter:blur(6px);
-            display:none;
-            align-items:center;
-            justify-content:center;
-            z-index:999;
+        .learn-overlay{
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
         }
-        .learn-modal{
-            width:700px;
-            max-width:760px;
-            background:#ffffff;
-            border-radius:16px;
-            padding:32px;
-            box-shadow:0 20px 50px rgba(0,0,0,0.15);
-            position:relative;
+        .learn-modal {
+            width: 90%;
+            max-width: 900px;
+            min-height: 520px;
+            background: white;
+            border-radius: 16px;
+            padding: 28px 32px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            position: relative;
+        }
+        .learn-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .learn-modal-close{
-            position:absolute;
-            top:16px;
-            right:16px;
             width:36px;
             height:36px;
             border:none;
@@ -613,53 +618,61 @@
             font-size:20px;
             cursor:pointer;
         }
-        .learn-modal-header{
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-            font-weight:600;
-            color:#0f2540;
-            margin-bottom:18px;
+        .learn-modal h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        .label {
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #444;
+        }
+        .card-textarea {
+            width: 100%;
+            min-height: 120px;
+            border-radius: 12px;
+            border: 1px solid #dcdcdc;
+            padding: 16px;
+            font-size: 18px;
+            line-height: 1.6;
+            resize: vertical;
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        .card-answer {
+            background: #f7f9fb;
         }
         .learn-modal-body{display:flex;flex-direction:column;gap:18px;transition:opacity 0.25s ease;}
-        .learn-modal label{display:block;margin:0 0 6px;font-weight:600;color:#374151}
-        .learn-modal .question-box,
-        .learn-modal .answer-box{
-            background:#f8fafc;
-            border:1px solid #e2e8f0;
-            border-radius:14px;
-            padding:18px 20px;
-            font-family:"Inter", system-ui, sans-serif;
-            white-space:pre-wrap;
+        .answer-section{display:none;margin-top:20px}
+        .card-actions {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 10px;
         }
-        .learn-modal .question-box{font-size:20px;line-height:1.6;font-weight:500}
-        .learn-modal .answer-box{font-size:19px;line-height:1.7;color:#334155}
-        .learn-modal textarea{
-            width:100%;
-            min-height:110px;
-            border:1px solid #d1d5db;
-            border-radius:12px;
-            padding:14px 16px;
-            font-size:17px;
-            line-height:1.6;
-            resize:vertical;
-            font-family:"Inter", system-ui, sans-serif;
+        .font-controls {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
         }
-        .learn-modal .answer-section{display:none;margin-top:20px}
-        .learn-modal-footer{display:flex;gap:0.6rem;justify-content:center;align-items:center;margin-top:20px;flex-wrap:wrap}
-        .learn-modal-actions{display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center}
-        .learn-modal .submit-btn{
-            padding:12px 20px;
-            border-radius:12px;
-            font-size:15px;
-            font-weight:600;
+        .btn {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 18px;
+            font-weight: 600;
+            cursor: pointer;
         }
-        .learn-card-delete{
-            background:#ef4444;
-            color:#ffffff;
-            border-radius:10px;
-            padding:10px 18px;
-            font-weight:600;
+        .btn-green {
+            background: #1f9d84;
+            color: white;
+        }
+        .btn-red {
+            background: #e74c3c;
+            color: white;
+        }
+        .btn-grey {
+            background: #6c7a89;
+            color: white;
         }
         
         .actuary-editor-footer{
@@ -2785,7 +2798,7 @@ window.saveNote = async function() {
             });
             console.log('Note created successfully:', docRef.id);
         }
-        window.closeActuaryNoteModal();
+        setActuaryNotesStatus('Saved.', false);
         await window.loadNotes();
     } catch (error) {
         console.error('Error saving note', error);
@@ -3279,6 +3292,23 @@ window.deleteLearnItem = async function(learnId) {
 let learnModalOpen = false;
 let cardsArray = [];
 let currentCardIndex = 0;
+let cardFontSize = 18;
+
+window.applyCardFontSize = function() {
+    document.querySelectorAll('.card-textarea').forEach(el => {
+        el.style.fontSize = cardFontSize + 'px';
+    });
+};
+
+window.increaseCardFont = function() {
+    cardFontSize += 1;
+    applyCardFontSize();
+};
+
+window.decreaseCardFont = function() {
+    cardFontSize = Math.max(14, cardFontSize - 1);
+    applyCardFontSize();
+};
 
 function setCardControlsDisabled(disabled) {
     const editBtn = document.getElementById('editCardBtn');
@@ -3393,6 +3423,8 @@ window.renderCard = function() {
     if (saveBtn) saveBtn.style.display = 'none';
     setCardEditMode(false);
     setCardControlsDisabled(false);
+
+    applyCardFontSize();
 
     if (bodyEl) {
         bodyEl.style.opacity = '0';
@@ -3708,37 +3740,39 @@ window.loadSessions = async function(){
     </div>
 
     <!-- Learn Card Reviewer Modal -->
-    <div id="learnModal" class="learn-modal-overlay">
+    <div id="learnModal" class="learn-overlay" style="display:none;">
         <div class="learn-modal">
-            <button class="learn-modal-close" onclick="closeLearnModal()">✕</button>
-            <div class="learn-modal-header">
+            <div class="learn-header">
                 <div id="cardCounter">Card 0 of 0</div>
+                <button class="learn-modal-close" onclick="closeLearnModal()">✕</button>
             </div>
             <div id="learnCardBody" class="learn-modal-body">
                 <div>
-                    <label>Question</label>
-                    <div id="cardQuestionDisplay" class="question-box"></div>
-                    <textarea id="cardQuestionEdit" style="display:none;"></textarea>
+                    <div class="label">Question</div>
+                    <div id="cardQuestionDisplay" class="card-textarea"></div>
+                    <textarea id="cardQuestionEdit" class="card-textarea" style="display:none;"></textarea>
                 </div>
-                <div class="learn-modal-actions">
-                    <button class="submit-btn btn-sm" id="toggleAnswerBtn" onclick="toggleAnswer()">Show Answer</button>
+                <div>
+                    <button class="btn btn-grey" id="toggleAnswerBtn" onclick="toggleAnswer()">Show Answer</button>
                 </div>
                 <div id="answerSection" class="answer-section">
-                    <label>Answer</label>
-                    <div id="cardAnswerDisplay" class="answer-box"></div>
-                    <textarea id="cardAnswerEdit" style="display:none;"></textarea>
+                    <div class="label">Answer</div>
+                    <div id="cardAnswerDisplay" class="card-textarea card-answer"></div>
+                    <textarea id="cardAnswerEdit" class="card-textarea card-answer" style="display:none;"></textarea>
+                </div>
+                <div class="font-controls">
+                    <button class="btn btn-grey" onclick="decreaseCardFont()">A-</button>
+                    <button class="btn btn-grey" onclick="increaseCardFont()">A+</button>
                 </div>
             </div>
-            <div class="learn-modal-footer">
-                <div class="learn-modal-actions">
-                    <button class="submit-btn btn-sm" onclick="prevCard()">Previous</button>
-                    <button class="submit-btn btn-sm" id="editCardBtn" onclick="enableCardEdit()">Edit</button>
-                    <button class="submit-btn learn-card-delete" id="deleteCardBtn" onclick="deleteCard()">Delete</button>
-                    <button class="submit-btn btn-sm" id="saveCardBtn" onclick="saveCardEdit()" style="display:none;">Save</button>
-                    <button class="submit-btn btn-sm" onclick="nextCard()">Next</button>
-                </div>
-                <div class="muted" id="learnStatus" style="min-width:140px;text-align:right;"></div>
+            <div class="card-actions">
+                <button class="btn btn-grey" onclick="prevCard()">Previous</button>
+                <button class="btn btn-green" id="editCardBtn" onclick="enableCardEdit()">Edit</button>
+                <button class="btn btn-red" id="deleteCardBtn" onclick="deleteCard()">Delete</button>
+                <button class="btn btn-green" id="saveCardBtn" onclick="saveCardEdit()" style="display:none;">Save</button>
+                <button class="btn btn-grey" onclick="nextCard()">Next</button>
             </div>
+            <div class="muted" id="learnStatus" style="min-width:140px;text-align:right;"></div>
         </div>
     </div>
 </div>
