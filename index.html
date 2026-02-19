@@ -7,7 +7,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
+    <link rel="stylesheet" href="css/styles.css">
+    <style media="not all" data-legacy="inline-styles">
         /* Journal Modal Large & Responsive */
         #journalEntryModal {
             display: none;
@@ -2783,7 +2784,7 @@ input:focus,textarea:focus,select:focus{
         </div>
     </div>
 
-    <script>
+    <script type="text/plain" data-legacy="inline-app">
         const mobileBottomNavConfig = {
             'Mobility - Physio': [
                 { label: 'Home', tab: 'mobilityHome' },
@@ -4499,7 +4500,7 @@ input:focus,textarea:focus,select:focus{
         });
 
     </script>
-<script type="module">
+<script type="text/plain" data-legacy="inline-firebase">
   // Import the functions you need from the SDKs you need
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
   import { getFirestore, collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, query, where, setDoc, orderBy } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
@@ -6920,7 +6921,7 @@ window.loadSessions = async function(){
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
-<script>
+<script type="text/plain" data-legacy="inline-journal">
 // --- Journal Global State ---
 let currentJournalContext = null; // { type, recordId, date }
 let currentJournalDocId = null;
@@ -7164,7 +7165,7 @@ window.firebaseRenderJournalList = async function() {
 }
 </script>
 
-<script>
+<script type="text/plain" data-legacy="inline-calendar">
 let calTrainDates={}, calMatchDates={}, calTrainDetails={}, calMatchDetails={};
 let calMobilityDates={}, calMobilityDetails={};
 
@@ -7528,6 +7529,13 @@ function openMobilityCalendarDetail(dateStr) {
 
 window.initMobilityCalendar = initMobilityCalendar;
 </script>
+
+<script src="js/app.js"></script>
+<script src="js/modules/tennis.js"></script>
+<script src="js/modules/ai.js"></script>
+<script src="js/modules/actuaries.js"></script>
+<script src="js/modules/insurance.js"></script>
+<script src="js/modules/mobility.js"></script>
 
 </body>
 </html>
