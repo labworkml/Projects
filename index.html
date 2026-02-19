@@ -1850,10 +1850,10 @@ input:focus,textarea:focus,select:focus{
     </div>
 
     <div id="mobileBottomNav" aria-label="Mobile Navigation">
-        <button class="bottom-nav-btn" data-target-tab="mobilityHome" onclick="switchTab('mobilityHome', this)">Home</button>
-        <button class="bottom-nav-btn" data-target-tab="mobilitySessions" onclick="switchTab('mobilitySessions', this)">Sessions</button>
-        <button class="bottom-nav-btn" data-target-tab="mobilityTemplates" onclick="switchTab('mobilityTemplates', this)">Templates</button>
-        <button class="bottom-nav-btn" data-target-tab="mobilityCalendar" onclick="switchTab('mobilityCalendar', this)">Calendar</button>
+        <button class="bottom-nav-btn" data-target-tab="" onclick="handleMobileBottomNavClick(this)">Home</button>
+        <button class="bottom-nav-btn" data-target-tab="" onclick="handleMobileBottomNavClick(this)">Sessions</button>
+        <button class="bottom-nav-btn" data-target-tab="" onclick="handleMobileBottomNavClick(this)">Templates</button>
+        <button class="bottom-nav-btn" data-target-tab="" onclick="handleMobileBottomNavClick(this)">Calendar</button>
     </div>
 
 <!-- Session Execution Modal Overlay -->
@@ -1975,18 +1975,52 @@ input:focus,textarea:focus,select:focus{
     </div>
 
     <script>
+        const mobileBottomNavConfig = {
+            'Mobility - Physio': [
+                { label: 'Home', tab: 'mobilityHome' },
+                { label: 'Sessions', tab: 'mobilitySessions' },
+                { label: 'Templates', tab: 'mobilityTemplates' },
+                { label: 'Calendar', tab: 'mobilityCalendar' }
+            ],
+            'Tennis': [
+                { label: 'Home', tab: 'home' },
+                { label: 'Sessions', tab: 'sessions' },
+                { label: 'Match', tab: 'match' },
+                { label: 'Calendar', tab: 'calendar' }
+            ]
+        };
+
+        function handleMobileBottomNavClick(button) {
+            const tabName = button?.getAttribute('data-target-tab') || '';
+            if (!tabName) return;
+            switchTab(tabName, button);
+        }
+
         function updateMobileBottomNav(activeTab = '') {
             const nav = document.getElementById('mobileBottomNav');
             if (!nav) return;
 
             const isMobileViewport = window.matchMedia('(max-width: 768px)').matches;
-            const showForMobility = currentModule === 'Mobility - Physio' && isMobileViewport;
-            nav.classList.toggle('show', showForMobility);
+            const config = mobileBottomNavConfig[currentModule] || [];
+            const showMobileNav = isMobileViewport && config.length > 0;
+            nav.classList.toggle('show', showMobileNav);
 
             const mobileButtons = nav.querySelectorAll('.bottom-nav-btn');
-            mobileButtons.forEach(button => {
-                const tab = button.getAttribute('data-target-tab');
-                button.classList.toggle('active', showForMobility && tab === activeTab);
+            mobileButtons.forEach((button, index) => {
+                const item = config[index];
+                if (!item) {
+                    button.style.display = 'none';
+                    button.style.pointerEvents = 'none';
+                    button.setAttribute('data-target-tab', '');
+                    button.classList.remove('active');
+                    return;
+                }
+
+                button.style.display = 'block';
+                button.style.pointerEvents = 'auto';
+                button.textContent = item.label;
+                button.setAttribute('data-target-tab', item.tab);
+                button.classList.toggle('active', showMobileNav && item.tab === activeTab);
             });
         }
 
