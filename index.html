@@ -3517,38 +3517,7 @@ input:focus,textarea:focus,select:focus{
         let currentModule = null;
         let currentMatchEditId = null;
         let currentHistoryEditId = null;
-        let insuranceActs = [
-            {
-                actId: 'act_insurance_1938',
-                actName: 'Insurance Act',
-                year: '1938',
-                description: 'Core insurance legislation governing policy, claims, and insurer obligations.'
-            },
-            {
-                actId: 'act_irdai_1999',
-                actName: 'IRDAI Act',
-                year: '1999',
-                description: 'Establishes insurance regulatory authority and supervisory framework.'
-            },
-            {
-                actId: 'act_lic',
-                actName: 'LIC Act',
-                year: '',
-                description: 'Key provisions governing Life Insurance Corporation operations and obligations.'
-            },
-            {
-                actId: 'act_mv',
-                actName: 'Motor Vehicles Act',
-                year: '',
-                description: 'Relevant sections tied to compulsory motor insurance and claims.'
-            },
-            {
-                actId: 'act_companies',
-                actName: 'Companies Act',
-                year: '',
-                description: 'Insurance-related corporate governance and reporting requirements.'
-            }
-        ];
+        let insuranceActs = [];
         let insuranceProvisions = [];
         let insuranceActiveActId = null;
         let insuranceProvisionEditId = null;
@@ -3652,7 +3621,10 @@ input:focus,textarea:focus,select:focus{
             return insuranceProvisions.filter(provision => provision.actId === actId);
         }
 
-        function initializeInsuranceModule() {
+        async function initializeInsuranceModule() {
+            if (window.firebaseLoadInsuranceActsAndProvisions) {
+                await window.firebaseLoadInsuranceActsAndProvisions();
+            }
             renderInsuranceActs();
             openInsuranceActsScreen();
             renderInsuranceCompanies();
@@ -3859,7 +3831,7 @@ input:focus,textarea:focus,select:focus{
             document.body.style.overflow = 'auto';
         }
 
-        function saveInsuranceAct() {
+        async function saveInsuranceAct() {
             const actName = document.getElementById('insuranceNewActName')?.value.trim() || '';
             const year = document.getElementById('insuranceNewActYear')?.value.trim() || '';
             const description = document.getElementById('insuranceNewActDescription')?.value.trim() || '';
@@ -3869,24 +3841,32 @@ input:focus,textarea:focus,select:focus{
                 return;
             }
 
-            const existingAct = insuranceActs.find(act => act.actId === insuranceActEditId);
-            if (existingAct) {
-                existingAct.actName = actName;
-                existingAct.year = year;
-                existingAct.description = description;
-            } else {
-                insuranceActs.unshift({
-                    actId: createInsuranceEntityId('act'),
-                    actName,
-                    year,
-                    description
-                });
+            try {
+                if (insuranceActEditId) {
+                    await window.firebaseUpdateInsuranceAct(insuranceActEditId, {
+                        actName,
+                        year,
+                        description
+                    });
+                } else {
+                    await window.firebaseCreateInsuranceAct({
+                        actName,
+                        year,
+                        description
+                    });
+                }
+
+                await window.firebaseLoadInsuranceActsAndProvisions();
+                renderInsuranceActs();
+                if (insuranceActiveActId && insuranceActEditId && insuranceActiveActId === insuranceActEditId) {
+                    renderInsuranceActProvisions();
+                }
+            } catch (error) {
+                alert('Error saving act: ' + error.message);
+                console.error(error);
+                return;
             }
 
-            renderInsuranceActs();
-            if (insuranceActiveActId && insuranceActEditId && insuranceActiveActId === insuranceActEditId) {
-                renderInsuranceActProvisions();
-            }
             closeInsuranceAddActModal();
             document.getElementById('insuranceNewActName').value = '';
             document.getElementById('insuranceNewActYear').value = '';
@@ -3897,7 +3877,7 @@ input:focus,textarea:focus,select:focus{
             openInsuranceAddActModal(actId);
         }
 
-        function deleteInsuranceAct(actId) {
+        async function deleteInsuranceAct(actId) {
             const targetAct = insuranceActs.find(act => act.actId === actId);
             if (!targetAct) return;
 
@@ -3908,8 +3888,14 @@ input:focus,textarea:focus,select:focus{
 
             if (!confirm(confirmationText)) return;
 
-            insuranceActs = insuranceActs.filter(act => act.actId !== actId);
-            insuranceProvisions = insuranceProvisions.filter(provision => provision.actId !== actId);
+            try {
+                await window.firebaseDeleteInsuranceActAndProvisions(actId);
+                await window.firebaseLoadInsuranceActsAndProvisions();
+            } catch (error) {
+                alert('Error deleting act: ' + error.message);
+                console.error(error);
+                return;
+            }
 
             if (insuranceActiveActId === actId) {
                 openInsuranceActsScreen();
@@ -3924,14 +3910,22 @@ input:focus,textarea:focus,select:focus{
             openInsuranceProvisionFormModal(provisionId);
         }
 
-        function deleteInsuranceProvision(provisionId) {
+        async function deleteInsuranceProvision(provisionId) {
             const targetProvision = insuranceProvisions.find(item => item.provisionId === provisionId);
             if (!targetProvision) return;
 
             const confirmed = confirm(`Delete provision ${targetProvision.sectionNumber} — ${targetProvision.sectionTitle}?`);
             if (!confirmed) return;
 
-            insuranceProvisions = insuranceProvisions.filter(item => item.provisionId !== provisionId);
+            try {
+                await window.firebaseDeleteInsuranceProvision(provisionId);
+                await window.firebaseLoadInsuranceActsAndProvisions();
+            } catch (error) {
+                alert('Error deleting provision: ' + error.message);
+                console.error(error);
+                return;
+            }
+
             renderInsuranceActProvisions();
             closeInsuranceDetailModal();
         }
@@ -4078,7 +4072,7 @@ input:focus,textarea:focus,select:focus{
             document.body.style.overflow = 'auto';
         }
 
-        function saveInsuranceProvision() {
+        async function saveInsuranceProvision() {
             if (!insuranceActiveActId) {
                 alert('Select an Act before saving a provision.');
                 return;
@@ -4099,34 +4093,30 @@ input:focus,textarea:focus,select:focus{
                 return;
             }
 
-            const existing = insuranceProvisions.find(item => item.provisionId === insuranceProvisionEditId);
-            if (existing) {
-                existing.sectionNumber = sectionNumber;
-                existing.sectionTitle = sectionTitle;
-                existing.sectionText = sectionText;
-                existing.plainExplanation = plainExplanation;
-                existing.purposeOfSection = purposeOfSection;
-                existing.tags = tags;
-                existing.relatedSections = relatedSections;
-                existing.supervisoryFocusAreas = supervisoryFocusAreas;
-                existing.practicalExamples = practicalExamples;
-                existing.updatedAt = new Date().toISOString();
-            } else {
-                insuranceProvisions.unshift({
-                    provisionId: createInsuranceEntityId('provision'),
-                    actId: insuranceActiveActId,
-                    sectionNumber,
-                    sectionTitle,
-                    sectionText,
-                    plainExplanation,
-                    purposeOfSection,
-                    tags,
-                    relatedSections,
-                    supervisoryFocusAreas,
-                    practicalExamples,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString()
-                });
+            const payload = {
+                actId: insuranceActiveActId,
+                sectionNumber,
+                sectionTitle,
+                sectionText,
+                plainExplanation,
+                purposeOfSection,
+                tags,
+                relatedSections,
+                supervisoryFocusAreas,
+                practicalExamples
+            };
+
+            try {
+                if (insuranceProvisionEditId) {
+                    await window.firebaseUpdateInsuranceProvision(insuranceProvisionEditId, payload);
+                } else {
+                    await window.firebaseCreateInsuranceProvision(payload);
+                }
+                await window.firebaseLoadInsuranceActsAndProvisions();
+            } catch (error) {
+                alert('Error saving provision: ' + error.message);
+                console.error(error);
+                return;
             }
 
             renderInsuranceActProvisions();
@@ -4324,8 +4314,8 @@ input:focus,textarea:focus,select:focus{
             } else if (currentModule === 'Insurance') {
                 hideModulePlaceholder();
                 disableTennisTabs();
-                setTimeout(() => {
-                    initializeInsuranceModule();
+                setTimeout(async () => {
+                    await initializeInsuranceModule();
                 }, 80);
             } else {
                 // Show placeholder for other modules
@@ -5443,6 +5433,203 @@ window.firebaseClearMatchHistory = async function() {
         alert('Error clearing match history: ' + error.message);
         console.error(error);
     }
+};
+
+window.firebaseGetInsuranceActs = async function() {
+    if (!currentUserId) return [];
+
+    const snapshot = await getDocs(query(
+        collection(db, 'insurance_acts'),
+        where('userId', '==', currentUserId)
+    ));
+
+    const acts = [];
+    snapshot.forEach(docSnap => {
+        const data = docSnap.data() || {};
+        acts.push({
+            actId: docSnap.id,
+            actName: data.actName || '',
+            year: data.year || '',
+            description: data.description || '',
+            createdAt: data.createdAt || 0,
+            updatedAt: data.updatedAt || 0
+        });
+    });
+
+    acts.sort((a, b) => (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0));
+    return acts;
+};
+
+window.firebaseGetInsuranceProvisions = async function() {
+    if (!currentUserId) return [];
+
+    const snapshot = await getDocs(query(
+        collection(db, 'insurance_provisions'),
+        where('userId', '==', currentUserId)
+    ));
+
+    const provisions = [];
+    snapshot.forEach(docSnap => {
+        const data = docSnap.data() || {};
+        provisions.push({
+            provisionId: docSnap.id,
+            actId: data.actId || '',
+            sectionNumber: data.sectionNumber || '',
+            sectionTitle: data.sectionTitle || '',
+            sectionText: data.sectionText || '',
+            plainExplanation: data.plainExplanation || '',
+            purposeOfSection: data.purposeOfSection || '',
+            tags: Array.isArray(data.tags) ? data.tags : [],
+            relatedSections: Array.isArray(data.relatedSections) ? data.relatedSections : [],
+            supervisoryFocusAreas: data.supervisoryFocusAreas || '',
+            practicalExamples: data.practicalExamples || '',
+            createdAt: data.createdAt || 0,
+            updatedAt: data.updatedAt || 0
+        });
+    });
+
+    provisions.sort((a, b) => (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0));
+    return provisions;
+};
+
+window.firebaseLoadInsuranceActsAndProvisions = async function() {
+    if (!currentUserId) {
+        insuranceActs = [];
+        insuranceProvisions = [];
+        return;
+    }
+
+    const [acts, provisions] = await Promise.all([
+        window.firebaseGetInsuranceActs(),
+        window.firebaseGetInsuranceProvisions()
+    ]);
+
+    insuranceActs = acts;
+    insuranceProvisions = provisions.filter(item => insuranceActs.some(act => act.actId === item.actId));
+
+    if (insuranceActiveActId && !insuranceActs.some(act => act.actId === insuranceActiveActId)) {
+        insuranceActiveActId = null;
+    }
+
+    if (insuranceProvisionEditId && !insuranceProvisions.some(item => item.provisionId === insuranceProvisionEditId)) {
+        insuranceProvisionEditId = null;
+    }
+};
+
+window.firebaseCreateInsuranceAct = async function(data) {
+    if (!currentUserId) return;
+    await addDoc(collection(db, 'insurance_acts'), {
+        userId: currentUserId,
+        module: 'Insurance',
+        actName: data.actName || '',
+        year: data.year || '',
+        description: data.description || '',
+        createdAt: Date.now(),
+        updatedAt: Date.now()
+    });
+};
+
+window.firebaseUpdateInsuranceAct = async function(actId, data) {
+    const refDoc = doc(db, 'insurance_acts', actId);
+    const docSnap = await getDoc(refDoc);
+    if (!docSnap.exists()) throw new Error('Act not found');
+
+    const existing = docSnap.data() || {};
+    if (existing.userId !== currentUserId) {
+        throw new Error('You do not have permission to edit this act');
+    }
+
+    await updateDoc(refDoc, {
+        actName: data.actName || '',
+        year: data.year || '',
+        description: data.description || '',
+        updatedAt: Date.now()
+    });
+};
+
+window.firebaseDeleteInsuranceActAndProvisions = async function(actId) {
+    const refAct = doc(db, 'insurance_acts', actId);
+    const actSnap = await getDoc(refAct);
+    if (!actSnap.exists()) throw new Error('Act not found');
+
+    const existingAct = actSnap.data() || {};
+    if (existingAct.userId !== currentUserId) {
+        throw new Error('You do not have permission to delete this act');
+    }
+
+    const provisionsSnapshot = await getDocs(query(
+        collection(db, 'insurance_provisions'),
+        where('userId', '==', currentUserId)
+    ));
+
+    const deletePromises = [];
+    provisionsSnapshot.forEach(docSnap => {
+        const data = docSnap.data() || {};
+        if (data.actId === actId) {
+            deletePromises.push(deleteDoc(doc(db, 'insurance_provisions', docSnap.id)));
+        }
+    });
+
+    await Promise.all(deletePromises);
+    await deleteDoc(refAct);
+};
+
+window.firebaseCreateInsuranceProvision = async function(data) {
+    if (!currentUserId) return;
+    await addDoc(collection(db, 'insurance_provisions'), {
+        userId: currentUserId,
+        module: 'Insurance',
+        actId: data.actId || '',
+        sectionNumber: data.sectionNumber || '',
+        sectionTitle: data.sectionTitle || '',
+        sectionText: data.sectionText || '',
+        plainExplanation: data.plainExplanation || '',
+        purposeOfSection: data.purposeOfSection || '',
+        tags: Array.isArray(data.tags) ? data.tags : [],
+        relatedSections: Array.isArray(data.relatedSections) ? data.relatedSections : [],
+        supervisoryFocusAreas: data.supervisoryFocusAreas || '',
+        practicalExamples: data.practicalExamples || '',
+        createdAt: Date.now(),
+        updatedAt: Date.now()
+    });
+};
+
+window.firebaseUpdateInsuranceProvision = async function(provisionId, data) {
+    const refDoc = doc(db, 'insurance_provisions', provisionId);
+    const docSnap = await getDoc(refDoc);
+    if (!docSnap.exists()) throw new Error('Provision not found');
+
+    const existing = docSnap.data() || {};
+    if (existing.userId !== currentUserId) {
+        throw new Error('You do not have permission to edit this provision');
+    }
+
+    await updateDoc(refDoc, {
+        actId: data.actId || '',
+        sectionNumber: data.sectionNumber || '',
+        sectionTitle: data.sectionTitle || '',
+        sectionText: data.sectionText || '',
+        plainExplanation: data.plainExplanation || '',
+        purposeOfSection: data.purposeOfSection || '',
+        tags: Array.isArray(data.tags) ? data.tags : [],
+        relatedSections: Array.isArray(data.relatedSections) ? data.relatedSections : [],
+        supervisoryFocusAreas: data.supervisoryFocusAreas || '',
+        practicalExamples: data.practicalExamples || '',
+        updatedAt: Date.now()
+    });
+};
+
+window.firebaseDeleteInsuranceProvision = async function(provisionId) {
+    const refDoc = doc(db, 'insurance_provisions', provisionId);
+    const docSnap = await getDoc(refDoc);
+    if (!docSnap.exists()) throw new Error('Provision not found');
+
+    const existing = docSnap.data() || {};
+    if (existing.userId !== currentUserId) {
+        throw new Error('You do not have permission to delete this provision');
+    }
+
+    await deleteDoc(refDoc);
 };
 
 // Actuaries Module
