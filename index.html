@@ -809,9 +809,30 @@
             max-width:760px;
             min-height:auto;
             max-height:calc(100vh - 48px);
-            overflow-y:auto;
+            overflow:hidden;
+            display:flex;
+            flex-direction:column;
             border-radius:20px;
             margin:0 auto;
+        }
+
+        #sessionModal .session-progress,
+        #mobilitySessionModal .session-progress{
+            margin-bottom:0.85rem;
+        }
+
+        #modalItemsList,
+        #mobilityModalItemsList{
+            flex:1;
+            overflow-y:auto;
+            padding-right:0.2rem;
+            margin:0;
+        }
+
+        #finishSessionBtn,
+        #mobilityFinishSessionBtn{
+            flex-shrink:0;
+            margin-top:0.85rem;
         }
 
         #modalItemsList li {
@@ -2188,7 +2209,7 @@ input:focus,textarea:focus,select:focus{
             </div>
             
             <!-- Items Checklist -->
-            <ul id="modalItemsList" style="list-style:none;padding:0;margin:0 0 2rem 0;"></ul>
+            <ul id="modalItemsList" style="list-style:none;padding:0;"></ul>
             
             <!-- Finish Session Button -->
             <button id="finishSessionBtn" style="width:100%;background:var(--accent);color:white;padding:1rem;border-radius:10px;border:none;font-weight:700;font-size:1rem;cursor:pointer;box-shadow:0 8px 20px rgba(26,188,156,0.12);transition:transform .12s ease,box-shadow .12s ease;margin-top:1rem;" onclick="finishSession()">
@@ -2272,8 +2293,8 @@ input:focus,textarea:focus,select:focus{
                 </div>
             </div>
 
-            <ul id="mobilityModalItemsList" style="list-style:none;padding:0;margin:0 0 2rem 0;"></ul>
-            <button style="width:100%;background:var(--accent);color:white;padding:1rem;border-radius:10px;border:none;font-weight:700;font-size:1rem;cursor:pointer;box-shadow:0 8px 20px rgba(26,188,156,0.12);margin-top:1rem;" onclick="finishMobilitySession()">
+            <ul id="mobilityModalItemsList" style="list-style:none;padding:0;"></ul>
+            <button id="mobilityFinishSessionBtn" style="width:100%;background:var(--accent);color:white;padding:1rem;border-radius:10px;border:none;font-weight:700;font-size:1rem;cursor:pointer;box-shadow:0 8px 20px rgba(26,188,156,0.12);margin-top:1rem;" onclick="finishMobilitySession()">
                 Finish Session
             </button>
         </div>
