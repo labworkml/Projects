@@ -1849,6 +1849,233 @@ input:focus,textarea:focus,select:focus{
     }
 }
 
+/* Insurance Module */
+#insuranceContainer{
+    display:none;
+}
+
+.insurance-view{display:none;}
+.insurance-view.active{display:block;}
+
+.insurance-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:1rem;
+    margin-top:1rem;
+}
+
+.insurance-card,
+.insurance-data-card{
+    border:1px solid #e6edf5;
+    border-radius:18px;
+    background:linear-gradient(180deg,#ffffff,#fbfdff);
+    box-shadow:0 10px 28px rgba(15,23,42,0.08);
+    transition:transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.insurance-card{
+    cursor:pointer;
+    padding:1.2rem;
+    min-height:210px;
+    display:flex;
+    flex-direction:column;
+    gap:0.6rem;
+}
+
+.insurance-data-card{
+    padding:1rem;
+    cursor:pointer;
+}
+
+.insurance-card:hover,
+.insurance-data-card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 18px 34px rgba(15,23,42,0.14);
+    border-color:rgba(34,197,94,0.45);
+}
+
+.insurance-card-icon{
+    font-size:2rem;
+    line-height:1;
+}
+
+.insurance-card-title{
+    font-size:1.15rem;
+    font-weight:700;
+    color:#0f2540;
+    margin:0;
+}
+
+.insurance-card-desc,
+.insurance-data-muted{
+    color:#64748b;
+    font-size:0.95rem;
+    margin:0;
+}
+
+.insurance-section-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:0.8rem;
+    flex-wrap:wrap;
+    margin-bottom:0.8rem;
+}
+
+.insurance-back-btn{
+    width:auto;
+}
+
+.insurance-tags{
+    display:flex;
+    flex-wrap:wrap;
+    gap:0.4rem;
+    margin-top:0.65rem;
+}
+
+.insurance-tag{
+    display:inline-flex;
+    align-items:center;
+    border-radius:999px;
+    padding:0.2rem 0.55rem;
+    font-size:0.76rem;
+    font-weight:600;
+    background:#eef4ff;
+    color:#1d4ed8;
+}
+
+.insurance-detail-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:0.85rem;
+}
+
+.insurance-modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(20,28,38,0.5);
+    backdrop-filter:blur(8px);
+    z-index:140;
+    align-items:center;
+    justify-content:center;
+    padding:1rem;
+}
+
+.insurance-modal.active{display:flex;}
+
+.insurance-modal-box{
+    width:min(92vw, 900px);
+    max-height:92vh;
+    overflow-y:auto;
+    background:#ffffff;
+    border-radius:20px;
+    padding:1.3rem 1.4rem;
+    border:1px solid #e6edf5;
+    box-shadow:0 24px 50px rgba(15,23,42,0.2);
+}
+
+.insurance-modal-title{
+    font-size:1.35rem;
+    font-weight:700;
+    color:#0f2540;
+    margin-bottom:0.9rem;
+}
+
+.insurance-chat-wrap{
+    border:1px solid #e6edf5;
+    border-radius:18px;
+    background:linear-gradient(180deg,#ffffff,#fbfdff);
+    box-shadow:0 10px 22px rgba(15,23,42,0.08);
+    overflow:hidden;
+}
+
+#insuranceChatMessages{
+    min-height:330px;
+    max-height:430px;
+    overflow-y:auto;
+    padding:1rem;
+    display:flex;
+    flex-direction:column;
+    gap:0.7rem;
+}
+
+.insurance-chat-row{
+    display:flex;
+}
+
+.insurance-chat-row.user{justify-content:flex-end;}
+.insurance-chat-row.ai{justify-content:flex-start;}
+
+.insurance-chat-bubble{
+    max-width:min(86%, 620px);
+    border-radius:14px;
+    padding:0.7rem 0.85rem;
+    font-size:0.95rem;
+    line-height:1.45;
+}
+
+.insurance-chat-row.user .insurance-chat-bubble{
+    background:linear-gradient(180deg,#22c55e,#16a34a);
+    color:#ffffff;
+}
+
+.insurance-chat-row.ai .insurance-chat-bubble{
+    background:#f1f5f9;
+    color:#0f2540;
+}
+
+.insurance-chat-input-row{
+    border-top:1px solid #e6edf5;
+    padding:0.8rem;
+    display:flex;
+    gap:0.55rem;
+    background:#ffffff;
+}
+
+.insurance-chat-input-row input{
+    margin:0;
+}
+
+.insurance-chat-input-row .submit-btn{
+    width:auto;
+}
+
+.insurance-intelligence-layer{
+    margin-top:1rem;
+    display:flex;
+    justify-content:center;
+}
+
+.insurance-intelligence-card{
+    width:min(100%, 620px);
+    text-align:center;
+    border:1px solid rgba(59,130,246,0.28);
+    background:
+        radial-gradient(circle at 10% 10%, rgba(59,130,246,0.14), transparent 35%),
+        radial-gradient(circle at 90% 90%, rgba(34,197,94,0.14), transparent 35%),
+        linear-gradient(180deg,#ffffff,#f8fbff);
+    box-shadow:0 18px 36px rgba(15,23,42,0.12);
+}
+
+.insurance-intelligence-card .insurance-card-icon{
+    font-size:2.35rem;
+}
+
+@media (max-width: 768px) {
+    .insurance-grid{
+        grid-template-columns:1fr;
+    }
+    .insurance-card{
+        min-height:180px;
+    }
+    .insurance-modal-box{
+        width:100%;
+        max-height:100vh;
+        border-radius:20px 20px 0 0;
+    }
+}
+
 </style>
 </head>
 <body>
@@ -1957,7 +2184,145 @@ input:focus,textarea:focus,select:focus{
 
             <!-- Generic Module Section -->
             <div id="moduleHomeSection" style="display:none;">
-                <div style="text-align:center;padding:2rem 1rem;">
+                <div id="insuranceContainer">
+                    <div id="insuranceHomeView" class="insurance-view active">
+                        <h1>Insurance Knowledge Hub</h1>
+                        <p class="muted" style="margin-bottom:0.9rem;">Choose a module to explore statutory provisions, regulations, company financials, market inputs, and intelligence support.</p>
+                        <div class="insurance-grid">
+                            <div class="insurance-card" onclick="showInsuranceView('provisions')">
+                                <div class="insurance-card-icon">📚</div>
+                                <h3 class="insurance-card-title">Act Provisions</h3>
+                                <p class="insurance-card-desc">Browse key insurance law sections with practical interpretation and related clauses.</p>
+                            </div>
+                            <div class="insurance-card" onclick="showInsuranceView('concepts')">
+                                <div class="insurance-card-icon">🏢</div>
+                                <h3 class="insurance-card-title">Regulations, Circulars and Guidelines</h3>
+                                <p class="insurance-card-desc">Track regulatory updates, circular highlights, and compliance guidance in one place.</p>
+                            </div>
+                            <div class="insurance-card" onclick="showInsuranceView('companies')">
+                                <div class="insurance-card-icon">📊</div>
+                                <h3 class="insurance-card-title">Insurance Companies - Financials</h3>
+                                <p class="insurance-card-desc">Review insurer type, solvency profile, and financial notes for quick analysis.</p>
+                            </div>
+                            <div class="insurance-card" onclick="showInsuranceView('notes')">
+                                <div class="insurance-card-icon">🧠</div>
+                                <h3 class="insurance-card-title">News and Inputs</h3>
+                                <p class="insurance-card-desc">Capture market news, policy inputs, and quick observations in journal format.</p>
+                            </div>
+                        </div>
+                        <div class="insurance-intelligence-layer">
+                            <div class="insurance-card insurance-intelligence-card" onclick="showInsuranceView('ai')">
+                                <div class="insurance-card-icon">🧞‍♂️✨</div>
+                                <h3 class="insurance-card-title">Insurance Intelligence</h3>
+                                <p class="insurance-card-desc">Sits across all modules to deliver insight-driven guidance using provisions, regulations, company financials, and news inputs.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="insuranceProvisionsView" class="insurance-view">
+                        <div class="insurance-section-header">
+                            <button class="submit-btn btn-muted btn-sm insurance-back-btn" onclick="showInsuranceHome()">← Back to Insurance Home</button>
+                            <button class="submit-btn btn-sm" onclick="openInsuranceProvisionFormModal()">+ Add Provision</button>
+                        </div>
+                        <h1>Provisions</h1>
+                        <div id="insuranceProvisionsList" class="insurance-grid"></div>
+                    </div>
+
+                    <div id="insuranceCompaniesView" class="insurance-view">
+                        <div class="insurance-section-header">
+                            <button class="submit-btn btn-muted btn-sm insurance-back-btn" onclick="showInsuranceHome()">← Back to Insurance Home</button>
+                        </div>
+                        <h1>Insurance Companies - Financials</h1>
+                        <div id="insuranceCompaniesList" class="insurance-grid"></div>
+                    </div>
+
+                    <div id="insuranceConceptsView" class="insurance-view">
+                        <div class="insurance-section-header">
+                            <button class="submit-btn btn-muted btn-sm insurance-back-btn" onclick="showInsuranceHome()">← Back to Insurance Home</button>
+                        </div>
+                        <h1>Regulations, Circulars and Guidelines</h1>
+                        <div id="insuranceConceptsList" class="insurance-grid"></div>
+                    </div>
+
+                    <div id="insuranceNotesView" class="insurance-view">
+                        <div class="insurance-section-header">
+                            <button class="submit-btn btn-muted btn-sm insurance-back-btn" onclick="showInsuranceHome()">← Back to Insurance Home</button>
+                            <button class="submit-btn btn-sm" onclick="openInsuranceNoteFormModal()">+ Add Note</button>
+                        </div>
+                        <h1>News and Inputs</h1>
+                        <div id="insuranceNotesList" class="insurance-grid"></div>
+                    </div>
+
+                    <div id="insuranceAiView" class="insurance-view">
+                        <div class="insurance-section-header">
+                            <button class="submit-btn btn-muted btn-sm insurance-back-btn" onclick="showInsuranceHome()">← Back to Insurance Home</button>
+                        </div>
+                        <h1>Insurance Intelligence</h1>
+                        <div class="insurance-chat-wrap">
+                            <div id="insuranceChatMessages"></div>
+                            <div class="insurance-chat-input-row">
+                                <input type="text" id="insuranceChatInput" placeholder="Ask about provisions, companies, or concepts..." onkeydown="if(event.key==='Enter'){sendInsuranceChatMessage();}">
+                                <button class="submit-btn btn-sm" onclick="sendInsuranceChatMessage()">Send</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="insuranceDetailModal" class="insurance-modal" onclick="if(event.target.id==='insuranceDetailModal'){closeInsuranceDetailModal();}">
+                        <div class="insurance-modal-box">
+                            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;">
+                                <h2 class="insurance-modal-title" id="insuranceDetailModalTitle">Detail</h2>
+                                <button class="submit-btn btn-muted btn-sm" onclick="closeInsuranceDetailModal()">Close</button>
+                            </div>
+                            <div id="insuranceDetailModalContent"></div>
+                        </div>
+                    </div>
+
+                    <div id="insuranceProvisionFormModal" class="insurance-modal" onclick="if(event.target.id==='insuranceProvisionFormModal'){closeInsuranceProvisionFormModal();}">
+                        <div class="insurance-modal-box" style="max-width:680px;">
+                            <h2 class="insurance-modal-title">Add Provision</h2>
+                            <div class="form-group">
+                                <label for="insuranceNewProvisionSection">Section Number</label>
+                                <input type="text" id="insuranceNewProvisionSection" placeholder="e.g., Section 62">
+                            </div>
+                            <div class="form-group">
+                                <label for="insuranceNewProvisionTitle">Title</label>
+                                <input type="text" id="insuranceNewProvisionTitle" placeholder="Provision title">
+                            </div>
+                            <div class="form-group">
+                                <label for="insuranceNewProvisionExplanation">Short Explanation</label>
+                                <textarea id="insuranceNewProvisionExplanation" placeholder="Brief explanation"></textarea>
+                            </div>
+                            <div class="modal-actions">
+                                <button class="submit-btn" onclick="saveInsuranceProvisionDummy()">Save Provision</button>
+                                <button class="submit-btn btn-muted" onclick="closeInsuranceProvisionFormModal()">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="insuranceNoteFormModal" class="insurance-modal" onclick="if(event.target.id==='insuranceNoteFormModal'){closeInsuranceNoteFormModal();}">
+                        <div class="insurance-modal-box" style="max-width:680px;">
+                            <h2 class="insurance-modal-title">Add Note</h2>
+                            <div class="form-group">
+                                <label for="insuranceNewNoteTitle">Title</label>
+                                <input type="text" id="insuranceNewNoteTitle" placeholder="Note title">
+                            </div>
+                            <div class="form-group">
+                                <label for="insuranceNewNoteDate">Date</label>
+                                <input type="date" id="insuranceNewNoteDate">
+                            </div>
+                            <div class="form-group">
+                                <label for="insuranceNewNoteBody">Note</label>
+                                <textarea id="insuranceNewNoteBody" placeholder="Write your note"></textarea>
+                            </div>
+                            <div class="modal-actions">
+                                <button class="submit-btn" onclick="saveInsuranceNoteDummy()">Save Note</button>
+                                <button class="submit-btn btn-muted" onclick="closeInsuranceNoteFormModal()">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="genericModulePlaceholder" style="text-align:center;padding:2rem 1rem;display:none;">
                     <div style="font-size:2.5rem;margin-bottom:1rem;color:#666;">📋</div>
                     <h1 id="moduleHomeName" style="color:#0f2540;margin:0 0 0.5rem 0;"></h1>
                     <p style="color:#999;font-size:1rem;margin:0;">This module is under development</p>
@@ -3058,7 +3423,419 @@ input:focus,textarea:focus,select:focus{
         let currentModule = null;
         let currentMatchEditId = null;
         let currentHistoryEditId = null;
+        let insuranceProvisions = [
+            {
+                sectionNumber: 'Section 39',
+                title: 'Nomination by Policyholder',
+                shortExplanation: 'Allows policyholders to nominate beneficiaries for policy proceeds.',
+                tags: ['Nomination', 'Claim Settlement'],
+                fullText: 'The policyholder may nominate one or more persons to receive the policy proceeds in the event of death, subject to valid endorsement and insurer record updates.',
+                purpose: 'Ensures clear, lawful transfer of policy benefits without prolonged disputes.',
+                practicalNotes: 'Always verify nominee updates after marriage, childbirth, or estate planning changes.',
+                relatedSections: ['Section 38', 'Section 45']
+            },
+            {
+                sectionNumber: 'Section 45',
+                title: 'Policy Cannot Be Called in Question',
+                shortExplanation: 'Restricts repudiation after a defined period except in proven fraud cases.',
+                tags: ['Claims', 'Fraud', 'Underwriting'],
+                fullText: 'After three years from issuance or revival, a life insurance policy cannot be questioned on grounds of misstatement except where fraud is established as per statutory tests.',
+                purpose: 'Balances consumer protection with anti-fraud controls for insurers.',
+                practicalNotes: 'Investigations must document materiality and intent when alleging fraud.',
+                relatedSections: ['Section 41', 'Section 47']
+            },
+            {
+                sectionNumber: 'Section 64VA',
+                title: 'Maintaining Solvency Margin',
+                shortExplanation: 'Requires insurers to maintain solvency above the regulatory threshold.',
+                tags: ['Solvency', 'Regulatory'],
+                fullText: 'Every insurer must maintain excess assets over liabilities in line with prescribed solvency control levels and submit periodic compliance information.',
+                purpose: 'Protects policyholders by ensuring insurers remain financially sound.',
+                practicalNotes: 'Track solvency trends quarterly and flag sharp deterioration early.',
+                relatedSections: ['Section 14', 'IRDAI Solvency Norms']
+            }
+        ];
+
+        const insuranceCompanies = [
+            {
+                name: 'SecureLife Insurance Co.',
+                type: 'Life',
+                solvencyRatio: '1.92',
+                notesPreview: 'Strong protection portfolio and stable persistency metrics.',
+                details: 'Focused on term and annuity products. Strong capital buffers and conservative investment book.'
+            },
+            {
+                name: 'Shield General Insurance Ltd.',
+                type: 'General',
+                solvencyRatio: '1.76',
+                notesPreview: 'Balanced motor-health mix with improving combined ratio.',
+                details: 'Expanding digital claims operations; underwriting discipline improved over last four quarters.'
+            },
+            {
+                name: 'Harbor Risk Assurance',
+                type: 'General',
+                solvencyRatio: '1.58',
+                notesPreview: 'Commercial lines specialist with selective growth strategy.',
+                details: 'Strong reinsurance framework and robust catastrophe reserving methodology.'
+            }
+        ];
+
+        const insuranceConcepts = [
+            {
+                name: 'Solvency Margin',
+                explanation: 'A cushion of assets over liabilities that shows financial strength.',
+                relevance: 'Critical for policyholder protection and regulatory compliance monitoring.'
+            },
+            {
+                name: 'Combined Ratio',
+                explanation: 'Claims plus expenses divided by premium for non-life insurers.',
+                relevance: 'Indicates underwriting profitability before investment income.'
+            },
+            {
+                name: 'Embedded Value',
+                explanation: 'Present value of future profits plus adjusted net worth in life insurance.',
+                relevance: 'Used to evaluate long-term value creation and pricing discipline.'
+            }
+        ];
+
+        let insuranceNotes = [
+            {
+                title: 'Nomination Checks in Claims',
+                date: '2026-02-01',
+                preview: 'Need nominee verification checklist before settlement recommendation.',
+                body: 'Review KYC, nomination endorsement date, and legal heir interactions in disputed claims.'
+            },
+            {
+                title: 'Quarterly Solvency Review',
+                date: '2026-02-10',
+                preview: 'Compare solvency trend with product mix shifts and reserve assumptions.',
+                body: 'Track solvency drivers: claim reserve strengthening, premium growth pace, and investment volatility.'
+            }
+        ];
+
+        let insuranceChatMessages = [
+            {
+                role: 'ai',
+                text: 'Insurance Assistant ready. Ask about provisions, solvency, or company indicators.'
+            }
+        ];
+
         const UI_STATE_STORAGE_KEY = 'tennis_ui_state';
+
+        function initializeInsuranceModule() {
+            renderInsuranceProvisions();
+            renderInsuranceCompanies();
+            renderInsuranceConcepts();
+            renderInsuranceNotes();
+            renderInsuranceChatMessages();
+            setInsuranceDefaultNoteDate();
+            showInsuranceHome();
+        }
+
+        function showInsuranceHome() {
+            showInsuranceView('home');
+        }
+
+        function showInsuranceView(viewName) {
+            const viewMap = {
+                home: 'insuranceHomeView',
+                provisions: 'insuranceProvisionsView',
+                companies: 'insuranceCompaniesView',
+                concepts: 'insuranceConceptsView',
+                notes: 'insuranceNotesView',
+                ai: 'insuranceAiView'
+            };
+
+            const targetId = viewMap[viewName] || viewMap.home;
+            const views = document.querySelectorAll('#insuranceContainer .insurance-view');
+            views.forEach(view => view.classList.remove('active'));
+
+            const target = document.getElementById(targetId);
+            if (target) target.classList.add('active');
+
+            if (viewName === 'ai') {
+                setTimeout(() => {
+                    const input = document.getElementById('insuranceChatInput');
+                    if (input) input.focus();
+                }, 50);
+            }
+        }
+
+        function renderInsuranceProvisions() {
+            const listEl = document.getElementById('insuranceProvisionsList');
+            if (!listEl) return;
+
+            if (!insuranceProvisions.length) {
+                listEl.innerHTML = '<div class="insurance-data-muted">No provisions available.</div>';
+                return;
+            }
+
+            listEl.innerHTML = insuranceProvisions.map((item, index) => `
+                <div class="insurance-data-card" onclick="openInsuranceProvisionDetail(${index})">
+                    <p class="insurance-data-muted" style="font-weight:700;color:#16a34a;margin-bottom:0.3rem;">${item.sectionNumber}</p>
+                    <h3 class="insurance-card-title" style="margin-bottom:0.45rem;">${item.title}</h3>
+                    <p class="insurance-card-desc">${item.shortExplanation}</p>
+                    <div class="insurance-tags">
+                        ${(item.tags || []).map(tag => `<span class="insurance-tag">${tag}</span>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openInsuranceProvisionDetail(index) {
+            const item = insuranceProvisions[index];
+            if (!item) return;
+            const content = `
+                <div class="insurance-detail-grid">
+                    <div>
+                        <h3 style="margin:0 0 0.4rem 0;color:#0f2540;">Full Text</h3>
+                        <p class="insurance-data-muted">${item.fullText}</p>
+                    </div>
+                    <div>
+                        <h3 style="margin:0 0 0.4rem 0;color:#0f2540;">Purpose</h3>
+                        <p class="insurance-data-muted">${item.purpose}</p>
+                    </div>
+                    <div>
+                        <h3 style="margin:0 0 0.4rem 0;color:#0f2540;">Practical Notes</h3>
+                        <p class="insurance-data-muted">${item.practicalNotes}</p>
+                    </div>
+                    <div>
+                        <h3 style="margin:0 0 0.4rem 0;color:#0f2540;">Related Sections</h3>
+                        <div class="insurance-tags">${(item.relatedSections || []).map(sec => `<span class="insurance-tag">${sec}</span>`).join('')}</div>
+                    </div>
+                </div>
+            `;
+            openInsuranceDetailModal(`${item.sectionNumber} — ${item.title}`, content);
+        }
+
+        function renderInsuranceCompanies() {
+            const listEl = document.getElementById('insuranceCompaniesList');
+            if (!listEl) return;
+
+            listEl.innerHTML = insuranceCompanies.map((company, index) => `
+                <div class="insurance-data-card" onclick="openInsuranceCompanyDetail(${index})">
+                    <h3 class="insurance-card-title" style="margin-bottom:0.5rem;">${company.name}</h3>
+                    <p class="insurance-data-muted"><strong>Type:</strong> ${company.type}</p>
+                    <p class="insurance-data-muted"><strong>Solvency Ratio:</strong> ${company.solvencyRatio}</p>
+                    <p class="insurance-card-desc" style="margin-top:0.55rem;">${company.notesPreview}</p>
+                </div>
+            `).join('');
+        }
+
+        function openInsuranceCompanyDetail(index) {
+            const company = insuranceCompanies[index];
+            if (!company) return;
+            const content = `
+                <div class="insurance-detail-grid">
+                    <div>
+                        <h3 style="margin:0 0 0.35rem 0;color:#0f2540;">Company Name</h3>
+                        <p class="insurance-data-muted">${company.name}</p>
+                    </div>
+                    <div>
+                        <h3 style="margin:0 0 0.35rem 0;color:#0f2540;">Type</h3>
+                        <p class="insurance-data-muted">${company.type}</p>
+                    </div>
+                    <div>
+                        <h3 style="margin:0 0 0.35rem 0;color:#0f2540;">Solvency Ratio</h3>
+                        <p class="insurance-data-muted">${company.solvencyRatio}</p>
+                    </div>
+                    <div>
+                        <h3 style="margin:0 0 0.35rem 0;color:#0f2540;">Notes</h3>
+                        <p class="insurance-data-muted">${company.details}</p>
+                    </div>
+                </div>
+            `;
+            openInsuranceDetailModal(company.name, content);
+        }
+
+        function renderInsuranceConcepts() {
+            const listEl = document.getElementById('insuranceConceptsList');
+            if (!listEl) return;
+
+            listEl.innerHTML = insuranceConcepts.map(concept => `
+                <div class="insurance-data-card">
+                    <h3 class="insurance-card-title" style="margin-bottom:0.45rem;">${concept.name}</h3>
+                    <p class="insurance-card-desc" style="margin-bottom:0.45rem;"><strong>Simple Explanation:</strong> ${concept.explanation}</p>
+                    <p class="insurance-data-muted"><strong>Insurance Relevance:</strong> ${concept.relevance}</p>
+                </div>
+            `).join('');
+        }
+
+        function renderInsuranceNotes() {
+            const listEl = document.getElementById('insuranceNotesList');
+            if (!listEl) return;
+
+            if (!insuranceNotes.length) {
+                listEl.innerHTML = '<div class="insurance-data-muted">No notes added yet.</div>';
+                return;
+            }
+
+            listEl.innerHTML = insuranceNotes.map((note, index) => `
+                <div class="insurance-data-card" onclick="openInsuranceNoteDetail(${index})">
+                    <h3 class="insurance-card-title" style="margin-bottom:0.35rem;">${note.title}</h3>
+                    <p class="insurance-data-muted" style="margin-bottom:0.45rem;">${note.date}</p>
+                    <p class="insurance-card-desc">${note.preview}</p>
+                </div>
+            `).join('');
+        }
+
+        function openInsuranceNoteDetail(index) {
+            const note = insuranceNotes[index];
+            if (!note) return;
+            const content = `
+                <div>
+                    <p class="insurance-data-muted" style="margin-bottom:0.7rem;"><strong>Date:</strong> ${note.date}</p>
+                    <p class="insurance-data-muted">${note.body}</p>
+                </div>
+            `;
+            openInsuranceDetailModal(note.title, content);
+        }
+
+        function openInsuranceDetailModal(title, contentHtml) {
+            const modal = document.getElementById('insuranceDetailModal');
+            const titleEl = document.getElementById('insuranceDetailModalTitle');
+            const contentEl = document.getElementById('insuranceDetailModalContent');
+            if (!modal || !titleEl || !contentEl) return;
+
+            titleEl.textContent = title;
+            contentEl.innerHTML = contentHtml;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeInsuranceDetailModal() {
+            const modal = document.getElementById('insuranceDetailModal');
+            if (modal) modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function openInsuranceProvisionFormModal() {
+            const modal = document.getElementById('insuranceProvisionFormModal');
+            if (!modal) return;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeInsuranceProvisionFormModal() {
+            const modal = document.getElementById('insuranceProvisionFormModal');
+            if (modal) modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function saveInsuranceProvisionDummy() {
+            const sectionNumber = document.getElementById('insuranceNewProvisionSection')?.value.trim() || '';
+            const title = document.getElementById('insuranceNewProvisionTitle')?.value.trim() || '';
+            const shortExplanation = document.getElementById('insuranceNewProvisionExplanation')?.value.trim() || '';
+
+            if (!sectionNumber || !title || !shortExplanation) {
+                alert('Please complete section number, title, and short explanation.');
+                return;
+            }
+
+            insuranceProvisions.unshift({
+                sectionNumber,
+                title,
+                shortExplanation,
+                tags: ['Draft'],
+                fullText: shortExplanation,
+                purpose: 'Dummy provision saved for prototype flow.',
+                practicalNotes: 'Replace with validated legal summary during integration.',
+                relatedSections: []
+            });
+
+            renderInsuranceProvisions();
+            closeInsuranceProvisionFormModal();
+            document.getElementById('insuranceNewProvisionSection').value = '';
+            document.getElementById('insuranceNewProvisionTitle').value = '';
+            document.getElementById('insuranceNewProvisionExplanation').value = '';
+        }
+
+        function openInsuranceNoteFormModal() {
+            const modal = document.getElementById('insuranceNoteFormModal');
+            if (!modal) return;
+            setInsuranceDefaultNoteDate();
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeInsuranceNoteFormModal() {
+            const modal = document.getElementById('insuranceNoteFormModal');
+            if (modal) modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function setInsuranceDefaultNoteDate() {
+            const dateInput = document.getElementById('insuranceNewNoteDate');
+            if (!dateInput) return;
+            if (!dateInput.value) {
+                dateInput.value = new Date().toISOString().split('T')[0];
+            }
+        }
+
+        function saveInsuranceNoteDummy() {
+            const title = document.getElementById('insuranceNewNoteTitle')?.value.trim() || '';
+            const date = document.getElementById('insuranceNewNoteDate')?.value || '';
+            const body = document.getElementById('insuranceNewNoteBody')?.value.trim() || '';
+
+            if (!title || !date || !body) {
+                alert('Please complete title, date, and note body.');
+                return;
+            }
+
+            insuranceNotes.unshift({
+                title,
+                date,
+                preview: body.slice(0, 120) + (body.length > 120 ? '...' : ''),
+                body
+            });
+
+            renderInsuranceNotes();
+            closeInsuranceNoteFormModal();
+            document.getElementById('insuranceNewNoteTitle').value = '';
+            document.getElementById('insuranceNewNoteBody').value = '';
+        }
+
+        function renderInsuranceChatMessages() {
+            const listEl = document.getElementById('insuranceChatMessages');
+            if (!listEl) return;
+
+            listEl.innerHTML = insuranceChatMessages.map(message => `
+                <div class="insurance-chat-row ${message.role === 'user' ? 'user' : 'ai'}">
+                    <div class="insurance-chat-bubble">${message.text}</div>
+                </div>
+            `).join('');
+
+            listEl.scrollTop = listEl.scrollHeight;
+        }
+
+        function sendInsuranceChatMessage() {
+            const input = document.getElementById('insuranceChatInput');
+            if (!input) return;
+
+            const text = input.value.trim();
+            if (!text) return;
+
+            insuranceChatMessages.push({ role: 'user', text });
+            insuranceChatMessages.push({ role: 'ai', text: 'Relevant Provision: Section 39 — Nomination by Policyholder. Consider checking nominee updates and claim documentation requirements.' });
+
+            input.value = '';
+            renderInsuranceChatMessages();
+        }
+
+        window.showInsuranceView = showInsuranceView;
+        window.showInsuranceHome = showInsuranceHome;
+        window.openInsuranceProvisionDetail = openInsuranceProvisionDetail;
+        window.openInsuranceCompanyDetail = openInsuranceCompanyDetail;
+        window.openInsuranceNoteDetail = openInsuranceNoteDetail;
+        window.openInsuranceDetailModal = openInsuranceDetailModal;
+        window.closeInsuranceDetailModal = closeInsuranceDetailModal;
+        window.openInsuranceProvisionFormModal = openInsuranceProvisionFormModal;
+        window.closeInsuranceProvisionFormModal = closeInsuranceProvisionFormModal;
+        window.saveInsuranceProvisionDummy = saveInsuranceProvisionDummy;
+        window.openInsuranceNoteFormModal = openInsuranceNoteFormModal;
+        window.closeInsuranceNoteFormModal = closeInsuranceNoteFormModal;
+        window.saveInsuranceNoteDummy = saveInsuranceNoteDummy;
+        window.sendInsuranceChatMessage = sendInsuranceChatMessage;
 
         function getPersistedUIState() {
             try {
@@ -3147,6 +3924,12 @@ input:focus,textarea:focus,select:focus{
                     if (window.firebaseRenderMobilityTemplates) await window.firebaseRenderMobilityTemplates();
                     if (window.initMobilityCalendar) window.initMobilityCalendar();
                 }, 100);
+            } else if (currentModule === 'Insurance') {
+                hideModulePlaceholder();
+                disableTennisTabs();
+                setTimeout(() => {
+                    initializeInsuranceModule();
+                }, 80);
             } else {
                 // Show placeholder for other modules
                 showModulePlaceholder(moduleName);
@@ -3210,21 +3993,36 @@ input:focus,textarea:focus,select:focus{
             const tennisSection = document.getElementById('tennisHomeSection');
             const moduleSection = document.getElementById('moduleHomeSection');
             const moduleNameEl = document.getElementById('moduleHomeName');
+            const insuranceContainer = document.getElementById('insuranceContainer');
+            const genericPlaceholder = document.getElementById('genericModulePlaceholder');
             
             if (moduleName === 'Tennis') {
                 // Show Tennis content, hide generic module content
                 if (tennisSection) tennisSection.style.display = 'block';
                 if (moduleSection) moduleSection.style.display = 'none';
+                if (insuranceContainer) insuranceContainer.style.display = 'none';
+                if (genericPlaceholder) genericPlaceholder.style.display = 'none';
             } else if (moduleName === 'Actuaries') {
                 if (tennisSection) tennisSection.style.display = 'none';
                 if (moduleSection) moduleSection.style.display = 'none';
+                if (insuranceContainer) insuranceContainer.style.display = 'none';
+                if (genericPlaceholder) genericPlaceholder.style.display = 'none';
             } else if (moduleName === 'Mobility - Physio') {
                 if (tennisSection) tennisSection.style.display = 'none';
                 if (moduleSection) moduleSection.style.display = 'none';
+                if (insuranceContainer) insuranceContainer.style.display = 'none';
+                if (genericPlaceholder) genericPlaceholder.style.display = 'none';
+            } else if (moduleName === 'Insurance') {
+                if (tennisSection) tennisSection.style.display = 'none';
+                if (moduleSection) moduleSection.style.display = 'block';
+                if (insuranceContainer) insuranceContainer.style.display = 'block';
+                if (genericPlaceholder) genericPlaceholder.style.display = 'none';
             } else {
                 // Hide Tennis content, show generic module content
                 if (tennisSection) tennisSection.style.display = 'none';
                 if (moduleSection) moduleSection.style.display = 'block';
+                if (insuranceContainer) insuranceContainer.style.display = 'none';
+                if (genericPlaceholder) genericPlaceholder.style.display = 'block';
                 // Update module name with proper formatting
                 if (moduleNameEl) {
                     const displayName = moduleName.replace(/_/g, ' ');
