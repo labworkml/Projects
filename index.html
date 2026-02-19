@@ -1195,6 +1195,39 @@ body{
     padding:0.62rem 0.95rem;
 }
 
+#mobileTopHeader{
+    display:none;
+    align-items:center;
+    justify-content:space-between;
+    gap:0.7rem;
+    padding:0.35rem 0.35rem;
+}
+
+#mobileModuleTitle{
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:0.35rem;
+    text-align:center;
+    font-weight:700;
+    color:#e6f0f8;
+    font-size:0.95rem;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    padding:0 0.35rem;
+}
+
+.mobile-head-btn{
+    width:auto;
+    min-height:38px;
+    padding:0.55rem 0.75rem;
+    border-radius:12px;
+    font-size:0.85rem;
+    box-shadow:none;
+}
+
 #dashboard{
     padding:1rem;
 }
@@ -1275,6 +1308,12 @@ body{
     body{padding:8px 8px 92px 8px;}
     .container{max-width:100%;padding:14px;}
     #currentUserDisplay{display:none !important;}
+    .nav-tabs{display:none !important;}
+    #mobileTopHeader{display:flex;}
+    .navbar{
+        padding:0.45rem;
+        border-radius:14px;
+    }
     #mobileBottomNav.show{display:grid;}
     h1{font-size:20px;}
     h2{font-size:18px;}
@@ -1461,6 +1500,7 @@ input:focus,textarea:focus,select:focus{
 }
 
 @media (min-width: 769px) {
+    #mobileTopHeader{display:none !important;}
     .submit-btn{width:auto;}
     .submit-btn.btn-sm,
     .card-actions .submit-btn,
@@ -1550,6 +1590,11 @@ input:focus,textarea:focus,select:focus{
     </div>
 
     <nav class="navbar" id="navbar" style="display:none;">
+        <div id="mobileTopHeader">
+            <button class="submit-btn btn-muted mobile-head-btn" onclick="showDashboard()">← Dashboard</button>
+            <div id="mobileModuleTitle">Module</div>
+            <button class="submit-btn btn-danger mobile-head-btn" onclick="handleLogout()">Logout</button>
+        </div>
         <div class="nav-tabs">
             <button class="tab-button" data-tab="dashboard" onclick="showDashboard()" style="font-weight:600;color:#3b82f6;">← Dashboard</button>
             <button class="tab-button active" data-tab="home" onclick="switchTab('home', this)">Home</button>
@@ -1943,6 +1988,28 @@ input:focus,textarea:focus,select:focus{
                 const tab = button.getAttribute('data-target-tab');
                 button.classList.toggle('active', showForMobility && tab === activeTab);
             });
+        }
+
+        function updateMobileTopHeader() {
+            const titleEl = document.getElementById('mobileModuleTitle');
+            if (!titleEl) return;
+
+            const moduleTitle = currentModule
+                ? String(currentModule).replace(/_/g, ' ')
+                : 'Dashboard';
+
+            const moduleIconMap = {
+                'Dashboard': '🏠',
+                'Tennis': '🎾',
+                'Mobility - Physio': '💪',
+                'Actuaries': '📊',
+                'Insurance': '🛡️',
+                'AI ML DS': '🤖',
+                'AI_ML_DS': '🤖'
+            };
+            const icon = moduleIconMap[moduleTitle] || '📁';
+
+            titleEl.innerHTML = `<span aria-hidden="true">${icon}</span><span>${moduleTitle}</span>`;
         }
 
         function switchTab(tabName, el) {
@@ -2571,6 +2638,7 @@ input:focus,textarea:focus,select:focus{
         function selectModule(moduleName) {
             currentModule = moduleName;
             showApp();
+            updateMobileTopHeader();
             
             // Update navbar and home tab for module
             updateNavbarForModule(moduleName);
@@ -2749,6 +2817,7 @@ input:focus,textarea:focus,select:focus{
             document.getElementById('navbar').style.display = 'none';
             document.getElementById('mainContainer').style.display = 'none';
             currentModule = null;
+            updateMobileTopHeader();
             updateMobileBottomNav('');
         }
 
@@ -2757,16 +2826,19 @@ input:focus,textarea:focus,select:focus{
             document.getElementById('dashboardHeader').style.display = 'none';
             document.getElementById('navbar').style.display = 'block';
             document.getElementById('mainContainer').style.display = 'block';
+            updateMobileTopHeader();
             const activeTab = document.querySelector('.tab-content.active')?.id || '';
             updateMobileBottomNav(activeTab);
         }
 
         document.addEventListener('DOMContentLoaded', function() {
             window.checkAuthState();
+            updateMobileTopHeader();
             updateMobileBottomNav('');
             window.addEventListener('resize', () => {
                 const activeTab = document.querySelector('.tab-content.active')?.id || '';
                 updateMobileBottomNav(activeTab);
+                updateMobileTopHeader();
             });
         });
 
