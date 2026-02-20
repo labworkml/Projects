@@ -1,9 +1,19 @@
 ﻿/* Insurance module logic extracted from index.html */
+function normalizeInsuranceActName(value) {
+    const text = String(value || '').trim();
+    const cleaned = text
+        .replace(/^['"`]+/, '')
+        .replace(/^(?:ðŸ[\u0080-\u00BF]{0,4}|Ã[\u0080-\u00BF]|Â[\u0080-\u00BF]|â[\u0080-\u00BF]{1,2})+/g, '')
+        .trim();
+
+    return cleaned || 'Insurance Act';
+}
+
 window.firebaseGetInsuranceActs = async function() {
     if (!currentUserId) return [];
 
     const snapshot = await getDocs(query(
-        collection(db, 'insurance_acts'),
+        collection(db, 'acts'),
         where('userId', '==', currentUserId)
     ));
 
@@ -12,7 +22,7 @@ window.firebaseGetInsuranceActs = async function() {
         const data = docSnap.data() || {};
         acts.push({
             actId: docSnap.id,
-            actName: data.actName || '',
+            actName: normalizeInsuranceActName(data.actName || data.title || ''),
             year: data.year || '',
             description: data.description || '',
             createdAt: data.createdAt || 0,
@@ -28,7 +38,7 @@ window.firebaseGetInsuranceProvisions = async function() {
     if (!currentUserId) return [];
 
     const snapshot = await getDocs(query(
-        collection(db, 'insurance_provisions'),
+        collection(db, 'provisions'),
         where('userId', '==', currentUserId)
     ));
 
@@ -81,11 +91,15 @@ window.firebaseLoadInsuranceActsAndProvisions = async function() {
 };
 
 window.firebaseCreateInsuranceAct = async function(data) {
-    if (!currentUserId) return;
-    await addDoc(collection(db, 'insurance_acts'), {
+    if (!currentUserId) {
+        alert('Not logged in');
+        return;
+    }
+
+    await addDoc(collection(db, 'acts'), {
         userId: currentUserId,
         module: 'Insurance',
-        actName: data.actName || '',
+        actName: normalizeInsuranceActName(data.actName || ''),
         year: data.year || '',
         description: data.description || '',
         createdAt: Date.now(),
@@ -94,7 +108,7 @@ window.firebaseCreateInsuranceAct = async function(data) {
 };
 
 window.firebaseUpdateInsuranceAct = async function(actId, data) {
-    const refDoc = doc(db, 'insurance_acts', actId);
+    const refDoc = doc(db, 'acts', actId);
     const docSnap = await getDoc(refDoc);
     if (!docSnap.exists()) throw new Error('Act not found');
 
@@ -104,7 +118,7 @@ window.firebaseUpdateInsuranceAct = async function(actId, data) {
     }
 
     await updateDoc(refDoc, {
-        actName: data.actName || '',
+        actName: normalizeInsuranceActName(data.actName || ''),
         year: data.year || '',
         description: data.description || '',
         updatedAt: Date.now()
@@ -112,7 +126,7 @@ window.firebaseUpdateInsuranceAct = async function(actId, data) {
 };
 
 window.firebaseDeleteInsuranceActAndProvisions = async function(actId) {
-    const refAct = doc(db, 'insurance_acts', actId);
+    const refAct = doc(db, 'acts', actId);
     const actSnap = await getDoc(refAct);
     if (!actSnap.exists()) throw new Error('Act not found');
 
@@ -122,7 +136,7 @@ window.firebaseDeleteInsuranceActAndProvisions = async function(actId) {
     }
 
     const provisionsSnapshot = await getDocs(query(
-        collection(db, 'insurance_provisions'),
+        collection(db, 'provisions'),
         where('userId', '==', currentUserId)
     ));
 
@@ -130,7 +144,7 @@ window.firebaseDeleteInsuranceActAndProvisions = async function(actId) {
     provisionsSnapshot.forEach(docSnap => {
         const data = docSnap.data() || {};
         if (data.actId === actId) {
-            deletePromises.push(deleteDoc(doc(db, 'insurance_provisions', docSnap.id)));
+            deletePromises.push(deleteDoc(doc(db, 'provisions', docSnap.id)));
         }
     });
 
@@ -140,7 +154,7 @@ window.firebaseDeleteInsuranceActAndProvisions = async function(actId) {
 
 window.firebaseCreateInsuranceProvision = async function(data) {
     if (!currentUserId) return;
-    await addDoc(collection(db, 'insurance_provisions'), {
+    await addDoc(collection(db, 'provisions'), {
         userId: currentUserId,
         module: 'Insurance',
         actId: data.actId || '',
@@ -159,7 +173,7 @@ window.firebaseCreateInsuranceProvision = async function(data) {
 };
 
 window.firebaseUpdateInsuranceProvision = async function(provisionId, data) {
-    const refDoc = doc(db, 'insurance_provisions', provisionId);
+    const refDoc = doc(db, 'provisions', provisionId);
     const docSnap = await getDoc(refDoc);
     if (!docSnap.exists()) throw new Error('Provision not found');
 
@@ -184,7 +198,7 @@ window.firebaseUpdateInsuranceProvision = async function(provisionId, data) {
 };
 
 window.firebaseDeleteInsuranceProvision = async function(provisionId) {
-    const refDoc = doc(db, 'insurance_provisions', provisionId);
+    const refDoc = doc(db, 'provisions', provisionId);
     const docSnap = await getDoc(refDoc);
     if (!docSnap.exists()) throw new Error('Provision not found');
 
