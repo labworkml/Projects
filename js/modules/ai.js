@@ -26,11 +26,17 @@ function aiStudyEnsureFirebaseReady() {
 		alert('Firebase is not ready yet. Please wait a moment and try again.');
 		return false;
 	}
-	if (!currentUserId) {
+	const uid = aiStudyGetActiveUserId();
+	if (!uid) {
 		alert('Please sign in again to save data.');
 		return false;
 	}
 	return true;
+}
+
+function aiStudyGetActiveUserId() {
+	const authUid = window.firebaseAuth?.currentUser?.uid || '';
+	return authUid || currentUserId || '';
 }
 
 function aiStudyGetToday() {
@@ -102,7 +108,8 @@ function aiStudyPopulateDropdowns() {
 
 window.loadAICourses = async function() {
 	const listEl = document.getElementById('aiCoursesList');
-	if (!currentUserId) {
+	const uid = aiStudyGetActiveUserId();
+	if (!uid) {
 		if (listEl) listEl.innerHTML = '<li style="color:#666;padding:1rem;">Sign in to load courses.</li>';
 		return [];
 	}
@@ -113,7 +120,7 @@ window.loadAICourses = async function() {
 
 	const snapshot = await window.getDocs(window.query(
 		window.collection(window.db, 'aiCourses'),
-		window.where('userId', '==', currentUserId)
+		window.where('userId', '==', uid)
 	));
 
 	aiCoursesCache = snapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
@@ -147,7 +154,8 @@ window.loadAICourses = async function() {
 
 window.loadAIBooks = async function() {
 	const listEl = document.getElementById('aiBooksList');
-	if (!currentUserId) {
+	const uid = aiStudyGetActiveUserId();
+	if (!uid) {
 		if (listEl) listEl.innerHTML = '<li style="color:#666;padding:1rem;">Sign in to load books.</li>';
 		return [];
 	}
@@ -158,7 +166,7 @@ window.loadAIBooks = async function() {
 
 	const snapshot = await window.getDocs(window.query(
 		window.collection(window.db, 'aiBooks'),
-		window.where('userId', '==', currentUserId)
+		window.where('userId', '==', uid)
 	));
 
 	aiBooksCache = snapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
@@ -227,6 +235,7 @@ window.closeAICourseModal = function() {
 
 window.saveAICourse = async function() {
 	if (!aiStudyEnsureFirebaseReady()) return;
+	const uid = aiStudyGetActiveUserId();
 	const name = document.getElementById('aiCourseNameInput')?.value.trim() || '';
 	const provider = document.getElementById('aiCourseProviderInput')?.value.trim() || '';
 	const modules = document.getElementById('aiCourseModulesInput')?.value.trim() || '';
@@ -240,8 +249,10 @@ window.saveAICourse = async function() {
 		provider,
 		modules,
 		createdAt: Date.now(),
-		userId: currentUserId
+		userId: uid
 	};
+
+	console.log('Saving aiCourses doc with uid:', uid, 'authUid:', window.firebaseAuth?.currentUser?.uid || null);
 
 	try {
 		if (aiStudyEditingCourseId) {
@@ -297,6 +308,7 @@ window.closeAIBookModal = function() {
 
 window.saveAIBook = async function() {
 	if (!aiStudyEnsureFirebaseReady()) return;
+	const uid = aiStudyGetActiveUserId();
 	const name = document.getElementById('aiBookNameInput')?.value.trim() || '';
 	const author = document.getElementById('aiBookAuthorInput')?.value.trim() || '';
 	if (!name) return alert('Please enter the book name.');
@@ -306,8 +318,10 @@ window.saveAIBook = async function() {
 		name,
 		author,
 		createdAt: Date.now(),
-		userId: currentUserId
+		userId: uid
 	};
+
+	console.log('Saving aiBooks doc with uid:', uid, 'authUid:', window.firebaseAuth?.currentUser?.uid || null);
 
 	try {
 		if (aiStudyEditingBookId) {

@@ -1839,6 +1839,7 @@ const mobileBottomNavConfig = {
   const storage = getStorage(app);
 
 window.db = db;
+window.firebaseAuth = auth;
 window.storage = storage;
 window.addDoc = addDoc;
 window.getDocs = getDocs;
