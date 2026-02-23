@@ -777,6 +777,7 @@ const mobileBottomNavConfig = {
         let insuranceProvisionEditId = null;
         let insuranceActEditId = null;
         let insurersDropdownLoaded = false;
+        let loadedInsurerCollection = '';
         let insurerPremiumChart = null;
         let currentInsurerData = null;
         let insuranceHandbookCategory = null;
@@ -891,6 +892,14 @@ const mobileBottomNavConfig = {
             return labels[String(category || '').toLowerCase()] || 'Module';
         }
 
+        function getInsurerMasterCollectionForCategory(category = insuranceHandbookCategory) {
+            const normalizedCategory = String(category || '').toLowerCase();
+            if (normalizedCategory === 'general') {
+                return 'insurers_master_nonlife';
+            }
+            return 'insurers_master';
+        }
+
         function showInsuranceHandbookCategories() {
             insuranceHandbookCategory = null;
 
@@ -912,9 +921,11 @@ const mobileBottomNavConfig = {
 
             if (grid) grid.style.display = 'none';
 
-            if (insuranceHandbookCategory === 'life') {
+            if (insuranceHandbookCategory === 'life' || insuranceHandbookCategory === 'general') {
                 if (lifeView) lifeView.style.display = 'block';
                 if (placeholderView) placeholderView.style.display = 'none';
+                currentInsurerData = null;
+                refreshInsuranceInfoTypeOptions();
                 loadInsurersDropdown();
                 return;
             }
@@ -1288,6 +1299,41 @@ const mobileBottomNavConfig = {
             panelEl.innerHTML = contentHtml;
         }
 
+        function getPremiumInfoMeta(infoType = '') {
+            const normalizedType = String(infoType || '').toLowerCase();
+            if (normalizedType === 'gross_direct_premium') {
+                return {
+                    field: 'gross_direct_premium',
+                    label: 'Gross Direct Premium'
+                };
+            }
+            return {
+                field: 'total_premium',
+                label: 'Total Premium'
+            };
+        }
+
+        function getDefaultPremiumInfoTypeForCategory(category = insuranceHandbookCategory) {
+            const normalizedCategory = String(category || '').toLowerCase();
+            return normalizedCategory === 'general' ? 'gross_direct_premium' : 'total_premium';
+        }
+
+        function refreshInsuranceInfoTypeOptions() {
+            const infoTypeSelectEl = document.getElementById('insuranceInfoTypeSelect');
+            if (!infoTypeSelectEl) return;
+
+            const premiumInfoType = getDefaultPremiumInfoTypeForCategory();
+            const premiumLabel = getPremiumInfoMeta(premiumInfoType).label;
+
+            infoTypeSelectEl.innerHTML = [
+                '<option value="">Choose information type</option>',
+                '<option value="basic">Basic Info</option>',
+                `<option value="${premiumInfoType}">${premiumLabel}</option>`
+            ].join('');
+            infoTypeSelectEl.value = '';
+            infoTypeSelectEl.disabled = true;
+        }
+
         function showSection(sectionName) {
             const section = String(sectionName || '').toLowerCase();
             if (section === 'basic') {
@@ -1296,14 +1342,17 @@ const mobileBottomNavConfig = {
                 } else {
                     renderLeftPanelHtml('<p class="insurance-data-muted">Select an insurer to view analytics.</p>');
                 }
-                showPlaceholder('Select Total Premium to view trend chart');
+                const premiumLabel = getPremiumInfoMeta(getDefaultPremiumInfoTypeForCategory()).label;
+                showPlaceholder(`Select ${premiumLabel} to view trend chart`);
                 return;
             }
 
-            if (section === 'total_premium') {
+            if (section === 'total_premium' || section === 'gross_direct_premium') {
+                const premiumMeta = getPremiumInfoMeta(section);
                 if (currentInsurerData) {
-                    renderPremiumTable(currentInsurerData.total_premium || {});
-                    renderPremiumChart(currentInsurerData.total_premium || {});
+                    const premiumData = currentInsurerData[premiumMeta.field] || {};
+                    renderPremiumTable(premiumData, premiumMeta.label);
+                    renderPremiumChart(premiumData, premiumMeta.label);
                 } else {
                     renderLeftPanelHtml('<p class="insurance-data-muted">Select an insurer to view analytics.</p>');
                     showPlaceholder('Select an insurer to view analytics');
@@ -1420,12 +1469,16 @@ const mobileBottomNavConfig = {
                             <td>Date of Registration</td>
                             <td>${escapeInsuranceHtml(data.date_of_registration)}</td>
                         </tr>
+                        <tr>
+                            <td>Foreign Partners</td>
+                            <td>${escapeInsuranceHtml(data.foreign_partners)}</td>
+                        </tr>
                     </tbody>
                 </table>
             `);
         }
 
-        function renderPremiumTable(premiumData) {
+        function renderPremiumTable(premiumData, premiumLabel = 'Total Premium') {
             const rows = normalizePremiumData(premiumData);
             if (!rows.length) {
                 renderLeftPanelHtml('<p class="insurance-data-muted">No premium data available for this insurer.</p>');
@@ -1433,12 +1486,12 @@ const mobileBottomNavConfig = {
             }
 
             renderLeftPanelHtml(`
-                <h3 class="insurance-premium-title">Total Premium (₹ Crore)</h3>
+                <h3 class="insurance-premium-title">${escapeInsuranceHtml(premiumLabel)} (₹ Crore)</h3>
                 <table class="insurance-data-table insurance-premium-table">
                     <thead>
                         <tr>
                             <th>Year</th>
-                            <th>Total Premium</th>
+                            <th>${escapeInsuranceHtml(premiumLabel)}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1453,7 +1506,7 @@ const mobileBottomNavConfig = {
             `);
         }
 
-        function renderPremiumChart(premiumData) {
+        function renderPremiumChart(premiumData, premiumLabel = 'Total Premium') {
             const canvas = document.getElementById('insurancePremiumChartCanvas');
             const messageEl = document.getElementById('insurancePremiumChartMessage');
             if (!canvas) return;
@@ -1485,7 +1538,7 @@ const mobileBottomNavConfig = {
                 data: {
                     labels,
                     datasets: [{
-                        label: 'Total Premium (₹ Crore)',
+                        label: `${premiumLabel} (₹ Crore)`,
                         data: values,
                         borderColor: '#2563eb',
                         backgroundColor: 'rgba(37, 99, 235, 0.12)',
@@ -1544,6 +1597,7 @@ const mobileBottomNavConfig = {
         async function loadInsurersDropdown() {
             const dropdownEl = document.getElementById('insuranceInsurerSelect');
             const infoTypeSelectEl = document.getElementById('insuranceInfoTypeSelect');
+            const collectionName = getInsurerMasterCollectionForCategory();
             if (!dropdownEl) return;
 
             currentInsurerData = null;
@@ -1561,7 +1615,7 @@ const mobileBottomNavConfig = {
                 return;
             }
 
-            if (insurersDropdownLoaded && dropdownEl.options.length > 1) {
+            if (insurersDropdownLoaded && loadedInsurerCollection === collectionName && dropdownEl.options.length > 1) {
                 return;
             }
 
@@ -1571,7 +1625,7 @@ const mobileBottomNavConfig = {
             showPlaceholder('Select an insurer to view analytics');
 
             try {
-                const snapshot = await window.getDocs(window.collection(window.db, 'insurers_master'));
+                const snapshot = await window.getDocs(window.collection(window.db, collectionName));
                 const insurers = [];
 
                 snapshot.forEach(docSnap => {
@@ -1593,6 +1647,7 @@ const mobileBottomNavConfig = {
                     renderBasicInfo({ __empty: true });
                     showPlaceholder('Select an insurer to view analytics');
                     insurersDropdownLoaded = true;
+                    loadedInsurerCollection = collectionName;
                     return;
                 }
 
@@ -1602,6 +1657,7 @@ const mobileBottomNavConfig = {
                 ].join('');
                 dropdownEl.disabled = false;
                 insurersDropdownLoaded = true;
+                loadedInsurerCollection = collectionName;
             } catch (error) {
                 console.error('Error loading insurers dropdown:', error?.code || error?.message || error);
                 const errorCode = String(error?.code || '').toLowerCase();
@@ -1617,6 +1673,7 @@ const mobileBottomNavConfig = {
                 dropdownEl.disabled = true;
                 renderBasicInfo({ __error: userMessage });
                 showPlaceholder('Select an insurer to view analytics');
+                loadedInsurerCollection = '';
             }
         }
 
@@ -1626,13 +1683,15 @@ const mobileBottomNavConfig = {
                 return;
             }
 
+            const collectionName = getInsurerMasterCollectionForCategory();
+
             if (!window.db || !window.doc || !window.getDoc) {
                 currentInsurerData = null;
                 return;
             }
 
             try {
-                const docRef = window.doc(window.db, 'insurers_master', regNo);
+                const docRef = window.doc(window.db, collectionName, regNo);
                 const docSnap = await window.getDoc(docRef);
 
                 if (!docSnap.exists()) {
@@ -1648,7 +1707,9 @@ const mobileBottomNavConfig = {
                     sector: row.sector || 'â€”',
                     category: row.category || 'â€”',
                     date_of_registration: formatInsurerDate(row.date_of_registration),
-                    total_premium: row.total_premium || {}
+                    foreign_partners: row.foreign_partners || 'â€”',
+                    total_premium: row.total_premium || {},
+                    gross_direct_premium: row.gross_direct_premium || {},
                 };
             } catch (error) {
                 console.error('Error loading insurer data:', error);
