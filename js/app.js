@@ -6,6 +6,14 @@ const mobileBottomNavConfig = {
                 { label: 'Templates', tab: 'mobilityTemplates' },
                 { label: 'Calendar', tab: 'mobilityCalendar' }
             ],
+            'AI_ML_DS': [
+                { label: 'Home', tab: 'aiHome' },
+                { label: 'Sessions', tab: 'aiSessions' },
+                { label: 'Courses and Books', tab: 'aiCoursesBooks' },
+                { label: 'History', tab: 'aiHistory' },
+                { label: 'Calendar', tab: 'aiCalendar' },
+                { label: 'Journal', tab: 'aiJournal' }
+            ],
             'Tennis': [
                 { label: 'Home', tab: 'home' },
                 { label: 'Sessions', tab: 'sessions' },
@@ -127,6 +135,37 @@ const mobileBottomNavConfig = {
             if (tabName === 'actuaryLearn') {
                 setTimeout(() => {
                     if (window.loadLearnQuestions) window.loadLearnQuestions();
+                }, 50);
+            }
+
+            if (tabName === 'aiSessions') {
+                setTimeout(async () => {
+                    if (window.loadAIStudySessions) await window.loadAIStudySessions();
+                }, 50);
+            }
+
+            if (tabName === 'aiCoursesBooks') {
+                setTimeout(async () => {
+                    if (window.loadAICourses) await window.loadAICourses();
+                    if (window.loadAIBooks) await window.loadAIBooks();
+                }, 50);
+            }
+
+            if (tabName === 'aiHistory') {
+                setTimeout(async () => {
+                    if (window.loadAIStudyHistory) await window.loadAIStudyHistory();
+                }, 50);
+            }
+
+            if (tabName === 'aiCalendar') {
+                setTimeout(() => {
+                    if (window.initAIStudyCalendar) window.initAIStudyCalendar();
+                }, 50);
+            }
+
+            if (tabName === 'aiJournal') {
+                setTimeout(async () => {
+                    if (window.loadAIStudyJournal) await window.loadAIStudyJournal();
                 }, 50);
             }
 
@@ -1494,7 +1533,11 @@ const mobileBottomNavConfig = {
             updateHomeForModule(moduleName);
             
             // Switch to home tab
-            const defaultHomeTab = moduleName === 'Mobility - Physio' ? 'mobilityHome' : 'home';
+            const defaultHomeTab = moduleName === 'Mobility - Physio'
+                ? 'mobilityHome'
+                : moduleName === 'AI_ML_DS'
+                    ? 'aiHome'
+                    : 'home';
             const homeBtn = Array.from(document.querySelectorAll('.tab-button')).find(b => b.dataset.tab === defaultHomeTab);
             if (homeBtn) switchTab(defaultHomeTab, homeBtn);
             updateMobileBottomNav(defaultHomeTab);
@@ -1532,6 +1575,11 @@ const mobileBottomNavConfig = {
                 setTimeout(async () => {
                     await initializeInsuranceModule();
                 }, 80);
+            } else if (currentModule === 'AI_ML_DS') {
+                hideModulePlaceholder();
+                setTimeout(async () => {
+                    if (window.initializeAIStudyModule) await window.initializeAIStudyModule();
+                }, 80);
             } else {
                 // Show placeholder for other modules
                 showModulePlaceholder(moduleName);
@@ -1543,6 +1591,7 @@ const mobileBottomNavConfig = {
             const tennisTabs = ['home', 'sessions', 'match', 'history', 'calendar', 'journal'];
             const actuaryTabs = ['actuaryNotes', 'actuaryLearn'];
             const mobilityTabs = ['mobilityHome', 'mobilitySessions', 'mobilityTemplates', 'mobilityCalendar'];
+            const aiStudyTabs = ['aiHome', 'aiSessions', 'aiCoursesBooks', 'aiHistory', 'aiCalendar', 'aiJournal'];
             const tabButtons = document.querySelectorAll('.tab-button');
             
             tabButtons.forEach(button => {
@@ -1559,6 +1608,9 @@ const mobileBottomNavConfig = {
                     if (mobilityTabs.includes(tabName)) {
                         button.style.display = 'none';
                     }
+                    if (aiStudyTabs.includes(tabName)) {
+                        button.style.display = 'none';
+                    }
                 } else if (moduleName === 'Actuaries') {
                     if (actuaryTabs.includes(tabName) || tabName === 'dashboard') {
                         button.style.display = 'inline-flex';
@@ -1569,11 +1621,21 @@ const mobileBottomNavConfig = {
                     if (mobilityTabs.includes(tabName)) {
                         button.style.display = 'none';
                     }
+                    if (aiStudyTabs.includes(tabName)) {
+                        button.style.display = 'none';
+                    }
                 } else if (moduleName === 'Mobility - Physio') {
                     if (mobilityTabs.includes(tabName) || tabName === 'dashboard') {
                         button.style.display = 'inline-flex';
                     }
-                    if (tennisTabs.includes(tabName) || actuaryTabs.includes(tabName)) {
+                    if (tennisTabs.includes(tabName) || actuaryTabs.includes(tabName) || aiStudyTabs.includes(tabName)) {
+                        button.style.display = 'none';
+                    }
+                } else if (moduleName === 'AI_ML_DS') {
+                    if (aiStudyTabs.includes(tabName) || tabName === 'dashboard') {
+                        button.style.display = 'inline-flex';
+                    }
+                    if (tennisTabs.includes(tabName) || actuaryTabs.includes(tabName) || mobilityTabs.includes(tabName)) {
                         button.style.display = 'none';
                     }
                 } else {
@@ -1583,6 +1645,8 @@ const mobileBottomNavConfig = {
                     } else if (actuaryTabs.includes(tabName)) {
                         button.style.display = 'none';
                     } else if (mobilityTabs.includes(tabName)) {
+                        button.style.display = 'none';
+                    } else if (aiStudyTabs.includes(tabName)) {
                         button.style.display = 'none';
                     } else if (tabName === 'dashboard') {
                         button.style.display = 'inline-flex';
@@ -1597,6 +1661,7 @@ const mobileBottomNavConfig = {
             const moduleNameEl = document.getElementById('moduleHomeName');
             const insuranceContainer = document.getElementById('insuranceContainer');
             const genericPlaceholder = document.getElementById('genericModulePlaceholder');
+            const aiModuleContainer = document.getElementById('aiModuleContainer');
             
             if (moduleName === 'Tennis') {
                 // Show Tennis content, hide generic module content
@@ -1604,27 +1669,38 @@ const mobileBottomNavConfig = {
                 if (moduleSection) moduleSection.style.display = 'none';
                 if (insuranceContainer) insuranceContainer.style.display = 'none';
                 if (genericPlaceholder) genericPlaceholder.style.display = 'none';
+                if (aiModuleContainer) aiModuleContainer.style.display = 'none';
             } else if (moduleName === 'Actuaries') {
                 if (tennisSection) tennisSection.style.display = 'none';
                 if (moduleSection) moduleSection.style.display = 'none';
                 if (insuranceContainer) insuranceContainer.style.display = 'none';
                 if (genericPlaceholder) genericPlaceholder.style.display = 'none';
+                if (aiModuleContainer) aiModuleContainer.style.display = 'none';
             } else if (moduleName === 'Mobility - Physio') {
                 if (tennisSection) tennisSection.style.display = 'none';
                 if (moduleSection) moduleSection.style.display = 'none';
                 if (insuranceContainer) insuranceContainer.style.display = 'none';
                 if (genericPlaceholder) genericPlaceholder.style.display = 'none';
+                if (aiModuleContainer) aiModuleContainer.style.display = 'none';
             } else if (moduleName === 'Insurance') {
                 if (tennisSection) tennisSection.style.display = 'none';
                 if (moduleSection) moduleSection.style.display = 'block';
                 if (insuranceContainer) insuranceContainer.style.display = 'block';
                 if (genericPlaceholder) genericPlaceholder.style.display = 'none';
+                if (aiModuleContainer) aiModuleContainer.style.display = 'none';
+            } else if (moduleName === 'AI_ML_DS') {
+                if (tennisSection) tennisSection.style.display = 'none';
+                if (moduleSection) moduleSection.style.display = 'none';
+                if (insuranceContainer) insuranceContainer.style.display = 'none';
+                if (genericPlaceholder) genericPlaceholder.style.display = 'none';
+                if (aiModuleContainer) aiModuleContainer.style.display = 'block';
             } else {
                 // Hide Tennis content, show generic module content
                 if (tennisSection) tennisSection.style.display = 'none';
                 if (moduleSection) moduleSection.style.display = 'block';
                 if (insuranceContainer) insuranceContainer.style.display = 'none';
                 if (genericPlaceholder) genericPlaceholder.style.display = 'block';
+                if (aiModuleContainer) aiModuleContainer.style.display = 'none';
                 // Update module name with proper formatting
                 if (moduleNameEl) {
                     const displayName = moduleName.replace(/_/g, ' ');
@@ -1798,7 +1874,11 @@ window.checkAuthState = function() {
             if (savedModule) {
                 selectModule(savedModule);
 
-                const fallbackTab = savedModule === 'Mobility - Physio' ? 'mobilityHome' : 'home';
+                const fallbackTab = savedModule === 'Mobility - Physio'
+                    ? 'mobilityHome'
+                    : savedModule === 'AI_ML_DS'
+                        ? 'aiHome'
+                        : 'home';
                 const targetTab = savedTab && savedTab !== 'dashboard' ? savedTab : fallbackTab;
                 const targetButton = Array.from(document.querySelectorAll('.tab-button')).find(b => b.dataset.tab === targetTab && b.style.display !== 'none');
 

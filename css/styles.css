@@ -247,6 +247,19 @@
             -webkit-overflow-scrolling: touch;
         }
 
+        .nav-tabs #currentUserDisplay{
+            max-width:220px;
+            overflow:hidden;
+            text-overflow:ellipsis;
+            white-space:nowrap;
+        }
+
+        .nav-tabs #navbarLogoutBtn,
+        .nav-tabs #currentUserDisplay,
+        .nav-tabs .tab-button{
+            flex-shrink:0;
+        }
+
         .tab-button{
             white-space:nowrap;
             padding:0.65rem 1.05rem;
@@ -1580,6 +1593,13 @@ input:focus,textarea:focus,select:focus{
 
     .tab-button{color:#334155;}
 
+    .nav-tabs .tab-button,
+    .nav-tabs #currentUserDisplay,
+    .nav-tabs #navbarLogoutBtn{
+        flex-shrink:0;
+        white-space:nowrap;
+    }
+
     .tab-button.active{
         background:linear-gradient(180deg,#22c55e,#16a34a);
         color:#ffffff;
@@ -1702,6 +1722,7 @@ input:focus,textarea:focus,select:focus{
     .filter-bar .submit-btn,
     .nav-tabs .submit-btn,
     #designInlineBtn,
+    #aiDesignInlineBtn,
     #matchCancelEditBtn,
     .dashboard-header-logout{
         width:auto;

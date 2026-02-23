@@ -2192,19 +2192,25 @@ input:focus,textarea:focus,select:focus{
         <div class="nav-tabs">
             <button class="tab-button" data-tab="dashboard" onclick="showDashboard()" style="font-weight:600;color:#3b82f6;">← Dashboard</button>
             <button class="tab-button active" data-tab="home" onclick="switchTab('home', this)">Home</button>
+            <button class="tab-button" data-tab="aiHome" onclick="switchTab('aiHome', this)" style="display:none;">Home</button>
             <button class="tab-button" data-tab="mobilityHome" onclick="switchTab('mobilityHome', this)" style="display:none;">Home</button>
             <button class="tab-button" data-tab="mobilitySessions" onclick="switchTab('mobilitySessions', this)" style="display:none;">Sessions</button>
             <button class="tab-button" data-tab="mobilityTemplates" onclick="switchTab('mobilityTemplates', this)" style="display:none;">Exercise Templates</button>
             <button class="tab-button" data-tab="mobilityCalendar" onclick="switchTab('mobilityCalendar', this)" style="display:none;">Calendar</button>
             <button class="tab-button" data-tab="sessions" onclick="switchTab('sessions', this)">Sessions</button>
+            <button class="tab-button" data-tab="aiSessions" onclick="switchTab('aiSessions', this)" style="display:none;">Sessions</button>
+            <button class="tab-button" data-tab="aiCoursesBooks" onclick="switchTab('aiCoursesBooks', this)" style="display:none;">Courses and Books</button>
             <button class="tab-button" data-tab="match" onclick="switchTab('match', this)">Match</button>
             <button class="tab-button" data-tab="history" onclick="switchTab('history', this)">History</button>
+            <button class="tab-button" data-tab="aiHistory" onclick="switchTab('aiHistory', this)" style="display:none;">History</button>
             <button class="tab-button" data-tab="calendar" onclick="switchTab('calendar', this)">Calendar</button>
+            <button class="tab-button" data-tab="aiCalendar" onclick="switchTab('aiCalendar', this)" style="display:none;">Calendar</button>
             <button class="tab-button" data-tab="journal" onclick="switchTab('journal', this)">Journal</button>
+            <button class="tab-button" data-tab="aiJournal" onclick="switchTab('aiJournal', this)" style="display:none;">Journal</button>
             <button class="tab-button" data-tab="actuaryNotes" onclick="switchTab('actuaryNotes', this)" style="display:none;">Notes</button>
             <button class="tab-button" data-tab="actuaryLearn" onclick="switchTab('actuaryLearn', this)" style="display:none;">Learn</button>
             <span id="currentUserDisplay" style="margin-left:auto;padding:0.5rem 1rem;color:var(--text);font-size:0.9rem;align-self:center;"></span>
-            <button class="submit-btn btn-danger btn-sm" onclick="handleLogout()">Logout</button>
+            <button class="submit-btn btn-danger btn-sm" id="navbarLogoutBtn" onclick="handleLogout()">Logout</button>
         </div>
     </nav>
 
@@ -2423,6 +2429,111 @@ input:focus,textarea:focus,select:focus{
                     <h1 id="moduleHomeName" style="color:#0f2540;margin:0 0 0.5rem 0;"></h1>
                     <p style="color:#999;font-size:1rem;margin:0;">This module is under development</p>
                 </div>
+            </div>
+        </div>
+
+        <div id="aiModuleContainer" style="display:none;">
+            <div id="aiHome" class="tab-content">
+                <div id="aiHomeWelcomeSection" style="display:block;">
+                    <h1>Welcome to AI / ML / DS</h1>
+                    <p style="margin-bottom:1rem;color:#555">Use the button below to design a new study session.</p>
+                    <div style="margin-top:1rem;">
+                        <button class="submit-btn" id="aiDesignInlineBtn" onclick="showAIStudyPlanner()">Design Your Session</button>
+                    </div>
+                </div>
+
+                <div id="aiHomePlannerSection" style="display:none;">
+                    <h1>Plan Study Session</h1>
+                    <form id="aiStudyForm" onsubmit="return false;">
+                        <div class="form-group">
+                            <label for="aiStudyDate">Date</label>
+                            <input type="date" id="aiStudyDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="aiStudyCourse">Course</label>
+                            <select id="aiStudyCourse">
+                                <option value="">Select course...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="aiStudyBook">Book</label>
+                            <select id="aiStudyBook">
+                                <option value="">Select book...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="aiStudyTopic">Topic / Notes</label>
+                            <textarea id="aiStudyTopic" placeholder="Optional topic or notes"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="aiStudyDuration">Duration (minutes)</label>
+                            <input type="number" id="aiStudyDuration" min="1" placeholder="Optional duration">
+                        </div>
+                        <div class="form-group" style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+                            <button type="button" class="submit-btn btn-muted" onclick="showAIStudyPlanner(false)">Back</button>
+                            <button type="button" class="submit-btn" id="aiStudyFinalizeBtn" onclick="saveAIStudySession()">Finalize Session</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="aiSessions" class="tab-content">
+                <h1>Upcoming Study Sessions</h1>
+                <ul class="session-list" id="aiSessionsList"></ul>
+            </div>
+
+            <div id="aiCoursesBooks" class="tab-content">
+                <h1>Courses and Books</h1>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;">
+                    <div>
+                        <h3 style="margin-bottom:0.7rem;color:#0f2540;">Courses</h3>
+                        <div class="form-group">
+                            <button class="submit-btn" onclick="openAICourseModal()">Add Course</button>
+                        </div>
+                        <ul class="session-list" id="aiCoursesList"></ul>
+                    </div>
+                    <div>
+                        <h3 style="margin-bottom:0.7rem;color:#0f2540;">Books</h3>
+                        <div class="form-group">
+                            <button class="submit-btn" onclick="openAIBookModal()">Add Book</button>
+                        </div>
+                        <ul class="session-list" id="aiBooksList"></ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="aiHistory" class="tab-content">
+                <h1>Study History</h1>
+                <ul class="session-list" id="aiHistoryList"></ul>
+            </div>
+
+            <div id="aiCalendar" class="tab-content">
+                <h1>Calendar</h1>
+                <div style="display:flex;gap:1rem;margin-bottom:1rem;">
+                    <select id="aiCalMonth"></select>
+                    <select id="aiCalYear"></select>
+                </div>
+                <div id="aiCalendarGrid"></div>
+            </div>
+
+            <div id="aiJournal" class="tab-content">
+                <h1>Journal Entries</h1>
+                <div class="filter-bar">
+                    <input type="text" id="aiJournalSearchInput" placeholder="Search journals..." oninput="loadAIStudyJournal()">
+                    <input type="date" id="aiJournalDateFilter" onchange="loadAIStudyJournal()">
+                </div>
+                <div class="form-group">
+                    <label for="aiJournalDate">Date</label>
+                    <input type="date" id="aiJournalDate">
+                </div>
+                <div class="form-group">
+                    <label for="aiJournalText">Text</label>
+                    <textarea id="aiJournalText" placeholder="Write your study journal entry"></textarea>
+                </div>
+                <div class="form-group">
+                    <button class="submit-btn" id="aiJournalSaveBtn" onclick="saveAIStudyJournal()">Save Journal</button>
+                </div>
+                <ul id="aiJournalList" class="session-list"></ul>
             </div>
         </div>
 
@@ -2781,6 +2892,46 @@ input:focus,textarea:focus,select:focus{
             <div id="calendarDetailContent"></div>
             <div class="modal-actions">
                 <button class="submit-btn btn-muted" onclick="closeCalendarDetailModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="aiCourseModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(20, 28, 38, 0.45);backdrop-filter:blur(8px);z-index:130;align-items:center;justify-content:center;" onclick="if(event.target.id==='aiCourseModal'){closeAICourseModal();}">
+        <div class="history-edit-box" style="max-width:640px;">
+            <h2 id="aiCourseModalTitle">Add Course</h2>
+            <div class="form-group">
+                <label for="aiCourseNameInput">Name of the Course</label>
+                <input type="text" id="aiCourseNameInput" placeholder="e.g., Machine Learning Specialization">
+            </div>
+            <div class="form-group">
+                <label for="aiCourseProviderInput">Provider of the Course</label>
+                <input type="text" id="aiCourseProviderInput" placeholder="e.g., Coursera / Stanford">
+            </div>
+            <div class="form-group">
+                <label for="aiCourseModulesInput">Modules in the Course</label>
+                <textarea id="aiCourseModulesInput" placeholder="Enter modules, comma-separated or one per line"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="submit-btn" id="aiCourseSaveBtn" onclick="saveAICourse()">Save Course</button>
+                <button class="submit-btn btn-muted" onclick="closeAICourseModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="aiBookModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(20, 28, 38, 0.45);backdrop-filter:blur(8px);z-index:131;align-items:center;justify-content:center;" onclick="if(event.target.id==='aiBookModal'){closeAIBookModal();}">
+        <div class="history-edit-box" style="max-width:560px;">
+            <h2 id="aiBookModalTitle">Add Book</h2>
+            <div class="form-group">
+                <label for="aiBookNameInput">Book Name</label>
+                <input type="text" id="aiBookNameInput" placeholder="e.g., Hands-On Machine Learning">
+            </div>
+            <div class="form-group">
+                <label for="aiBookAuthorInput">Author Name</label>
+                <input type="text" id="aiBookAuthorInput" placeholder="e.g., Aurélien Géron">
+            </div>
+            <div class="modal-actions">
+                <button class="submit-btn" id="aiBookSaveBtn" onclick="saveAIBook()">Save Book</button>
+                <button class="submit-btn btn-muted" onclick="closeAIBookModal()">Cancel</button>
             </div>
         </div>
     </div>
