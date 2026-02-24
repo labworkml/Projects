@@ -5080,11 +5080,57 @@ window.uploadBytes = uploadBytes;
 window.getDownloadURL = getDownloadURL;
 
 const GEMINI_API_KEY = "AIzaSyBxzP1qE8xBAyf5945UaLImJdZM2jYdR8E";
+let insuranceAIInitialized = false;
+let insuranceAIData = {
+    stateData: [],
+    lifeData: [],
+    nonLifeData: []
+};
+
+async function initializeInsuranceAI() {
+    const user = auth.currentUser;
+    if (!user) {
+        console.log("User not logged in");
+        insuranceAIInitialized = false;
+        insuranceAIData = { stateData: [], lifeData: [], nonLifeData: [] };
+        return;
+    }
+
+    console.log("User logged in:", user.uid);
+
+    const stateSnapshot = await getDocs(collection(db, "state_lob_data"));
+    const stateData = [];
+    stateSnapshot.forEach((docSnap) => {
+        stateData.push(docSnap.data());
+    });
+
+    const lifeSnapshot = await getDocs(collection(db, "insurers_master"));
+    const lifeData = [];
+    lifeSnapshot.forEach((docSnap) => {
+        lifeData.push(docSnap.data());
+    });
+
+    const nonLifeSnapshot = await getDocs(collection(db, "insurers_master_nonlife"));
+    const nonLifeData = [];
+    nonLifeSnapshot.forEach((docSnap) => {
+        nonLifeData.push(docSnap.data());
+    });
+
+    insuranceAIData = { stateData, lifeData, nonLifeData };
+    insuranceAIInitialized = true;
+}
 
 async function askInsuranceAI(userQuery) {
 
-    if (!auth.currentUser) {
-        addAIMessage("Please wait... authentication not ready.");
+    const user = auth.currentUser;
+
+    if (!user) {
+        addAIMessage("Please login first.");
+        return;
+    }
+
+    if (!insuranceAIInitialized) {
+        addAIMessage("Please wait... loading insurance data.");
         return;
     }
 
@@ -5096,40 +5142,9 @@ async function askInsuranceAI(userQuery) {
             model: "gemini-1.5-flash"
         });
 
-        // ===============================
-        // FETCH STATE LOB DATA
-        // ===============================
-        const stateSnapshot = await getDocs(collection(db, "state_lob_data"));
-
-        let stateData = [];
-
-        stateSnapshot.forEach(doc => {
-            stateData.push(doc.data());
-        });
-
-
-        // ===============================
-        // FETCH INSURER LIFE DATA
-        // ===============================
-        const lifeSnapshot = await getDocs(collection(db, "insurers_master"));
-
-        let lifeData = [];
-
-        lifeSnapshot.forEach(doc => {
-            lifeData.push(doc.data());
-        });
-
-
-        // ===============================
-        // FETCH INSURER NON-LIFE DATA
-        // ===============================
-        const nonLifeSnapshot = await getDocs(collection(db, "insurers_master_nonlife"));
-
-        let nonLifeData = [];
-
-        nonLifeSnapshot.forEach(doc => {
-            nonLifeData.push(doc.data());
-        });
+        const stateData = insuranceAIData.stateData;
+        const lifeData = insuranceAIData.lifeData;
+        const nonLifeData = insuranceAIData.nonLifeData;
 
 
         // ===============================
@@ -5265,6 +5280,12 @@ window.checkAuthState = function() {
         if (user) {
             console.log("User logged in:", user.uid);
             window.currentUser = user;
+            try {
+                await initializeInsuranceAI();
+            } catch (error) {
+                console.error("Failed to initialize insurance AI data:", error);
+                insuranceAIInitialized = false;
+            }
             currentUserId = user.uid;
             currentUsername = user.email;
             document.getElementById('currentUserDisplay').textContent = `👤 ${currentUsername}`;
@@ -5300,6 +5321,8 @@ window.checkAuthState = function() {
         } else {
             console.log("User not logged in yet");
             window.currentUser = null;
+            insuranceAIInitialized = false;
+            insuranceAIData = { stateData: [], lifeData: [], nonLifeData: [] };
             // Show login, hide everything else
             currentUserId = null;
             currentUsername = null;
