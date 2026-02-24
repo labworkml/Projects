@@ -781,6 +781,14 @@ const mobileBottomNavConfig = {
         let insurerPremiumChart = null;
         let currentInsurerData = null;
         let insuranceHandbookCategory = null;
+        let selectedInsurer = '';
+        let selectedInfoType = '';
+        let selectedSegment = '';
+        let selectedTimeline = 'all_years';
+        let currentMetricRows = [];
+        let currentMetricLabel = '';
+        let currentMetricType = '';
+        const segmentOptions = ['fire', 'marine', 'motor', 'health_pa_travel', 'others'];
         let moduleAccessState = {
             insuranceOnlyUser: false,
             allowedModules: null
@@ -902,6 +910,12 @@ const mobileBottomNavConfig = {
 
         function showInsuranceHandbookCategories() {
             insuranceHandbookCategory = null;
+            selectedInsurer = '';
+            selectedInfoType = '';
+            selectedSegment = '';
+            resetTimelineState();
+            hideTimelineControl();
+            hideSegmentDropdown();
 
             const grid = document.getElementById('insuranceHandbookCategoryGrid');
             const lifeView = document.getElementById('insuranceHandbookLifeView');
@@ -925,6 +939,11 @@ const mobileBottomNavConfig = {
                 if (lifeView) lifeView.style.display = 'block';
                 if (placeholderView) placeholderView.style.display = 'none';
                 currentInsurerData = null;
+                selectedInsurer = '';
+                selectedInfoType = '';
+                selectedSegment = '';
+                resetTimelineState();
+                hideTimelineControl();
                 refreshInsuranceInfoTypeOptions();
                 loadInsurersDropdown();
                 return;
@@ -1255,12 +1274,59 @@ const mobileBottomNavConfig = {
         }
 
         function normalizePremiumData(premiumData) {
-            if (!premiumData || typeof premiumData !== 'object') {
+            if (!premiumData || (typeof premiumData !== 'object' && !Array.isArray(premiumData))) {
                 return [];
             }
 
-            const yearKeys = Object.keys(premiumData)
-                .filter(key => /^\d{4}$/.test(String(key)))
+            const parseYear = (rawYear) => {
+                const yearMatch = String(rawYear || '').match(/(19|20)\d{2}/);
+                if (!yearMatch) return null;
+                const yearValue = Number(yearMatch[0]);
+                return Number.isFinite(yearValue) ? yearValue : null;
+            };
+
+            const parseNumericValue = (rawValue) => {
+                const directNumber = Number(rawValue);
+                if (Number.isFinite(directNumber)) {
+                    return directNumber;
+                }
+
+                if (rawValue && typeof rawValue === 'object') {
+                    const candidateKeys = ['value', 'premium', 'gdp', 'amount', 'total'];
+                    for (const key of candidateKeys) {
+                        const numeric = Number(rawValue[key]);
+                        if (Number.isFinite(numeric)) {
+                            return numeric;
+                        }
+                    }
+                }
+
+                return 0;
+            };
+
+            const yearValueMap = {};
+
+            if (Array.isArray(premiumData)) {
+                premiumData.forEach(item => {
+                    if (!item || typeof item !== 'object') return;
+                    const parsedYear = parseYear(item.year || item.fy || item.label || '');
+                    if (!parsedYear) return;
+                    yearValueMap[parsedYear] = parseNumericValue(item);
+                });
+            } else {
+                Object.entries(premiumData).forEach(([key, value]) => {
+                    let parsedYear = parseYear(key);
+
+                    if (!parsedYear && value && typeof value === 'object') {
+                        parsedYear = parseYear(value.year || value.fy || value.label || '');
+                    }
+
+                    if (!parsedYear) return;
+                    yearValueMap[parsedYear] = parseNumericValue(value);
+                });
+            }
+
+            const yearKeys = Object.keys(yearValueMap)
                 .map(key => Number(key))
                 .sort((a, b) => a - b);
 
@@ -1273,7 +1339,7 @@ const mobileBottomNavConfig = {
             const rows = [];
 
             for (let year = startYear; year <= endYear; year += 1) {
-                const rawValue = premiumData[String(year)] ?? premiumData[year] ?? 0;
+                const rawValue = yearValueMap[year] ?? 0;
                 const numericValue = Number(rawValue);
                 rows.push({
                     year,
@@ -1291,6 +1357,146 @@ const mobileBottomNavConfig = {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             });
+        }
+
+        function resetTimelineState() {
+            selectedTimeline = 'all_years';
+            currentMetricRows = [];
+            currentMetricLabel = '';
+            currentMetricType = '';
+        }
+
+        function rowsToSeriesMap(rows = []) {
+            const result = {};
+            rows.forEach(row => {
+                if (!row || !Number.isFinite(Number(row.year))) return;
+                result[String(row.year)] = Number(row.premium) || 0;
+            });
+            return result;
+        }
+
+        function showTimelineControl() {
+            const timelineWrapEl = document.getElementById('insuranceTimelineControl');
+            if (!timelineWrapEl) return;
+            timelineWrapEl.classList.add('show');
+            timelineWrapEl.setAttribute('aria-hidden', 'false');
+        }
+
+        function hideTimelineControl() {
+            const timelineWrapEl = document.getElementById('insuranceTimelineControl');
+            const timelineSelectEl = document.getElementById('insuranceTimelineSelect');
+            if (timelineWrapEl) {
+                timelineWrapEl.classList.remove('show');
+                timelineWrapEl.setAttribute('aria-hidden', 'true');
+            }
+            if (timelineSelectEl) {
+                timelineSelectEl.innerHTML = '<option value="all_years">All Years</option>';
+                timelineSelectEl.value = 'all_years';
+                timelineSelectEl.disabled = true;
+            }
+            selectedTimeline = 'all_years';
+        }
+
+        function populateTimelineDropdown(years) {
+            const timelineSelectEl = document.getElementById('insuranceTimelineSelect');
+            if (!timelineSelectEl) return;
+
+            const uniqueYearsDesc = Array.from(new Set((years || [])
+                .map(year => Number(year))
+                .filter(year => Number.isFinite(year))
+            )).sort((a, b) => b - a);
+
+            const previousSelection = selectedTimeline;
+
+            const options = [
+                '<option value="all_years">All Years</option>',
+                '<option value="last_5_years">Last 5 Years</option>',
+                '<option value="last_3_years">Last 3 Years</option>',
+                '<option value="separator" disabled>────────────</option>',
+                ...uniqueYearsDesc.map(year => `<option value="year_${year}">${year}</option>`)
+            ];
+
+            timelineSelectEl.innerHTML = options.join('');
+            timelineSelectEl.disabled = uniqueYearsDesc.length === 0;
+
+            const availableValues = new Set(['all_years', 'last_5_years', 'last_3_years', ...uniqueYearsDesc.map(year => `year_${year}`)]);
+            selectedTimeline = availableValues.has(previousSelection) ? previousSelection : 'all_years';
+            timelineSelectEl.value = selectedTimeline;
+        }
+
+        function applyTimelineFilter(data, selection) {
+            const rows = (data || []).slice().sort((a, b) => Number(a.year) - Number(b.year));
+            if (!rows.length) return [];
+
+            const choice = String(selection || 'all_years').toLowerCase();
+            if (choice === 'all_years') {
+                return rows;
+            }
+
+            const maxYear = Math.max(...rows.map(row => Number(row.year)));
+
+            if (choice === 'last_5_years') {
+                const minYear = maxYear - 4;
+                return rows.filter(row => Number(row.year) >= minYear);
+            }
+
+            if (choice === 'last_3_years') {
+                const minYear = maxYear - 2;
+                return rows.filter(row => Number(row.year) >= minYear);
+            }
+
+            const yearMatch = choice.match(/^year_(\d{4})$/);
+            if (yearMatch) {
+                const targetYear = Number(yearMatch[1]);
+                return rows.filter(row => Number(row.year) === targetYear);
+            }
+
+            return rows;
+        }
+
+        function updateUI(filteredData) {
+            const rows = (filteredData || []).slice().sort((a, b) => Number(a.year) - Number(b.year));
+            if (!rows.length) {
+                renderLeftPanelHtml('<p class="insurance-data-muted">No data available for the selected timeline.</p>');
+                showPlaceholder('No trend data available for the selected timeline');
+                return;
+            }
+
+            const seriesMap = rowsToSeriesMap(rows);
+            if (currentMetricType === 'segment_gdp') {
+                renderSegmentTable(seriesMap, selectedSegment);
+                renderSegmentChart(seriesMap, selectedSegment);
+                return;
+            }
+
+            renderPremiumTable(seriesMap, currentMetricLabel || 'Metric');
+            renderPremiumChart(seriesMap, currentMetricLabel || 'Metric');
+        }
+
+        function refreshMetricPanels(metricRows, metricLabel, metricType) {
+            const rows = (metricRows || []).slice().sort((a, b) => Number(a.year) - Number(b.year));
+            currentMetricRows = rows;
+            currentMetricLabel = metricLabel || 'Metric';
+            currentMetricType = metricType || 'metric';
+
+            if (!rows.length) {
+                hideTimelineControl();
+                return;
+            }
+
+            showTimelineControl();
+            populateTimelineDropdown(rows.map(row => row.year));
+            const filteredRows = applyTimelineFilter(rows, selectedTimeline);
+            updateUI(filteredRows);
+        }
+
+        function onTimelineChange(selection) {
+            selectedTimeline = String(selection || 'all_years');
+            if (!currentMetricRows.length) {
+                return;
+            }
+            const filteredRows = applyTimelineFilter(currentMetricRows, selectedTimeline);
+            updateUI(filteredRows);
         }
 
         function renderLeftPanelHtml(contentHtml) {
@@ -1313,37 +1519,132 @@ const mobileBottomNavConfig = {
             };
         }
 
+        function formatSegmentLabel(segment) {
+            return String(segment || '')
+                .split('_')
+                .filter(Boolean)
+                .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+                .join(' ');
+        }
+
+        function normalizeSegmentKey(key) {
+            return String(key || '')
+                .toLowerCase()
+                .replace(/[^a-z0-9]/g, '');
+        }
+
+        function extractSegmentSeries(segmentValue) {
+            if (!segmentValue) return {};
+            if (Array.isArray(segmentValue)) return segmentValue;
+            if (typeof segmentValue !== 'object') return {};
+
+            const directYearKeys = Object.keys(segmentValue).some(key => /(19|20)\d{2}/.test(String(key)));
+            if (directYearKeys) return segmentValue;
+
+            const nestedCandidates = ['series', 'data', 'values', 'gdp', 'premium'];
+            for (const candidate of nestedCandidates) {
+                const nested = segmentValue[candidate];
+                if (!nested) continue;
+                if (Array.isArray(nested)) return nested;
+                if (typeof nested === 'object') return nested;
+            }
+
+            return segmentValue;
+        }
+
+        function resolveSegmentGDPData(segmentGDPMap, requestedSegment) {
+            if (!segmentGDPMap || typeof segmentGDPMap !== 'object') {
+                return {};
+            }
+
+            if (segmentGDPMap[requestedSegment]) {
+                return extractSegmentSeries(segmentGDPMap[requestedSegment]);
+            }
+
+            const targetKey = normalizeSegmentKey(requestedSegment);
+            const matchingEntry = Object.entries(segmentGDPMap).find(([key]) => normalizeSegmentKey(key) === targetKey);
+            if (matchingEntry) {
+                return extractSegmentSeries(matchingEntry[1]);
+            }
+
+            return {};
+        }
+
+        function getInfoTypeOptionsForCategory(category = insuranceHandbookCategory) {
+            const normalizedCategory = String(category || '').toLowerCase();
+            if (normalizedCategory === 'general') {
+                return [
+                    { value: 'basic', label: 'Basic Info' },
+                    { value: 'gross_direct_premium', label: 'Gross Direct Premium' },
+                    { value: 'segment_gdp', label: 'Segment GDP' }
+                ];
+            }
+
+            return [
+                { value: 'basic', label: 'Basic Info' },
+                { value: 'total_premium', label: 'Total Premium' }
+            ];
+        }
+
         function getDefaultPremiumInfoTypeForCategory(category = insuranceHandbookCategory) {
             const normalizedCategory = String(category || '').toLowerCase();
             return normalizedCategory === 'general' ? 'gross_direct_premium' : 'total_premium';
+        }
+
+        function showSegmentDropdown() {
+            const segmentCardEl = document.getElementById('insuranceSegmentControlCard');
+            const segmentSelectEl = document.getElementById('insuranceSegmentSelect');
+            if (!segmentCardEl || !segmentSelectEl) return;
+
+            segmentCardEl.classList.add('show');
+            segmentCardEl.setAttribute('aria-hidden', 'false');
+            segmentSelectEl.disabled = !selectedInsurer;
+            segmentSelectEl.value = selectedSegment || '';
+        }
+
+        function hideSegmentDropdown() {
+            const segmentCardEl = document.getElementById('insuranceSegmentControlCard');
+            const segmentSelectEl = document.getElementById('insuranceSegmentSelect');
+            if (!segmentCardEl || !segmentSelectEl) return;
+
+            segmentCardEl.classList.remove('show');
+            segmentCardEl.setAttribute('aria-hidden', 'true');
+            segmentSelectEl.value = '';
+            segmentSelectEl.disabled = true;
+            selectedSegment = '';
         }
 
         function refreshInsuranceInfoTypeOptions() {
             const infoTypeSelectEl = document.getElementById('insuranceInfoTypeSelect');
             if (!infoTypeSelectEl) return;
 
-            const premiumInfoType = getDefaultPremiumInfoTypeForCategory();
-            const premiumLabel = getPremiumInfoMeta(premiumInfoType).label;
+            const options = getInfoTypeOptionsForCategory();
 
             infoTypeSelectEl.innerHTML = [
                 '<option value="">Choose information type</option>',
-                '<option value="basic">Basic Info</option>',
-                `<option value="${premiumInfoType}">${premiumLabel}</option>`
+                ...options.map(item => `<option value="${item.value}">${item.label}</option>`)
             ].join('');
             infoTypeSelectEl.value = '';
             infoTypeSelectEl.disabled = true;
+            selectedInfoType = '';
+            hideSegmentDropdown();
         }
 
         function showSection(sectionName) {
             const section = String(sectionName || '').toLowerCase();
             if (section === 'basic') {
+                resetTimelineState();
+                hideTimelineControl();
                 if (currentInsurerData) {
                     renderBasicInfo(currentInsurerData);
                 } else {
                     renderLeftPanelHtml('<p class="insurance-data-muted">Select an insurer to view analytics.</p>');
                 }
-                const premiumLabel = getPremiumInfoMeta(getDefaultPremiumInfoTypeForCategory()).label;
-                showPlaceholder(`Select ${premiumLabel} to view trend chart`);
+                const normalizedCategory = String(insuranceHandbookCategory || '').toLowerCase();
+                const premiumPrompt = normalizedCategory === 'general'
+                    ? 'Select Gross Direct Premium or Segment GDP to view trend chart'
+                    : 'Select Total Premium to view trend chart';
+                showPlaceholder(premiumPrompt);
                 return;
             }
 
@@ -1351,26 +1652,72 @@ const mobileBottomNavConfig = {
                 const premiumMeta = getPremiumInfoMeta(section);
                 if (currentInsurerData) {
                     const premiumData = currentInsurerData[premiumMeta.field] || {};
-                    renderPremiumTable(premiumData, premiumMeta.label);
-                    renderPremiumChart(premiumData, premiumMeta.label);
+                    const premiumRows = normalizePremiumData(premiumData);
+                    if (!premiumRows.length) {
+                        resetTimelineState();
+                        hideTimelineControl();
+                        renderLeftPanelHtml('<p class="insurance-data-muted">No premium data available for this insurer.</p>');
+                        showPlaceholder('No premium trend data available for this insurer.');
+                        return;
+                    }
+                    refreshMetricPanels(premiumRows, premiumMeta.label, section);
                 } else {
+                    resetTimelineState();
+                    hideTimelineControl();
                     renderLeftPanelHtml('<p class="insurance-data-muted">Select an insurer to view analytics.</p>');
                     showPlaceholder('Select an insurer to view analytics');
                 }
                 return;
             }
 
+            if (section === 'segment_gdp') {
+                showSegmentDropdown();
+                if (!selectedInsurer) {
+                    resetTimelineState();
+                    hideTimelineControl();
+                    renderLeftPanelHtml('<p class="insurance-data-muted">Select an insurer first to view Segment GDP.</p>');
+                    showPlaceholder('Select an insurer first to view Segment GDP trend');
+                    return;
+                }
+
+                if (!selectedSegment) {
+                    resetTimelineState();
+                    hideTimelineControl();
+                    renderLeftPanelHtml('<p class="insurance-data-muted">Select a segment to view Segment GDP data.</p>');
+                    showPlaceholder('Select Segment to view trend chart');
+                    return;
+                }
+
+                loadSegmentGDP();
+                return;
+            }
+
+            resetTimelineState();
+            hideTimelineControl();
             renderLeftPanelHtml('<p class="insurance-data-muted">Select information type to view data.</p>');
             showPlaceholder('Select information type to view visualization');
         }
 
         async function onInsurerChange(regNo) {
             const infoTypeSelectEl = document.getElementById('insuranceInfoTypeSelect');
+            const segmentSelectEl = document.getElementById('insuranceSegmentSelect');
+
+            selectedInsurer = String(regNo || '');
+            selectedSegment = '';
+
+            if (segmentSelectEl) {
+                segmentSelectEl.value = '';
+                segmentSelectEl.disabled = !selectedInsurer;
+            }
 
             if (infoTypeSelectEl) {
                 infoTypeSelectEl.value = '';
                 infoTypeSelectEl.disabled = !regNo;
             }
+
+            selectedInfoType = '';
+            resetTimelineState();
+            hideTimelineControl();
 
             if (!regNo) {
                 currentInsurerData = null;
@@ -1394,15 +1741,26 @@ const mobileBottomNavConfig = {
 
         function onInfoTypeChange() {
             const infoTypeSelectEl = document.getElementById('insuranceInfoTypeSelect');
-            const selectedInfoType = infoTypeSelectEl?.value || '';
+            const infoTypeValue = infoTypeSelectEl?.value || '';
+            selectedInfoType = infoTypeValue;
 
-            if (!selectedInfoType) {
+            if (!infoTypeValue) {
+                hideSegmentDropdown();
+                resetTimelineState();
+                hideTimelineControl();
                 renderLeftPanelHtml('<p class="insurance-data-muted">Select information type to view data.</p>');
                 showPlaceholder('Select information type to view visualization');
                 return;
             }
 
-            showSection(selectedInfoType);
+            if (infoTypeValue === 'segment_gdp') {
+                showSection(infoTypeValue);
+                return;
+            }
+
+            hideSegmentDropdown();
+
+            showSection(infoTypeValue);
         }
 
         function showPlaceholder(message = 'Select an insurer to view analytics') {
@@ -1594,17 +1952,100 @@ const mobileBottomNavConfig = {
             });
         }
 
+        function renderSegmentTable(segmentData, segmentKey) {
+            const segmentLabel = formatSegmentLabel(segmentKey);
+            renderPremiumTable(segmentData, `Segment GDP - ${segmentLabel}`);
+        }
+
+        function renderSegmentChart(segmentData, segmentKey) {
+            const segmentLabel = formatSegmentLabel(segmentKey);
+            renderPremiumChart(segmentData, `Segment GDP - ${segmentLabel}`);
+        }
+
+        async function loadSegmentGDP() {
+            if (!selectedInsurer || !selectedSegment) {
+                resetTimelineState();
+                hideTimelineControl();
+                renderLeftPanelHtml('<p class="insurance-data-muted">Select insurer and segment to view Segment GDP data.</p>');
+                showPlaceholder('Select insurer and segment to view trend chart');
+                return;
+            }
+
+            if (!segmentOptions.includes(selectedSegment)) {
+                resetTimelineState();
+                hideTimelineControl();
+                renderLeftPanelHtml('<p class="insurance-data-muted">Invalid segment selected.</p>');
+                showPlaceholder('Select a valid segment');
+                return;
+            }
+
+            if (!currentInsurerData || String(currentInsurerData.reg_no || '') !== selectedInsurer) {
+                await loadInsurerData(selectedInsurer);
+            }
+
+            if (!currentInsurerData) {
+                resetTimelineState();
+                hideTimelineControl();
+                renderLeftPanelHtml('<p class="insurance-data-muted">Unable to load insurer details. Please try again.</p>');
+                showPlaceholder('Unable to load Segment GDP trend');
+                return;
+            }
+
+            const segmentGDPMap = currentInsurerData.segment_gdp || {};
+            const segmentData = resolveSegmentGDPData(segmentGDPMap, selectedSegment);
+            const segmentRows = normalizePremiumData(segmentData);
+
+            if (!segmentRows.length) {
+                resetTimelineState();
+                hideTimelineControl();
+                renderLeftPanelHtml(`<p class="insurance-data-muted">No Segment GDP data available for ${escapeInsuranceHtml(formatSegmentLabel(selectedSegment))}.</p>`);
+                showPlaceholder(`No Segment GDP trend available for ${formatSegmentLabel(selectedSegment)}`);
+                return;
+            }
+
+            refreshMetricPanels(segmentRows, `Segment GDP - ${formatSegmentLabel(selectedSegment)}`, 'segment_gdp');
+        }
+
+        function onSegmentChange(segment) {
+            selectedSegment = String(segment || '').toLowerCase();
+
+            if (!selectedSegment) {
+                resetTimelineState();
+                hideTimelineControl();
+                renderLeftPanelHtml('<p class="insurance-data-muted">Select a segment to view Segment GDP data.</p>');
+                showPlaceholder('Select Segment to view trend chart');
+                return;
+            }
+
+            if (selectedInfoType !== 'segment_gdp') {
+                return;
+            }
+
+            loadSegmentGDP();
+        }
+
         async function loadInsurersDropdown() {
             const dropdownEl = document.getElementById('insuranceInsurerSelect');
             const infoTypeSelectEl = document.getElementById('insuranceInfoTypeSelect');
+            const segmentSelectEl = document.getElementById('insuranceSegmentSelect');
             const collectionName = getInsurerMasterCollectionForCategory();
             if (!dropdownEl) return;
 
             currentInsurerData = null;
+            selectedInsurer = '';
+            selectedInfoType = '';
+            selectedSegment = '';
+            resetTimelineState();
             if (infoTypeSelectEl) {
                 infoTypeSelectEl.value = '';
                 infoTypeSelectEl.disabled = true;
             }
+            if (segmentSelectEl) {
+                segmentSelectEl.value = '';
+                segmentSelectEl.disabled = true;
+            }
+            hideSegmentDropdown();
+            hideTimelineControl();
             renderLeftPanelHtml('<p class="insurance-data-muted">Select an insurer to view analytics.</p>');
             showPlaceholder('Select an insurer to view analytics');
 
@@ -1710,6 +2151,7 @@ const mobileBottomNavConfig = {
                     foreign_partners: row.foreign_partners || 'â€”',
                     total_premium: row.total_premium || {},
                     gross_direct_premium: row.gross_direct_premium || {},
+                    segment_gdp: row.segment_gdp || {},
                 };
             } catch (error) {
                 console.error('Error loading insurer data:', error);
@@ -2029,6 +2471,8 @@ const mobileBottomNavConfig = {
         window.loadInsurerData = loadInsurerData;
         window.onInsurerChange = onInsurerChange;
         window.onInfoTypeChange = onInfoTypeChange;
+        window.onSegmentChange = onSegmentChange;
+        window.onTimelineChange = onTimelineChange;
         window.showSection = showSection;
         window.showPlaceholder = showPlaceholder;
         window.showInsuranceHandbookCategories = showInsuranceHandbookCategories;
@@ -2038,6 +2482,14 @@ const mobileBottomNavConfig = {
         window.renderInsurerDetails = renderInsurerDetails;
         window.renderPremiumTable = renderPremiumTable;
         window.renderPremiumChart = renderPremiumChart;
+        window.showSegmentDropdown = showSegmentDropdown;
+        window.hideSegmentDropdown = hideSegmentDropdown;
+        window.loadSegmentGDP = loadSegmentGDP;
+        window.renderSegmentTable = renderSegmentTable;
+        window.renderSegmentChart = renderSegmentChart;
+        window.populateTimelineDropdown = populateTimelineDropdown;
+        window.applyTimelineFilter = applyTimelineFilter;
+        window.updateUI = updateUI;
         window.sendInsuranceChatMessage = sendInsuranceChatMessage;
 
         function getPersistedUIState() {

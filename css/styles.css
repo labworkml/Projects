@@ -2138,6 +2138,27 @@ input:focus,textarea:focus,select:focus{
     min-height:48px;
 }
 
+.insurance-segment-control{
+    display:none;
+    grid-column:2;
+}
+
+.insurance-segment-control.show{
+    display:flex;
+    animation:insuranceSegmentReveal 0.22s ease both;
+}
+
+@keyframes insuranceSegmentReveal{
+    from{
+        opacity:0;
+        transform:translateY(-8px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
 .insurance-analytics-main{
     margin-top:1rem;
     display:grid;
@@ -2178,6 +2199,32 @@ input:focus,textarea:focus,select:focus{
     color:#0f2540;
     font-size:1.1rem;
     font-weight:700;
+}
+
+.insurance-timeline-control{
+    margin-left:auto;
+    display:none;
+    align-items:center;
+    gap:0.5rem;
+}
+
+.insurance-timeline-control.show{
+    display:flex;
+}
+
+.insurance-timeline-control label{
+    font-weight:600;
+    color:#334155;
+    font-size:0.9rem;
+}
+
+.insurance-timeline-control select{
+    min-height:36px;
+    height:36px;
+    width:auto;
+    min-width:160px;
+    margin:0;
+    font-size:0.9rem;
 }
 
 #insuranceLeftPanelContent{
@@ -2284,9 +2331,23 @@ input:focus,textarea:focus,select:focus{
     .insurance-analytics-main{
         grid-template-columns:1fr;
     }
+    .insurance-segment-control{
+        grid-column:auto;
+    }
     .insurance-analytics-panel{
         min-height:unset;
         height:auto;
+    }
+    .insurance-timeline-control{
+        width:100%;
+        margin-left:0;
+        margin-top:0.5rem;
+        justify-content:flex-start;
+        flex-wrap:wrap;
+    }
+    .insurance-timeline-control select{
+        width:100%;
+        min-width:0;
     }
     .insurance-card{
         min-height:180px;

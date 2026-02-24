@@ -2521,7 +2521,20 @@ input:focus,textarea:focus,select:focus{
                                     <select id="insuranceInfoTypeSelect" onchange="onInfoTypeChange()" disabled>
                                         <option value="">Choose information type</option>
                                         <option value="basic">Basic Info</option>
-                                        <option value="total_premium">Total Premium</option>
+                                        <option value="gross_direct_premium">Gross Direct Premium</option>
+                                        <option value="segment_gdp">Segment GDP</option>
+                                    </select>
+                                </div>
+
+                                <div id="insuranceSegmentControlCard" class="insurance-data-card insurance-analytics-control-card insurance-segment-control" aria-hidden="true">
+                                    <label for="insuranceSegmentSelect">Select Segment</label>
+                                    <select id="insuranceSegmentSelect" onchange="onSegmentChange(this.value)" disabled>
+                                        <option value="">Choose segment</option>
+                                        <option value="fire">fire</option>
+                                        <option value="marine">marine</option>
+                                        <option value="motor">motor</option>
+                                        <option value="health_pa_travel">health_pa_travel</option>
+                                        <option value="others">others</option>
                                     </select>
                                 </div>
                             </div>
@@ -2531,6 +2544,12 @@ input:focus,textarea:focus,select:focus{
                                     <div class="insurance-analytics-panel-head">
                                         <span class="insurance-analytics-panel-icon" aria-hidden="true">📋</span>
                                         <h3 class="insurance-analytics-panel-title">Data Panel</h3>
+                                        <div id="insuranceTimelineControl" class="insurance-timeline-control" aria-hidden="true">
+                                            <label for="insuranceTimelineSelect">Timeline</label>
+                                            <select id="insuranceTimelineSelect" onchange="onTimelineChange(this.value)" disabled>
+                                                <option value="all_years">All Years</option>
+                                            </select>
+                                        </div>
                                     </div>
                                     <div id="insuranceLeftPanelContent">
                                         <p class="insurance-data-muted">Select an insurer to view analytics.</p>
