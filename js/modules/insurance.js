@@ -1,7 +1,74 @@
 ﻿/* Insurance module logic extracted from index.html */
-window.askInsuranceAssistant = function(query) {
+function appendInsuranceChatMessage(role, text) {
+    const chatBox = document.getElementById('chatMessages');
+    if (!chatBox) return;
+
+    const msg = document.createElement('div');
+    msg.className = role === 'user' ? 'user-message' : 'ai-message';
+    msg.innerText = String(text || '');
+    chatBox.appendChild(msg);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+window.askInsuranceAssistant = async function(query) {
     console.log("AI called with:", query);
+
+    const message = String(query || '').trim();
+    if (!message) return;
+
+    appendInsuranceChatMessage('user', message);
+
+    const inputEl = document.getElementById('insuranceInput');
+    if (inputEl) inputEl.value = '';
+
+    if (typeof window.askInsuranceAI === 'function') {
+        try {
+            const result = await window.askInsuranceAI(message);
+            if (typeof result === 'string' && result.trim()) {
+                appendInsuranceChatMessage('ai', result.trim());
+            }
+            return;
+        } catch (error) {
+            console.error(error);
+            appendInsuranceChatMessage('ai', 'Error fetching insurance intelligence.');
+            return;
+        }
+    }
+
+    appendInsuranceChatMessage('ai', 'Insurance AI is not ready yet.');
 };
+
+function bindInsuranceSendHandler() {
+    const sendBtn = document.getElementById('insuranceSendBtn');
+    const inputEl = document.getElementById('insuranceInput');
+    if (!sendBtn || !inputEl) return;
+
+    if (sendBtn.dataset.boundInsuranceSend === 'true') return;
+    sendBtn.dataset.boundInsuranceSend = 'true';
+
+    sendBtn.addEventListener('click', () => {
+        console.log('Send clicked');
+
+        const input = document.getElementById('insuranceInput').value;
+        console.log('User input:', input);
+
+        if (window.askInsuranceAssistant) {
+            window.askInsuranceAssistant(input);
+        }
+    });
+
+    inputEl.addEventListener('keypress', event => {
+        if (event.key === 'Enter') {
+            sendBtn.click();
+        }
+    });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindInsuranceSendHandler);
+} else {
+    bindInsuranceSendHandler();
+}
 
 function normalizeInsuranceActName(value) {
     const text = String(value || '').trim();

@@ -1416,7 +1416,7 @@ const mobileBottomNavConfig = {
 
             if (viewName === 'ai') {
                 setTimeout(() => {
-                    const input = document.getElementById('insuranceChatInput');
+                    const input = document.getElementById('insuranceInput');
                     if (input) input.focus();
                 }, 50);
             }
