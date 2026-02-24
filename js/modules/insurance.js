@@ -10,6 +10,96 @@ function appendInsuranceChatMessage(role, text) {
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
+let insuranceStateDataCache = null;
+
+function parseNumericValue(value) {
+    if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
+    const cleaned = String(value ?? '')
+        .replace(/,/g, '')
+        .replace(/[^0-9.-]/g, '');
+    const parsed = Number(cleaned);
+    return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function safeLower(value) {
+    return String(value || '').trim().toLowerCase();
+}
+
+async function getInsuranceStateData() {
+    if (Array.isArray(insuranceStateDataCache)) return insuranceStateDataCache;
+
+    if (!window.db || !window.collection || !window.getDocs) {
+        throw new Error('Database is not initialized yet.');
+    }
+
+    const snapshot = await window.getDocs(window.collection(window.db, 'state_lob_data'));
+    const records = [];
+    snapshot.forEach(docSnap => {
+        records.push(docSnap.data() || {});
+    });
+
+    insuranceStateDataCache = records;
+    return records;
+}
+
+function buildStateFiguresReply(userQuery, records) {
+    const queryText = safeLower(userQuery);
+    const yearMatch = queryText.match(/\b(19|20)\d{2}\b/);
+    const queryYear = yearMatch ? yearMatch[0] : '';
+
+    const requestedState = records.find(item => queryText.includes(safeLower(item.state_name || item.state || '')))?.state_name || '';
+    const stateText = safeLower(requestedState) || (queryText.includes('karnataka') ? 'karnataka' : '');
+
+    const keywordList = ['aviation', 'motor', 'health', 'fire', 'marine', 'crop', 'liability'];
+    const keyword = keywordList.find(word => queryText.includes(word)) || '';
+
+    let filtered = records.filter(item => {
+        const stateName = safeLower(item.state_name || item.state || '');
+        if (!stateText) return true;
+        return stateName.includes(stateText);
+    });
+
+    if (queryYear) {
+        filtered = filtered.filter(item => String(item.year || '').trim() === queryYear);
+    }
+
+    if (keyword) {
+        filtered = filtered.filter(item => {
+            const lob = safeLower(item.lob || '');
+            const segment = safeLower(item.segment || '');
+            return lob.includes(keyword) || segment.includes(keyword);
+        });
+    }
+
+    if (!filtered.length) {
+        return 'No matching records found in state_lob_data for that query. Try including state and year, for example: Karnataka 2025 aviation.';
+    }
+
+    const total = filtered.reduce((sum, item) => sum + parseNumericValue(item.value), 0);
+    const byLob = new Map();
+    filtered.forEach(item => {
+        const lob = String(item.lob || item.segment || 'Unknown').trim() || 'Unknown';
+        byLob.set(lob, (byLob.get(lob) || 0) + parseNumericValue(item.value));
+    });
+
+    const topLobs = Array.from(byLob.entries())
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([lob, value]) => `${lob}: ${value.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`)
+        .join(' | ');
+
+    const headerState = requestedState || (stateText ? stateText.charAt(0).toUpperCase() + stateText.slice(1) : 'All states');
+    const headerYear = queryYear || 'all years';
+    const headerKeyword = keyword ? `, filter: ${keyword}` : '';
+
+    return `${headerState} (${headerYear}${headerKeyword}) — Records: ${filtered.length}, Total value: ${total.toLocaleString('en-IN', { maximumFractionDigits: 2 })}. Top lines: ${topLobs}.`;
+}
+
+async function fetchInsuranceDatabaseReply(userQuery) {
+    const records = await getInsuranceStateData();
+    return buildStateFiguresReply(userQuery, records);
+}
+
 window.askInsuranceAssistant = async function(query) {
     console.log("AI called with:", query);
 
@@ -35,7 +125,13 @@ window.askInsuranceAssistant = async function(query) {
         }
     }
 
-    appendInsuranceChatMessage('ai', 'Insurance AI is not ready yet.');
+    try {
+        const dbReply = await fetchInsuranceDatabaseReply(message);
+        appendInsuranceChatMessage('ai', dbReply);
+    } catch (error) {
+        console.error(error);
+        appendInsuranceChatMessage('ai', 'Insurance AI is not ready yet and database lookup failed.');
+    }
 };
 
 function bindInsuranceSendHandler() {
