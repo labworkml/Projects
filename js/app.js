@@ -1,6 +1,5 @@
 ﻿/* Global app + Firebase auth/bootstrap extracted from index.html */
 // ⭐ ADD THIS LINE
-const db = firebase.firestore();
 const mobileBottomNavConfig = {
             'Mobility - Physio': [
                 { label: 'Home', tab: 'mobilityHome' },
@@ -3412,15 +3411,13 @@ window.applyModuleVisibilityAfterLogin = async function(user = auth.currentUser)
     applyModuleCardVisibility(moduleAccessState.allowedModules);
 
     try {
-const userRef = db.collection('users').doc(user.uid);
+const userRef = firebase.firestore().collection('users').doc(user.uid);
 
-// ⭐ LOCAL USER DATA
 const userData = {
   userId: user.uid,
   email: user.email || null
 };
 
-// CREATE USER DOC IF NOT EXISTS
 await userRef.set({
   ...userData,
   createdAt: new Date()
