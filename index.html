@@ -2700,8 +2700,8 @@ input:focus,textarea:focus,select:focus{
                                 </div>
                             </div>
                             <div class="insurance-chat-input-row">
-                                <input type="text" id="chatInput" placeholder="Ask about provisions, companies, or concepts...">
-                                <button id="sendBtn" class="submit-btn btn-sm">Send</button>
+                                <input type="text" id="insuranceInput" placeholder="Ask about provisions, companies, or concepts...">
+                                <button id="insuranceSendBtn" type="button">Send</button>
                             </div>
                         </div>
                     </div>
@@ -5212,21 +5212,16 @@ I am not able to find response for your inputs.
 // SEND MESSAGE
 // ===============================
 
-document.getElementById("sendBtn").addEventListener("click", sendMessage);
+document.getElementById("insuranceSendBtn").addEventListener("click", () => {
+    console.log("Send clicked");
 
-async function sendMessage() {
+    const input = document.getElementById("insuranceInput").value;
+    console.log("User input:", input);
 
-    const input = document.getElementById("chatInput");
-    const message = input.value.trim();
-
-    if (!message) return;
-
-    addUserMessage(message);
-
-    input.value = "";
-
-    await askInsuranceAI(message);
-}
+    if (window.askInsuranceAssistant) {
+        window.askInsuranceAssistant(input);
+    }
+});
 
 
 // ===============================
@@ -5270,11 +5265,11 @@ function addAIMessage(text) {
 // ===============================
 
 document
-    .getElementById("chatInput")
+    .getElementById("insuranceInput")
     .addEventListener("keypress", function (e) {
 
         if (e.key === "Enter") {
-            sendMessage();
+            document.getElementById("insuranceSendBtn").click();
         }
 
     });

@@ -1,4 +1,8 @@
 ﻿/* Insurance module logic extracted from index.html */
+window.askInsuranceAssistant = function(query) {
+    console.log("AI called with:", query);
+};
+
 function normalizeInsuranceActName(value) {
     const text = String(value || '').trim();
     const cleaned = text
