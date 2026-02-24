@@ -5083,6 +5083,11 @@ const GEMINI_API_KEY = "AIzaSyBxzP1qE8xBAyf5945UaLImJdZM2jYdR8E";
 
 async function askInsuranceAI(userQuery) {
 
+    if (!auth.currentUser) {
+        addAIMessage("Please wait... authentication not ready.");
+        return;
+    }
+
     try {
 
         const genAI = new google.generativeai.GoogleGenerativeAI(GEMINI_API_KEY);
@@ -5258,6 +5263,8 @@ document
 window.checkAuthState = function() {
     onAuthStateChanged(auth, async (user) => {
         if (user) {
+            console.log("User logged in:", user.uid);
+            window.currentUser = user;
             currentUserId = user.uid;
             currentUsername = user.email;
             document.getElementById('currentUserDisplay').textContent = `👤 ${currentUsername}`;
@@ -5291,6 +5298,8 @@ window.checkAuthState = function() {
             }
             
         } else {
+            console.log("User not logged in yet");
+            window.currentUser = null;
             // Show login, hide everything else
             currentUserId = null;
             currentUsername = null;
