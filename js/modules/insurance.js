@@ -434,3 +434,441 @@ window.firebaseDeleteInsuranceProvision = async function(provisionId) {
 
     await deleteDoc(refDoc);
 };
+
+let insuranceNonLifeMasterCache = null;
+let insuranceSolvencyRatioContext = null;
+
+function insuranceNormalizeText(value) {
+    return String(value || '').trim().toLowerCase();
+}
+
+function insuranceIsSolvencySelection(infoTypeSelect) {
+    if (!infoTypeSelect) return false;
+    const selectedValue = insuranceNormalizeText(infoTypeSelect.value);
+    const selectedText = insuranceNormalizeText(infoTypeSelect.options?.[infoTypeSelect.selectedIndex]?.text || '');
+    return selectedValue === 'solvency_ratio' || selectedText === 'solvency ratio';
+}
+
+function insuranceFormatSolvencyValue(value) {
+    if (value === null || value === undefined || value === '') return '—';
+    const numericValue = Number(value);
+    return Number.isFinite(numericValue) ? numericValue.toFixed(2) : String(value);
+}
+
+function insuranceFindQuarterValue(yearData, quarterKeys) {
+    if (!yearData || typeof yearData !== 'object') return '—';
+    const normalizedMap = {};
+    Object.keys(yearData).forEach(key => {
+        normalizedMap[insuranceNormalizeText(key)] = yearData[key];
+    });
+
+    for (const key of quarterKeys) {
+        const value = normalizedMap[insuranceNormalizeText(key)];
+        if (value !== undefined) {
+            return insuranceFormatSolvencyValue(value);
+        }
+    }
+
+    return '—';
+}
+
+async function insuranceGetNonLifeMasterData() {
+    if (Array.isArray(insuranceNonLifeMasterCache)) return insuranceNonLifeMasterCache;
+    if (!window.db || !window.collection || !window.getDocs) return [];
+
+    const snapshot = await window.getDocs(window.collection(window.db, 'insurers_master_nonlife'));
+    const records = [];
+    snapshot.forEach(docSnap => {
+        records.push({ id: docSnap.id, ...(docSnap.data() || {}) });
+    });
+
+    insuranceNonLifeMasterCache = records;
+    return records;
+}
+
+function cleanupInsuranceLeftPanelTitle() {
+    const leftPanel = document.getElementById('insuranceLeftPanelContent');
+    if (!leftPanel) return;
+
+    const firstTable = leftPanel.querySelector('table');
+    if (!firstTable) return;
+
+    leftPanel.querySelectorAll('table caption').forEach(caption => caption.remove());
+
+    const removePlainTextNodesBefore = container => {
+        let pointer = container.firstChild;
+        while (pointer && pointer !== firstTable) {
+            const next = pointer.nextSibling;
+            if (pointer.nodeType === Node.TEXT_NODE && String(pointer.textContent || '').trim()) {
+                pointer.remove();
+            }
+            pointer = next;
+        }
+    };
+
+    removePlainTextNodesBefore(leftPanel);
+
+    const tableContainer = firstTable.parentElement;
+    if (tableContainer) {
+        const children = Array.from(tableContainer.children);
+        const tableIndex = children.indexOf(firstTable);
+        if (tableIndex > 0) {
+            children.slice(0, tableIndex).forEach(child => {
+                const tag = String(child.tagName || '').toLowerCase();
+                const looksLikeTitle = /^(h1|h2|h3|h4|h5|h6|p|span|strong|small|label)$/.test(tag)
+                    || child.classList.contains('insurance-premium-title');
+                const isSimpleTextBlock = child.children.length === 0 && String(child.textContent || '').trim().length > 0;
+
+                if (looksLikeTitle || isSimpleTextBlock) {
+                    child.remove();
+                }
+            });
+        }
+    }
+
+    const topChildren = Array.from(leftPanel.children);
+    const tableHostIndex = topChildren.findIndex(child => child === firstTable || child.querySelector('table'));
+    if (tableHostIndex > 0) {
+        topChildren.slice(0, tableHostIndex).forEach(child => {
+            const hasTable = !!child.querySelector('table');
+            const tag = String(child.tagName || '').toLowerCase();
+            const looksLikeTitle = /^(h1|h2|h3|h4|h5|h6|p|span|strong|small|label)$/.test(tag)
+                || child.classList.contains('insurance-premium-title');
+            const isSimpleTextBlock = child.children.length === 0 && String(child.textContent || '').trim().length > 0;
+
+            if (!hasTable && (looksLikeTitle || isSimpleTextBlock)) {
+                child.remove();
+            }
+        });
+    }
+}
+
+async function renderInsuranceSolvencyRatioPanel() {
+    const infoTypeSelect = document.getElementById('insuranceInfoTypeSelect');
+    const insurerSelect = document.getElementById('insuranceInsurerSelect');
+    const leftPanel = document.getElementById('insuranceLeftPanelContent');
+    const timelineControl = document.getElementById('insuranceTimelineControl');
+    const timelineSelect = document.getElementById('insuranceTimelineSelect');
+    if (!infoTypeSelect || !insurerSelect || !leftPanel) return;
+
+    if (!insuranceIsSolvencySelection(infoTypeSelect)) return;
+
+    const selectedInsurerValue = String(insurerSelect.value || '').trim();
+    if (!selectedInsurerValue) {
+        leftPanel.innerHTML = '<p class="insurance-data-muted">Select an insurer to view Solvency Ratio.</p>';
+        return;
+    }
+
+    const selectedInsurerText = String(insurerSelect.options?.[insurerSelect.selectedIndex]?.text || '').trim();
+    const selectedValueNormalized = insuranceNormalizeText(selectedInsurerValue);
+    const selectedTextNormalized = insuranceNormalizeText(selectedInsurerText);
+
+    let records = [];
+    try {
+        records = await insuranceGetNonLifeMasterData();
+    } catch (error) {
+        console.error('Error loading insurers_master_nonlife:', error);
+        leftPanel.innerHTML = '<p class="insurance-data-muted">Unable to load Solvency Ratio data.</p>';
+        return;
+    }
+
+    const matchedRecord = records.find(record => {
+        const idValue = insuranceNormalizeText(record.id);
+        const nameValue = insuranceNormalizeText(record.insurer_name || record.insurer || record.name);
+        const regNoValue = insuranceNormalizeText(record.reg_no);
+
+        return idValue === selectedValueNormalized
+            || nameValue === selectedValueNormalized
+            || nameValue === selectedTextNormalized
+            || regNoValue === selectedValueNormalized;
+    });
+
+    const solvencyRatio = matchedRecord?.solvency_ratio;
+    if (!solvencyRatio || typeof solvencyRatio !== 'object') {
+        leftPanel.innerHTML = '<p class="insurance-data-muted">Solvency Ratio data is not available for the selected insurer.</p>';
+        return;
+    }
+
+    const availableYears = Object.keys(solvencyRatio)
+        .map(year => Number(String(year).trim()))
+        .filter(year => Number.isInteger(year) && year >= 2015)
+        .sort((a, b) => a - b);
+
+    if (!availableYears.length) {
+        leftPanel.innerHTML = '<p class="insurance-data-muted">No Solvency Ratio records found from 2015 onward.</p>';
+        return;
+    }
+
+    const startYear = 2015;
+    const endYear = availableYears[availableYears.length - 1];
+    const yearRange = [];
+    for (let year = startYear; year <= endYear; year += 1) {
+        yearRange.push(String(year));
+    }
+
+    if (timelineControl && timelineSelect) {
+        timelineControl.classList.add('show');
+        timelineControl.setAttribute('aria-hidden', 'false');
+        timelineSelect.disabled = false;
+
+        const previousValue = timelineSelect.value || 'all_years';
+        timelineSelect.innerHTML = [
+            '<option value="all_years">All Years</option>',
+            '<option value="last_3_years">Last 3 Years</option>',
+            '<option value="last_5_years">Last 5 Years</option>'
+        ].join('');
+        yearRange.forEach(year => {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            timelineSelect.appendChild(option);
+        });
+
+        timelineSelect.value = yearRange.includes(previousValue)
+            || previousValue === 'all_years'
+            || previousValue === 'last_3_years'
+            || previousValue === 'last_5_years'
+            ? previousValue
+            : 'all_years';
+    }
+
+    insuranceSolvencyRatioContext = {
+        yearRange,
+        solvencyRatio
+    };
+
+    const activeTimeline = timelineSelect?.value || 'all_years';
+    let yearsToRender = yearRange;
+    if (activeTimeline === 'last_3_years') {
+        yearsToRender = yearRange.slice(-3);
+    } else if (activeTimeline === 'last_5_years') {
+        yearsToRender = yearRange.slice(-5);
+    } else if (activeTimeline !== 'all_years') {
+        yearsToRender = yearRange.includes(activeTimeline) ? [activeTimeline] : yearRange;
+    }
+
+    const solvency = matchedRecord.solvency_ratio || {};
+    const years = yearsToRender;
+
+    let tableHTML = `
+        <div class="solvency-card">
+            <table class="solvency-table">
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>March</th>
+                        <th>June</th>
+                        <th>Sept</th>
+                        <th>Dec</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    years.forEach(year => {
+        const y = solvency[year] || {};
+
+        tableHTML += `
+            <tr>
+                <td class="year-col">${year}</td>
+                <td>${y.March ?? '-'}</td>
+                <td>${y.June ?? '-'}</td>
+                <td>${y.Sept ?? '-'}</td>
+                <td>${y.Dec ?? '-'}</td>
+            </tr>
+        `;
+    });
+
+    tableHTML += `
+                </tbody>
+            </table>
+        </div>
+    `;
+
+    leftPanel.innerHTML = tableHTML;
+}
+
+function bindInsuranceSolvencyRatioHandlers() {
+    const infoTypeSelect = document.getElementById('insuranceInfoTypeSelect');
+    const insurerSelect = document.getElementById('insuranceInsurerSelect');
+    const timelineSelect = document.getElementById('insuranceTimelineSelect');
+    const leftPanel = document.getElementById('insuranceLeftPanelContent');
+    if (!infoTypeSelect || !insurerSelect) return;
+
+    const ensureSolvencyOption = () => {
+        const hasSolvencyOption = Array.from(infoTypeSelect.options || []).some(option => option.value === 'solvency_ratio');
+        if (hasSolvencyOption) return;
+        const solvencyOption = document.createElement('option');
+        solvencyOption.value = 'solvency_ratio';
+        solvencyOption.textContent = 'Solvency Ratio';
+        const equityOption = Array.from(infoTypeSelect.options || []).find(option => option.value === 'equity_share_capital');
+        if (equityOption) {
+            infoTypeSelect.insertBefore(solvencyOption, equityOption);
+        } else {
+            infoTypeSelect.appendChild(solvencyOption);
+        }
+    };
+
+    ensureSolvencyOption();
+
+    if (typeof MutationObserver !== 'undefined' && infoTypeSelect.dataset.solvencyOptionObserverBound !== 'true') {
+        const observer = new MutationObserver(() => {
+            ensureSolvencyOption();
+        });
+        observer.observe(infoTypeSelect, { childList: true });
+        infoTypeSelect.dataset.solvencyOptionObserverBound = 'true';
+    }
+
+    if (infoTypeSelect.dataset.solvencyRatioBound === 'true') return;
+
+    infoTypeSelect.dataset.solvencyRatioBound = 'true';
+
+    infoTypeSelect.addEventListener('change', () => {
+        setTimeout(() => {
+            renderInsuranceSolvencyRatioPanel();
+        }, 0);
+    });
+
+    insurerSelect.addEventListener('change', () => {
+        setTimeout(() => {
+            renderInsuranceSolvencyRatioPanel();
+        }, 0);
+    });
+
+    if (timelineSelect && timelineSelect.dataset.solvencyTimelineBound !== 'true') {
+        timelineSelect.dataset.solvencyTimelineBound = 'true';
+        timelineSelect.addEventListener('change', () => {
+            if (!insuranceSolvencyRatioContext || !insuranceIsSolvencySelection(infoTypeSelect)) return;
+            setTimeout(() => {
+                renderInsuranceSolvencyRatioPanel();
+            }, 0);
+        });
+    }
+
+    if (leftPanel && leftPanel.dataset.insuranceTitleCleanupBound !== 'true') {
+        const cleanup = () => {
+            cleanupInsuranceLeftPanelTitle();
+        };
+
+        const observer = new MutationObserver(() => {
+            cleanup();
+        });
+        observer.observe(leftPanel, { childList: true, subtree: true, characterData: true });
+        leftPanel.dataset.insuranceTitleCleanupBound = 'true';
+        cleanup();
+    }
+}
+
+window.renderInsuranceSolvencyRatioPanel = renderInsuranceSolvencyRatioPanel;
+
+window.exportInsuranceData = function() {
+    const leftPanel = document.getElementById('insuranceLeftPanelContent');
+    if (!leftPanel) return;
+
+    if (!window.XLSX || !window.XLSX.utils || !window.XLSX.writeFile) {
+        alert('Excel export library is not available. Please refresh and try again.');
+        return;
+    }
+
+    const getSelection = (id, label) => {
+        const selectEl = document.getElementById(id);
+        if (!selectEl || selectEl.selectedIndex < 0) return null;
+        const value = String(selectEl.value || '').trim();
+        const text = String(selectEl.options?.[selectEl.selectedIndex]?.text || '').trim();
+        if (!value) return null;
+        return { label, value: text || value };
+    };
+
+    const selections = [
+        getSelection('insuranceDomainSelect', 'Domain'),
+        getSelection('insuranceInsurerSelect', 'Name'),
+        getSelection('insuranceStateSelect', 'State'),
+        getSelection('insuranceInfoTypeSelect', 'Information'),
+        getSelection('insuranceCategorySelect', 'Category'),
+        getSelection('insuranceLobSelect', 'LOB'),
+        getSelection('insuranceSegmentSelect', 'Segment')
+    ].filter(Boolean);
+
+    const timelineControl = document.getElementById('insuranceTimelineControl');
+    const timelineSelection = getSelection('insuranceTimelineSelect', 'Timeline');
+    if (timelineSelection && timelineControl?.classList.contains('show')) {
+        selections.push(timelineSelection);
+    }
+
+    const tables = Array.from(leftPanel.querySelectorAll('table'));
+    const sheetData = [];
+
+    if (selections.length) {
+        sheetData.push(['Selections']);
+        selections.forEach(item => {
+            sheetData.push([item.label, item.value]);
+        });
+        sheetData.push([]);
+    }
+
+    let hasExportData = false;
+
+    if (tables.length) {
+        tables.forEach((table, index) => {
+            const rows = Array.from(table.querySelectorAll('tr')).map(row =>
+                Array.from(row.querySelectorAll('th,td')).map(cell => String(cell.textContent || '').trim())
+            ).filter(row => row.some(cell => cell));
+
+            if (!rows.length) return;
+
+            const panelTitleEl = leftPanel.querySelector('h1, h2, h3, h4, h5, h6');
+            const titleText = String(panelTitleEl?.textContent || '').trim();
+            if (index === 0 && titleText) {
+                sheetData.push([titleText]);
+            } else if (index > 0) {
+                sheetData.push([`Table ${index + 1}`]);
+            }
+
+            rows.forEach(row => sheetData.push(row));
+            sheetData.push([]);
+            hasExportData = true;
+        });
+    } else {
+        const lines = String(leftPanel.innerText || '')
+            .split(/\r?\n/)
+            .map(line => line.trim())
+            .filter(Boolean);
+
+        const isOnlyPrompt = lines.length === 0 || lines.every(line => /select .* to view|no data|not available|unable to load/i.test(line));
+        if (!isOnlyPrompt) {
+            sheetData.push(['Data']);
+            lines.forEach(line => sheetData.push([line]));
+            hasExportData = true;
+        }
+    }
+
+    if (!hasExportData) {
+        alert('No data available to export');
+        return;
+    }
+
+    const insurerSelect = document.getElementById('insuranceInsurerSelect');
+    const infoTypeSelect = document.getElementById('insuranceInfoTypeSelect');
+    const insurerName = String(insurerSelect?.options?.[insurerSelect.selectedIndex]?.text || 'insurer')
+        .trim()
+        .replace(/\s+/g, '_')
+        .replace(/[^a-zA-Z0-9_-]/g, '');
+    const infoTypeName = String(infoTypeSelect?.options?.[infoTypeSelect.selectedIndex]?.text || 'data')
+        .trim()
+        .replace(/\s+/g, '_')
+        .replace(/[^a-zA-Z0-9_-]/g, '');
+    const safeSheetNameRaw = String(infoTypeSelect?.options?.[infoTypeSelect.selectedIndex]?.text || 'Insurance Data').trim();
+    const safeSheetName = (safeSheetNameRaw || 'Insurance Data').slice(0, 31);
+
+    const workbook = window.XLSX.utils.book_new();
+    const worksheet = window.XLSX.utils.aoa_to_sheet(sheetData);
+    window.XLSX.utils.book_append_sheet(workbook, worksheet, safeSheetName);
+
+    window.XLSX.writeFile(workbook, `insurance_${infoTypeName}_${insurerName}.xlsx`);
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindInsuranceSolvencyRatioHandlers);
+} else {
+    bindInsuranceSolvencyRatioHandlers();
+}

@@ -2206,19 +2206,27 @@ input:focus,textarea:focus,select:focus{
 .insurance-timeline-control label{
     margin:0;
     white-space:nowrap;
+    color:#334155;
+    font-weight:600;
 }
 
 .insurance-timeline-control select{
     width:auto;
-    min-width:170px;
-    max-width:220px;
-    height:40px;
-    min-height:40px;
-    padding:0 1.9rem 0 0.75rem;
-    line-height:normal;
+    min-width:200px;
+    max-width:240px;
+    height:44px;
+    min-height:44px;
+    padding:0.55rem 2rem 0.55rem 0.85rem;
+    line-height:1.25;
     box-sizing:border-box;
     flex:0 0 auto;
     vertical-align:middle;
+    border-radius:14px;
+    border:1px solid #d7e2ef;
+    background:linear-gradient(180deg,#ffffff,#f9fbff);
+    color:#1e3550;
+    font-weight:500;
+    appearance:auto;
 }
 
 .insurance-hidden{
@@ -2331,6 +2339,65 @@ input:focus,textarea:focus,select:focus{
     color:#475569;
 }
 
+.data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+
+.data-table th,
+.data-table td {
+    padding: 11px 12px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: center;
+}
+
+.data-table th {
+    background: linear-gradient(180deg,#f7f9fc,#eef2f7);
+    font-weight: 600;
+}
+
+.data-table thead th{
+    color:#334155;
+}
+
+.data-table tbody td{
+    color:#1f2937;
+}
+
+.data-table tbody tr:nth-child(even){
+    background:#fafcff;
+}
+
+.data-table tbody tr:hover{
+    background:#f3f8ff;
+}
+
+.solvency-table-wrap{
+    width:100%;
+    overflow:auto;
+    border:1px solid #e6edf5;
+    border-radius:16px;
+    background:#ffffff;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.7);
+}
+
+.solvency-table-title{
+    margin:0;
+    padding:14px 16px 10px;
+    color:#1e3550;
+    font-size:1.1rem;
+    font-weight:700;
+    border-bottom:1px solid #e6edf5;
+}
+
+.data-table-solvency th,
+.data-table-solvency td{
+    width:20%;
+}
+
 @media (max-width: 768px) {
     .insurance-grid{
         grid-template-columns:1fr;
@@ -2378,6 +2445,365 @@ input:focus,textarea:focus,select:focus{
     .insurance-timeline-control select{
         width:100%;
         max-width:none;
+    }
+}
+
+/* Insurance Module - Aesthetic Refresh (visual-only) */
+#insuranceContainer{
+    background:
+        radial-gradient(circle at 6% 2%, rgba(26,188,156,0.08), transparent 36%),
+        radial-gradient(circle at 95% 98%, rgba(59,130,246,0.08), transparent 34%);
+    border-radius:22px;
+    padding:0.35rem;
+}
+
+#insuranceContainer .insurance-view.active{
+    animation:fadeIn 0.25s ease;
+}
+
+#insuranceContainer{
+    color:#16314d;
+    line-height:1.55;
+}
+
+#insuranceContainer .insurance-section-header{
+    margin-bottom:1rem;
+}
+
+#insuranceContainer h2,
+#insuranceContainer h3,
+#insuranceContainer h4{
+    letter-spacing:-0.02em;
+    line-height:1.25;
+}
+
+#insuranceContainer .insurance-card,
+#insuranceContainer .insurance-data-card{
+    border:1px solid #dce7f2;
+    border-radius:20px;
+    background:linear-gradient(180deg,#ffffff 0%,#f8fcff 100%);
+    box-shadow:
+        0 14px 34px rgba(15,23,42,0.10),
+        0 1px 0 rgba(255,255,255,0.85) inset;
+}
+
+#insuranceContainer .insurance-card{
+    padding:1.35rem;
+    gap:0.72rem;
+}
+
+#insuranceContainer .insurance-data-card{
+    padding:1.15rem;
+}
+
+#insuranceContainer .insurance-card:hover,
+#insuranceContainer .insurance-data-card:hover{
+    transform:translateY(-6px);
+    border-color:rgba(26,188,156,0.42);
+    box-shadow:
+        0 22px 42px rgba(15,23,42,0.14),
+        0 1px 0 rgba(255,255,255,0.95) inset;
+}
+
+#insuranceContainer .insurance-card-title{
+    font-size:1.14rem;
+    font-weight:700;
+    letter-spacing:-0.02em;
+}
+
+#insuranceContainer .insurance-card-desc,
+#insuranceContainer .insurance-data-muted{
+    color:#5e7188;
+    font-size:0.95rem;
+    line-height:1.58;
+}
+
+#insuranceContainer .insurance-card-icon{
+    font-size:2.05rem;
+}
+
+#insuranceContainer .insurance-back-btn,
+#insuranceContainer #insuranceHandbookRefreshBtn,
+#insuranceContainer #insuranceExportBtn{
+    border-radius:12px;
+    min-height:40px;
+    font-size:0.92rem;
+    font-weight:600;
+}
+
+#insuranceContainer .insurance-intelligence-card{
+    border:1px solid rgba(59,130,246,0.24);
+    box-shadow:0 24px 40px rgba(15,23,42,0.12);
+}
+
+#insuranceContainer .insurance-analytics-controls{
+    gap:18px;
+}
+
+#insuranceContainer .insurance-analytics-control-card{
+    padding:1.05rem 1rem;
+    border:1px solid #deebf7;
+    background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);
+}
+
+#insuranceContainer .insurance-analytics-control-card label{
+    color:#1f3a58;
+    font-size:0.92rem;
+    font-weight:700;
+    letter-spacing:0.01em;
+}
+
+#insuranceContainer .insurance-analytics-control-card select,
+#insuranceContainer .insurance-timeline-control select,
+#insuranceContainer .insurance-chat-input-row input,
+#insuranceContainer input[id^="insurance"],
+#insuranceContainer textarea[id^="insurance"],
+#insuranceContainer select[id^="insurance"]{
+    min-height:44px;
+    font-size:0.94rem;
+    border-radius:12px;
+    border:1px solid #d3e2f1;
+    background:linear-gradient(180deg,#ffffff,#f8fbff);
+    box-shadow:0 1px 0 rgba(255,255,255,0.85) inset;
+}
+
+#insuranceContainer textarea[id^="insurance"]{
+    min-height:120px;
+    line-height:1.56;
+}
+
+#insuranceContainer .insurance-analytics-control-card select:focus,
+#insuranceContainer .insurance-timeline-control select:focus,
+#insuranceContainer .insurance-chat-input-row input:focus,
+#insuranceContainer input[id^="insurance"]:focus,
+#insuranceContainer textarea[id^="insurance"]:focus,
+#insuranceContainer select[id^="insurance"]:focus{
+    border-color:#60a5fa;
+    box-shadow:0 0 0 3px rgba(96,165,250,0.18);
+    outline:none;
+}
+
+#insuranceContainer .insurance-analytics-main{
+    gap:18px;
+}
+
+#insuranceContainer .insurance-analytics-panel{
+    border:1px solid #dce8f3;
+    background:linear-gradient(180deg,#ffffff 0%,#f9fcff 100%);
+    box-shadow:
+        0 16px 34px rgba(15,23,42,0.10),
+        0 1px 0 rgba(255,255,255,0.9) inset;
+}
+
+#insuranceContainer .insurance-analytics-panel-head{
+    border-bottom:1px solid #e5edf6;
+    padding-bottom:0.8rem;
+    margin-bottom:0.75rem;
+}
+
+#insuranceContainer .insurance-analytics-panel-icon{
+    width:34px;
+    height:34px;
+    border-radius:10px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(180deg,#eef4ff,#e8f1ff);
+}
+
+#insuranceContainer .insurance-analytics-panel-title{
+    margin-bottom:0;
+    font-size:1.08rem;
+    font-weight:700;
+}
+
+#insuranceContainer #insuranceLeftPanelContent{
+    border-radius:14px;
+    min-height:280px;
+}
+
+#insuranceContainer #insuranceLeftPanelContent .insurance-premium-title,
+#insuranceContainer #insuranceLeftPanelContent > h1,
+#insuranceContainer #insuranceLeftPanelContent > h2,
+#insuranceContainer #insuranceLeftPanelContent > h3,
+#insuranceContainer #insuranceLeftPanelContent > h4,
+#insuranceContainer #insuranceLeftPanelContent > h5,
+#insuranceContainer #insuranceLeftPanelContent > h6{
+    display:none !important;
+}
+
+#insuranceContainer #insuranceLeftPanelContent :is(div,section,article):has(> table) > :is(h1,h2,h3,h4,h5,h6,p):first-child,
+#insuranceContainer #insuranceLeftPanelContent :is(div,section,article):has(> .insurance-data-table, > .insurance-premium-table, > .insurance-insurer-table, > .solvency-table) > :is(h1,h2,h3,h4,h5,h6,p):first-child{
+    display:none !important;
+    margin:0 !important;
+    padding:0 !important;
+}
+
+#insuranceContainer #insuranceLeftPanelContent table caption,
+#insuranceContainer #insuranceLeftPanelContent .insurance-data-table caption,
+#insuranceContainer #insuranceLeftPanelContent .insurance-premium-table caption,
+#insuranceContainer #insuranceLeftPanelContent .insurance-insurer-table caption,
+#insuranceContainer #insuranceLeftPanelContent .solvency-table caption,
+#insuranceContainer #insuranceLeftPanelContent .data-table caption{
+    display:none !important;
+}
+
+#insuranceContainer .insurance-premium-chart-wrap{
+    border:1px solid #e4edf7;
+    border-radius:14px;
+    background:linear-gradient(180deg,#ffffff,#f8fbff);
+    padding:0.7rem;
+}
+
+#insuranceContainer .insurance-chat-wrap{
+    border:1px solid #dbe7f4;
+    border-radius:20px;
+    box-shadow:
+        0 18px 34px rgba(15,23,42,0.10),
+        0 1px 0 rgba(255,255,255,0.9) inset;
+}
+
+#insuranceContainer .insurance-chat-area{
+    background:
+        radial-gradient(circle at 8% 8%, rgba(59,130,246,0.07), transparent 40%),
+        radial-gradient(circle at 92% 95%, rgba(26,188,156,0.07), transparent 40%),
+        linear-gradient(180deg,#fcfeff,#f8fbff);
+    padding:1.1rem;
+    gap:0.75rem;
+}
+
+#insuranceContainer .user-message,
+#insuranceContainer .ai-message{
+    border:1px solid rgba(148,163,184,0.22);
+    box-shadow:0 6px 16px rgba(15,23,42,0.08);
+    padding:0.72rem 0.9rem;
+    border-radius:13px;
+    font-size:0.95rem;
+    line-height:1.56;
+}
+
+#insuranceContainer .user-message{
+    background:linear-gradient(180deg,#def7ea,#cff3df);
+}
+
+#insuranceContainer .ai-message{
+    background:linear-gradient(180deg,#eef4ff,#e8f1ff);
+}
+
+#insuranceContainer .insurance-chat-input-row{
+    background:linear-gradient(180deg,#ffffff,#f8fbff);
+    padding:0.82rem;
+}
+
+#insuranceContainer .insurance-chat-input-row button,
+#insuranceContainer #insuranceSendBtn{
+    min-height:40px;
+    padding:0.55rem 1rem;
+    border-radius:11px;
+    font-size:0.92rem;
+    font-weight:600;
+}
+
+#insuranceContainer .insurance-modal{
+    backdrop-filter:blur(10px);
+    background:rgba(15,23,42,0.52);
+}
+
+#insuranceContainer .insurance-modal-box{
+    border:1px solid #d9e6f3;
+    border-radius:22px;
+    box-shadow:
+        0 30px 70px rgba(15,23,42,0.28),
+        0 1px 0 rgba(255,255,255,0.75) inset;
+}
+
+#insuranceContainer .insurance-detail-grid > div{
+    border:1px solid #e2ebf5;
+    border-radius:14px;
+    background:linear-gradient(180deg,#ffffff,#f9fcff);
+    padding:0.8rem;
+}
+
+#insuranceContainer .insurance-data-table,
+#insuranceContainer .insurance-premium-table,
+#insuranceContainer .insurance-insurer-table,
+#insuranceContainer .solvency-table,
+#insuranceContainer .data-table{
+    border-radius:14px;
+    overflow:hidden;
+    font-size:0.94rem;
+}
+
+#insuranceContainer .insurance-data-table th,
+#insuranceContainer .insurance-data-table td,
+#insuranceContainer .insurance-premium-table th,
+#insuranceContainer .insurance-premium-table td,
+#insuranceContainer .insurance-insurer-table th,
+#insuranceContainer .insurance-insurer-table td,
+#insuranceContainer .solvency-table th,
+#insuranceContainer .solvency-table td,
+#insuranceContainer .data-table th,
+#insuranceContainer .data-table td{
+    padding:0.72rem 0.65rem;
+    line-height:1.45;
+}
+
+#insuranceContainer .insurance-data-table thead,
+#insuranceContainer .solvency-table th,
+#insuranceContainer .data-table th{
+    background:linear-gradient(180deg,#f7faff,#edf3fb);
+}
+
+#insuranceContainer .insurance-data-table tbody tr:hover,
+#insuranceContainer .insurance-premium-table tbody tr:hover,
+#insuranceContainer .insurance-insurer-table tbody tr:hover,
+#insuranceContainer .solvency-table tbody tr:hover,
+#insuranceContainer .data-table tbody tr:hover{
+    background:#f4f9ff;
+}
+
+#insuranceContainer .insurance-tag{
+    background:#e9f2ff;
+    color:#1d4ed8;
+    border:1px solid #cfe2ff;
+}
+
+@media (max-width: 768px) {
+    #insuranceContainer{
+        border-radius:16px;
+        padding:0.2rem;
+    }
+
+    #insuranceContainer .insurance-card,
+    #insuranceContainer .insurance-data-card{
+        border-radius:16px;
+    }
+
+    #insuranceContainer .insurance-analytics-panel-head{
+        gap:0.45rem;
+    }
+
+    #insuranceContainer .insurance-card,
+    #insuranceContainer .insurance-data-card{
+        padding:1rem;
+    }
+
+    #insuranceContainer .insurance-card-title{
+        font-size:1.02rem;
+    }
+
+    #insuranceContainer .insurance-card-desc,
+    #insuranceContainer .insurance-data-muted{
+        font-size:0.9rem;
+    }
+
+    #insuranceContainer .insurance-back-btn,
+    #insuranceContainer #insuranceHandbookRefreshBtn,
+    #insuranceContainer #insuranceExportBtn,
+    #insuranceContainer .insurance-chat-input-row button,
+    #insuranceContainer #insuranceSendBtn{
+        min-height:38px;
+        font-size:0.88rem;
     }
 }
 
@@ -2588,6 +3014,7 @@ input:focus,textarea:focus,select:focus{
                                         <option value="">Choose information type</option>
                                         <option value="basic">Basic Info</option>
                                         <option value="gross_direct_premium">Gross Direct Premium</option>
+                                        <option value="solvency_ratio">Solvency Ratio</option>
                                         <option value="equity_share_capital">Equity Share Capital</option>
                                         <option value="segment_gdp">Segment GDP</option>
                                         <option value="investments_under_management">Investments Under Management</option>
