@@ -2852,6 +2852,10 @@ input:focus,textarea:focus,select:focus{
             <h1 class="dashboard-title">Modules</h1>
             <p class="dashboard-subtitle">Select a module to get started</p>
             <div class="modules-grid">
+                <div class="module-card" id="insuranceHandbookModule" onclick="selectModule('Insurance Handbook Statistics')">
+                    <div class="module-icon">📘</div>
+                    <h3 class="module-name">Insurance Handbook Statistics</h3>
+                </div>
                 <div class="module-card" id="tennisModule" onclick="selectModule('Tennis')">
                     <div class="module-icon">🎾</div>
                     <h3 class="module-name">Tennis</h3>
@@ -2924,14 +2928,7 @@ input:focus,textarea:focus,select:focus{
                 <div id="insuranceContainer">
                     <div id="insuranceHomeView" class="insurance-view active">
                         <h1>Insurance Knowledge Hub</h1>
-                        <p class="muted" style="margin-bottom:0.9rem;">Choose a module to explore insurance handbook statistics and intelligence support.</p>
-                        <div class="insurance-grid">
-                            <div class="insurance-card" onclick="showInsuranceView('companies')">
-                                <div class="insurance-card-icon">📊</div>
-                                <h3 class="insurance-card-title">Insurance Handbook Statistics</h3>
-                                <p class="insurance-card-desc">2024-25 Handbook Statistics - Analysis and Export</p>
-                            </div>
-                        </div>
+                        <p class="muted" style="margin-bottom:0.9rem;">Explore insurance intelligence and insights from handbook statistics.</p>
                         <div class="insurance-intelligence-layer">
                             <div class="insurance-card insurance-intelligence-card" onclick="showInsuranceView('ai')">
                                 <div class="insurance-card-icon">🧞‍♂️✨</div>
@@ -2943,7 +2940,7 @@ input:focus,textarea:focus,select:focus{
 
                     <div id="insuranceCompaniesView" class="insurance-view">
                         <div class="insurance-section-header">
-                            <button class="submit-btn btn-muted btn-sm insurance-back-btn" onclick="showInsuranceHome()">← Back to Insurance Home</button>
+                            <button id="insuranceCompaniesBackBtn" class="submit-btn btn-muted btn-sm insurance-back-btn" onclick="showInsuranceHome()">← Back to Insurance Home</button>
                         </div>
                         <div class="insurance-section-header" style="margin-bottom:0.6rem;align-items:center;">
                             <h1 style="margin:0;">Insurance Handbook Statistics</h1>
@@ -3791,6 +3788,7 @@ input:focus,textarea:focus,select:focus{
                 'Mobility - Physio': '💪',
                 'Actuaries': '📊',
                 'Insurance': '🛡️',
+                'Insurance Handbook Statistics': '📘',
                 'AI ML DS': '🤖',
                 'AI_ML_DS': '🤖'
             };
@@ -5241,6 +5239,14 @@ input:focus,textarea:focus,select:focus{
                 disableTennisTabs();
                 setTimeout(async () => {
                     await initializeInsuranceModule();
+                    showInsuranceHome();
+                }, 80);
+            } else if (currentModule === 'Insurance Handbook Statistics') {
+                hideModulePlaceholder();
+                disableTennisTabs();
+                setTimeout(async () => {
+                    await initializeInsuranceModule();
+                    showInsuranceView('companies');
                 }, 80);
             } else {
                 // Show placeholder for other modules
@@ -5308,9 +5314,20 @@ input:focus,textarea:focus,select:focus{
             const moduleNameEl = document.getElementById('moduleHomeName');
             const insuranceContainer = document.getElementById('insuranceContainer');
             const genericPlaceholder = document.getElementById('genericModulePlaceholder');
+            const insuranceCompaniesBackBtn = document.getElementById('insuranceCompaniesBackBtn');
 
             if (homeTab) {
-                homeTab.classList.toggle('insurance-home-layout', moduleName === 'Insurance');
+                homeTab.classList.toggle('insurance-home-layout', moduleName === 'Insurance' || moduleName === 'Insurance Handbook Statistics');
+            }
+
+            if (insuranceCompaniesBackBtn) {
+                if (moduleName === 'Insurance Handbook Statistics') {
+                    insuranceCompaniesBackBtn.textContent = '← Back to Dashboard';
+                    insuranceCompaniesBackBtn.setAttribute('onclick', 'showDashboard()');
+                } else {
+                    insuranceCompaniesBackBtn.textContent = '← Back to Insurance Home';
+                    insuranceCompaniesBackBtn.setAttribute('onclick', 'showInsuranceHome()');
+                }
             }
             
             if (moduleName === 'Tennis') {
@@ -5329,7 +5346,7 @@ input:focus,textarea:focus,select:focus{
                 if (moduleSection) moduleSection.style.display = 'none';
                 if (insuranceContainer) insuranceContainer.style.display = 'none';
                 if (genericPlaceholder) genericPlaceholder.style.display = 'none';
-            } else if (moduleName === 'Insurance') {
+            } else if (moduleName === 'Insurance' || moduleName === 'Insurance Handbook Statistics') {
                 if (tennisSection) tennisSection.style.display = 'none';
                 if (moduleSection) moduleSection.style.display = 'block';
                 if (insuranceContainer) insuranceContainer.style.display = 'block';

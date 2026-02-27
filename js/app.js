@@ -75,6 +75,7 @@ const mobileBottomNavConfig = {
                 'Mobility - Physio': '\u{1F4AA}',
                 'Actuaries': '\u{1F4CA}',
                 'Insurance': '\u{1F6E1}\uFE0F',
+                'Insurance Handbook Statistics': '\u{1F4D8}',
                 'AI ML DS': '\u{1F916}',
                 'AI_ML_DS': '\u{1F916}'
             };
@@ -3583,6 +3584,14 @@ const mobileBottomNavConfig = {
                 disableTennisTabs();
                 setTimeout(async () => {
                     await initializeInsuranceModule();
+                    showInsuranceHome();
+                }, 80);
+            } else if (currentModule === 'Insurance Handbook Statistics') {
+                hideModulePlaceholder();
+                disableTennisTabs();
+                setTimeout(async () => {
+                    await initializeInsuranceModule();
+                    showInsuranceView('companies');
                 }, 80);
             } else if (currentModule === 'AI_ML_DS') {
                 hideModulePlaceholder();
@@ -3671,6 +3680,17 @@ const mobileBottomNavConfig = {
             const insuranceContainer = document.getElementById('insuranceContainer');
             const genericPlaceholder = document.getElementById('genericModulePlaceholder');
             const aiModuleContainer = document.getElementById('aiModuleContainer');
+            const insuranceCompaniesBackBtn = document.getElementById('insuranceCompaniesBackBtn');
+
+            if (insuranceCompaniesBackBtn) {
+                if (moduleName === 'Insurance Handbook Statistics') {
+                    insuranceCompaniesBackBtn.style.display = 'none';
+                } else {
+                    insuranceCompaniesBackBtn.style.display = '';
+                    insuranceCompaniesBackBtn.textContent = '\u2190 Back to Insurance Home';
+                    insuranceCompaniesBackBtn.setAttribute('onclick', 'showInsuranceHome()');
+                }
+            }
             
             if (moduleName === 'Tennis') {
                 // Show Tennis content, hide generic module content
@@ -3691,7 +3711,7 @@ const mobileBottomNavConfig = {
                 if (insuranceContainer) insuranceContainer.style.display = 'none';
                 if (genericPlaceholder) genericPlaceholder.style.display = 'none';
                 if (aiModuleContainer) aiModuleContainer.style.display = 'none';
-            } else if (moduleName === 'Insurance') {
+            } else if (moduleName === 'Insurance' || moduleName === 'Insurance Handbook Statistics') {
                 if (tennisSection) tennisSection.style.display = 'none';
                 if (moduleSection) moduleSection.style.display = 'block';
                 if (insuranceContainer) insuranceContainer.style.display = 'block';
@@ -3869,11 +3889,15 @@ window.uploadBytes = uploadBytes;
 window.getDownloadURL = getDownloadURL;
 
 const restrictedInsuranceEmail = 'meghana.nara@gmail.com';
+const restrictedInsuranceOnlyUserIds = new Set([
+    'O1teDPt6dhcu3zeGfOPWE6q8AKY2'
+]);
 const moduleCardConfig = [
     { id: 'tennisModule', module: 'Tennis' },
     { id: 'actuaryModule', module: 'Actuaries' },
     { id: 'mobilityModule', module: 'Mobility - Physio' },
     { id: 'insuranceModule', module: 'Insurance' },
+    { id: 'insuranceHandbookModule', module: 'Insurance Handbook Statistics' },
     { id: 'aiModule', module: 'AI_ML_DS' }
 ];
 
@@ -3881,18 +3905,27 @@ function normalizeModuleName(moduleName) {
     return String(moduleName || '').trim().toLowerCase();
 }
 
-function resolveModuleAccess(user, userData = {}) {
+function resolveModuleAccess(user, userData = {}, accessConfig = {}) {
+    const userId = String(userData?.userId || user?.uid || '').trim();
     const resolvedEmail = String(userData?.email || user?.email || '').trim().toLowerCase();
     const modules = Array.isArray(userData?.modules) ? userData.modules : [];
     const normalizedModules = modules.map(normalizeModuleName).filter(Boolean);
 
-    const restrictedByEmail = resolvedEmail === restrictedInsuranceEmail;
+    const configUserIds = Array.isArray(accessConfig?.insuranceOnlyUserIds)
+        ? accessConfig.insuranceOnlyUserIds.map(value => String(value || '').trim()).filter(Boolean)
+        : [];
+    const configEmails = Array.isArray(accessConfig?.insuranceOnlyEmails)
+        ? accessConfig.insuranceOnlyEmails.map(value => String(value || '').trim().toLowerCase()).filter(Boolean)
+        : [];
+
+    const restrictedByUserId = restrictedInsuranceOnlyUserIds.has(userId) || configUserIds.includes(userId);
+    const restrictedByEmail = resolvedEmail === restrictedInsuranceEmail || configEmails.includes(resolvedEmail);
     const restrictedByModules = normalizedModules.length > 0 && normalizedModules.every(moduleName => moduleName === 'insurance');
-    const insuranceOnlyUser = restrictedByEmail || restrictedByModules;
+    const insuranceOnlyUser = restrictedByUserId || restrictedByEmail || restrictedByModules;
 
     return {
         insuranceOnlyUser,
-        allowedModules: insuranceOnlyUser ? new Set(['Insurance']) : null
+        allowedModules: insuranceOnlyUser ? new Set(['Insurance', 'Insurance Handbook Statistics']) : null
     };
 }
 
@@ -3914,7 +3947,7 @@ window.applyModuleVisibilityAfterLogin = async function(user = auth.currentUser)
         return moduleAccessState;
     }
 
-    const preResolvedAccess = resolveModuleAccess(user, { email: user.email });
+    const preResolvedAccess = resolveModuleAccess(user, { userId: user.uid, email: user.email });
     moduleAccessState = preResolvedAccess;
     applyModuleCardVisibility(moduleAccessState.allowedModules);
 
@@ -3922,18 +3955,35 @@ window.applyModuleVisibilityAfterLogin = async function(user = auth.currentUser)
 const userRef = doc(db, 'users', user.uid);
 
 const userData = {
-  userId: user.uid,
-  email: user.email || null
+    userId: user.uid,
+    email: user.email || null
 };
 
 await setDoc(userRef, {
-  ...userData,
-  createdAt: new Date()
+    ...userData,
+    createdAt: new Date()
 }, { merge: true });
 
+                const userSnap = await getDoc(userRef);
+                const storedUserData = userSnap.exists() ? (userSnap.data() || {}) : {};
+                const mergedUserData = {
+                        ...storedUserData,
+                        userId: user.uid,
+                        email: user.email || storedUserData.email || null
+                };
 
+                let accessConfig = {};
+                try {
+                        const accessConfigRef = doc(db, 'app_config', 'module_access');
+                        const accessConfigSnap = await getDoc(accessConfigRef);
+                        if (accessConfigSnap.exists()) {
+                                accessConfig = accessConfigSnap.data() || {};
+                        }
+                } catch (configError) {
+                        console.warn('Module access config not available, using fallback rules.', configError);
+                }
 
-        moduleAccessState = resolveModuleAccess(user, userData);
+                moduleAccessState = resolveModuleAccess(user, mergedUserData, accessConfig);
         applyModuleCardVisibility(moduleAccessState.allowedModules);
 
         if (currentModule && !canAccessModule(currentModule)) {
